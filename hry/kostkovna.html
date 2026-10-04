@@ -7,25 +7,25 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=IBM+Plex+Mono:wght@500&display=swap">
 <style>
-/* Layout: celoobrazovková 3D dílna. Vlevo lišta nástrojů, nahoře štítek a nastavení, dole "krabice dílků" (typ, velikost, barva). Jeden záměrný vzhled hraček: bílé panely s inkoustovým obrysem. */
+/* Layout: celoobrazovková 3D dílna. Vlevo nástroje, nahoře štítek + Světy/Plány + nastavení, dole krabice dílků a postaviček. Jeden záměrný vzhled hraček: bílé panely s inkoustovým obrysem. */
 :root{
   --ink:#16212B; --panel:#FFFFFF; --soft:#EEF3F7; --line:#C9D4DE;
-  --accent:#E3241B; --sun:#FFD43B; --muted:#5B6B78; --sky:#BFD9EE;
+  --accent:#E3241B; --sun:#FFD43B; --muted:#5B6B78; --sky:#BFD9EE; --ok:#1E8E3E;
   --display:"Bricolage Grotesque",ui-rounded,"Segoe UI",system-ui,sans-serif;
   --mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
   color-scheme:light;
 }
 html,body{height:100%;}
+[hidden]{display:none!important;}
 body{margin:0;background:var(--sky);color:var(--ink);font-family:var(--display);overflow:hidden;-webkit-user-select:none;user-select:none;-webkit-tap-highlight-color:transparent;}
 #stage{position:fixed;inset:0;touch-action:none;background:linear-gradient(#6FAEE3,#BFD9EE 55%,#E9F1F6);transition:background .5s;}
 body.night #stage{background:linear-gradient(#050B1C,#152544 55%,#2B3B5A);}
 #stage canvas{display:block;width:100%;height:100%;outline:none;}
 .panel{background:var(--panel);border:2px solid var(--ink);border-radius:12px;box-shadow:0 3px 0 var(--ink);}
-button{font-family:inherit;color:var(--ink);}
-button:focus-visible{outline:3px solid #0055BF;outline-offset:2px;}
+button,input{font-family:inherit;color:var(--ink);}
+button:focus-visible,input:focus-visible{outline:3px solid #0055BF;outline-offset:2px;}
 
-/* horní lišta */
-.top{position:fixed;left:16px;right:16px;top:calc(env(safe-area-inset-top,0px) + 12px);display:flex;justify-content:space-between;align-items:flex-start;gap:10px;pointer-events:none;z-index:3;}
+.top{position:fixed;left:16px;right:16px;top:calc(env(safe-area-inset-top,0px) + 12px);display:flex;justify-content:space-between;align-items:flex-start;gap:10px;pointer-events:none;z-index:3;flex-wrap:wrap;}
 .top > *{pointer-events:auto;}
 .brand{display:flex;align-items:center;gap:10px;padding:8px 14px 8px 10px;}
 .logo{width:30px;height:18px;background:var(--accent);border-radius:3px;position:relative;margin-top:5px;}
@@ -33,13 +33,16 @@ button:focus-visible{outline:3px solid #0055BF;outline-offset:2px;}
 .logo::before{left:4px}.logo::after{right:4px}
 .brand h1{margin:0;font-size:1.35rem;font-weight:800;letter-spacing:-.02em;line-height:1;}
 .count{font-family:var(--mono);font-size:.74rem;color:var(--muted);font-variant-numeric:tabular-nums;margin-top:3px;}
+.tmid{display:flex;gap:8px;margin-right:auto;}
+.big{height:46px;display:flex;align-items:center;gap:8px;padding:0 14px;border:2px solid var(--ink);background:var(--sun);border-radius:10px;box-shadow:0 3px 0 var(--ink);cursor:pointer;font-weight:800;font-size:.95rem;}
+.big.blue{background:#8FD0F5;}
+.big svg{width:20px;height:20px;}
+.big:active,.ibtn:active{transform:translateY(2px);box-shadow:0 1px 0 var(--ink);}
 .tright{display:flex;gap:8px;}
 .ibtn{width:42px;height:42px;display:grid;place-items:center;border:2px solid var(--ink);background:var(--panel);border-radius:10px;box-shadow:0 3px 0 var(--ink);cursor:pointer;padding:0;}
-.ibtn:active{transform:translateY(2px);box-shadow:0 1px 0 var(--ink);}
 .ibtn[aria-pressed="true"]{background:var(--ink);color:#fff;}
 .ibtn svg{width:22px;height:22px;}
 
-/* levá lišta */
 .rail{position:fixed;left:16px;top:50%;transform:translateY(-58%);display:flex;flex-direction:column;gap:4px;padding:6px;z-index:2;}
 .tool{width:52px;padding:6px 0 5px;display:flex;flex-direction:column;align-items:center;gap:2px;border:0;background:transparent;border-radius:8px;cursor:pointer;font-size:.66rem;font-weight:700;}
 .tool svg{width:22px;height:22px;}
@@ -48,7 +51,6 @@ button:focus-visible{outline:3px solid #0055BF;outline-offset:2px;}
 .tool:disabled{opacity:.35;cursor:default;background:transparent;}
 .sep{height:2px;background:var(--line);margin:3px 6px;border-radius:2px;}
 
-/* krabice dílků */
 .dock{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(env(safe-area-inset-bottom,0px) + 12px);width:min(1120px,calc(100% - 32px));padding:8px 10px 10px;display:flex;flex-direction:column;gap:8px;z-index:2;}
 .row{display:flex;gap:6px;align-items:center;overflow-x:auto;scrollbar-width:thin;padding-bottom:2px;}
 .row.split{gap:14px;align-items:flex-start;}
@@ -57,40 +59,123 @@ button:focus-visible{outline:3px solid #0055BF;outline-offset:2px;}
 .type{display:flex;align-items:center;gap:7px;border:2px solid var(--line);background:var(--soft);border-radius:9px;padding:5px 10px 5px 7px;cursor:pointer;font-weight:700;font-size:.86rem;flex:none;}
 .type svg{width:26px;height:20px;flex:none;}
 .type[aria-pressed="true"]{border-color:var(--ink);background:var(--sun);}
+.type.figtab{border-color:#E39B1B;background:#FFF1D0;}
+.type.figtab[aria-pressed="true"]{border-color:var(--ink);background:#FFB547;}
 .sizes{display:flex;gap:5px;flex:none;}
 .size{display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:3px;border:2px solid var(--line);background:var(--soft);border-radius:8px;padding:5px 6px 3px;cursor:pointer;min-width:40px;height:52px;flex:none;}
 .size .dots{display:grid;gap:2px;}
 .size .dots i{border-radius:50%;background:var(--ink);opacity:.7;display:block;}
 .size span{font-family:var(--mono);font-size:.62rem;color:var(--muted);}
 .size[aria-pressed="true"]{border-color:var(--ink);background:var(--sun);}
-.size[aria-pressed="true"] span{color:var(--ink);}
 .colors{display:grid;grid-template-columns:repeat(13,26px);gap:5px;flex:none;}
-.sw{width:26px;height:26px;border-radius:6px;border:2px solid rgba(0,0,0,.22);cursor:pointer;padding:0;position:relative;overflow:hidden;}
+.sw{width:26px;height:26px;border-radius:6px;border:2px solid rgba(0,0,0,.22);cursor:pointer;padding:0;position:relative;overflow:hidden;flex:none;}
 .sw.trans{background-image:linear-gradient(45deg,rgba(255,255,255,.55) 25%,transparent 25%,transparent 50%,rgba(255,255,255,.55) 50%,rgba(255,255,255,.55) 75%,transparent 75%);background-size:10px 10px;}
 .sw.metal::after{content:"";position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,.7),transparent 45%,rgba(0,0,0,.25));}
 .sw[aria-pressed="true"]{outline:3px solid var(--ink);outline-offset:2px;}
+.sw.none{background:#fff;}
+.sw.none::before{content:"";position:absolute;left:50%;top:-4px;bottom:-4px;width:2px;background:var(--accent);transform:rotate(45deg);}
 .vsep{width:2px;align-self:stretch;background:var(--line);border-radius:2px;flex:none;}
+.figs{display:flex;gap:6px;padding-top:6px;}
+.fig{position:relative;width:64px;height:84px;flex:none;border:2px solid var(--line);background:var(--soft);border-radius:9px;cursor:pointer;padding:2px 2px 0;display:flex;flex-direction:column;align-items:center;}
+.fig img{width:56px;height:62px;object-fit:contain;display:block;}
+.fig span{font-size:.62rem;font-weight:700;line-height:1.05;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:58px;}
+.fig[aria-pressed="true"]{border-color:var(--ink);background:#FFB547;}
+.fig.locked img{filter:grayscale(1) brightness(.55);opacity:.55;}
+.fig.locked span{color:var(--muted);}
+.fig .lock{position:absolute;top:18px;left:50%;transform:translateX(-50%);width:26px;height:26px;background:var(--ink);color:#fff;border-radius:50%;display:grid;place-items:center;}
+.fig .lock svg{width:14px;height:14px;}
+.fig.new{border-style:dashed;border-color:var(--ink);background:#fff;justify-content:center;gap:4px;}
+.fig.new b{font-size:1.6rem;line-height:1;}
+.fig .edit{position:absolute;top:-6px;left:-6px;width:20px;height:20px;border-radius:50%;border:2px solid var(--ink);background:var(--sun);font-size:.72rem;font-weight:800;line-height:16px;text-align:center;cursor:pointer;}
+.fig .del{position:absolute;top:-6px;right:-6px;width:20px;height:20px;border-radius:50%;border:2px solid var(--ink);background:#fff;font-size:.75rem;font-weight:800;line-height:1;padding:0;cursor:pointer;}
 
-/* vyskakovací okna */
 .pop{position:fixed;right:16px;top:calc(env(safe-area-inset-top,0px) + 66px);width:min(320px,calc(100% - 32px));padding:14px 16px;z-index:4;}
-.pop h2{margin:0 0 10px;font-size:1.05rem;font-weight:800;}
-.pop h3{margin:12px 0 6px;font-size:.66rem;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);}
+.pop h2,.modal h2{margin:0 0 10px;font-size:1.05rem;font-weight:800;}
+.pop h3,.modal h3{margin:12px 0 6px;font-size:.66rem;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);}
 .pop dl{display:grid;grid-template-columns:auto 1fr;gap:5px 12px;margin:0;font-size:.85rem;}
 .pop dt{font-weight:800;white-space:nowrap;}
 .pop dd{margin:0;color:var(--muted);}
 .chips{display:flex;flex-wrap:wrap;gap:6px;}
 .chip{border:2px solid var(--line);background:var(--soft);border-radius:8px;padding:6px 10px;font-weight:700;cursor:pointer;font-size:.85rem;display:flex;align-items:center;gap:6px;}
 .chip[aria-pressed="true"]{border-color:var(--ink);background:var(--sun);}
+.chip:disabled{opacity:.45;cursor:not-allowed;}
 .chip b{width:14px;height:14px;border-radius:4px;display:inline-block;border:1px solid rgba(0,0,0,.25);}
 .danger{margin-top:14px;width:100%;border:2px solid var(--accent);color:var(--accent);background:#fff;border-radius:8px;padding:9px;font-weight:800;cursor:pointer;font-size:.9rem;}
 .danger.armed{background:var(--accent);color:#fff;}
 
-.toast{position:fixed;left:50%;top:calc(env(safe-area-inset-top,0px) + 74px);transform:translateX(-50%);background:var(--ink);color:#fff;font-weight:700;padding:8px 14px;border-radius:8px;font-size:.9rem;opacity:0;transition:opacity .2s;pointer-events:none;z-index:5;white-space:nowrap;}
+.scrim{position:fixed;inset:0;background:rgba(10,20,30,.45);z-index:6;display:grid;place-items:center;padding:16px;}
+.modal{width:min(880px,100%);max-height:calc(100% - 32px);overflow:auto;padding:18px 20px 20px;position:relative;box-sizing:border-box;}
+.modal .x{position:absolute;top:12px;right:12px;width:36px;height:36px;border-radius:9px;border:2px solid var(--ink);background:#fff;font-size:1.1rem;font-weight:800;cursor:pointer;}
+.modal h2{font-size:1.5rem;letter-spacing:-.02em;margin-bottom:4px;padding-right:44px;}
+.modal .sub{margin:0 0 14px;color:var(--muted);font-size:.92rem;max-width:62ch;}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:12px;}
+.card{border:2px solid var(--ink);border-radius:12px;background:var(--soft);cursor:pointer;padding:0;text-align:left;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 3px 0 var(--ink);}
+.card:active{transform:translateY(2px);box-shadow:0 1px 0 var(--ink);}
+.card .pic{aspect-ratio:4/3;max-width:100%;background:linear-gradient(#9fcdf0,#e3eef6);display:grid;place-items:center;position:relative;}
+.card .pic img{width:100%;height:100%;object-fit:contain;display:block;}
+.card .pic .wait{font-size:.8rem;color:var(--muted);}
+.card .txt{padding:9px 12px 11px;background:#fff;border-top:2px solid var(--ink);flex:1;}
+.card .txt b{display:block;font-size:1.02rem;}
+.card .txt small{display:block;color:var(--muted);font-size:.8rem;margin-top:2px;line-height:1.3;}
+.card .badge{position:absolute;top:8px;right:8px;background:var(--ok);color:#fff;font-weight:800;font-size:.72rem;padding:3px 8px;border-radius:20px;}
+.card.armed{outline:4px solid var(--accent);}
+.card.armed .txt small{color:var(--accent);font-weight:700;}
+
+.editor{display:grid;grid-template-columns:250px 1fr;gap:18px;align-items:start;}
+.edleft{position:sticky;top:0;}
+.preview{background:linear-gradient(#9fcdf0,#e3eef6);border:2px solid var(--ink);border-radius:12px;display:grid;place-items:center;aspect-ratio:6/7;max-width:100%;position:relative;}
+.preview img{width:92%;height:92%;object-fit:contain;}
+.turn{position:absolute;bottom:8px;left:0;right:0;display:flex;justify-content:space-between;padding:0 8px;}
+.turn .ibtn{width:36px;height:36px;font-size:.9rem;}
+.etabs{display:flex;gap:4px;border-bottom:2px solid var(--ink);margin-bottom:4px;}
+.etab{border:2px solid var(--ink);border-bottom:0;background:var(--soft);border-radius:9px 9px 0 0;padding:8px 16px;font-weight:800;font-size:.95rem;cursor:pointer;margin-bottom:-2px;}
+.etab[aria-selected="true"]{background:var(--sun);}
+.chip.lockd{opacity:.55;}
+.pwrap{margin-top:10px;max-width:420px;}
+.modal.wide{width:min(980px,100%);}
+.mapper{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:18px;align-items:start;}
+.mapcv{display:block;width:100%;max-width:520px;height:auto;aspect-ratio:1;border:2px solid var(--ink);border-radius:10px;touch-action:none;cursor:crosshair;image-rendering:pixelated;}
+.maptools{margin-top:8px;}
+.mapright h3:first-child{margin-top:0;}
+.brushes{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;}
+.brush{display:flex;align-items:center;gap:8px;border:2px solid var(--line);background:var(--soft);border-radius:9px;padding:6px 8px;font-weight:700;font-size:.85rem;cursor:pointer;text-align:left;}
+.brush i{width:20px;height:20px;border-radius:5px;flex:none;border:1px solid rgba(0,0,0,.25);}
+.brush[aria-pressed="true"]{border-color:var(--ink);background:var(--sun);}
+.mbuild{width:100%;margin-top:16px;font-size:1.05rem;padding:12px;}
+.mbuild.armed{background:var(--accent);color:#fff;}
+.mhint{display:block;margin-top:8px;color:var(--muted);font-size:.8rem;}
+.card.paintcard .pic{background:repeating-conic-gradient(#3F8F3E 0 25%,#4aa04a 0 50%) 0 0/24px 24px;}
+.card.paintcard .pic b{font-size:1.2rem;background:#fff;border:2px solid var(--ink);border-radius:10px;padding:8px 14px;box-shadow:0 3px 0 var(--ink);}
+.pgrid{display:block;width:100%;height:auto;aspect-ratio:14/10;border:2px solid var(--ink);border-radius:8px;touch-action:none;cursor:crosshair;image-rendering:pixelated;}
+.ptools{margin-top:8px;}
+.chip.lockd svg{vertical-align:-2px;}
+.editor .opts{min-height:380px;}
+@media (min-width:761px){#editorModal .modal{height:min(760px,calc(100% - 32px));}}
+.editor .opts h3:first-child{margin-top:0;}
+.swrow{display:flex;flex-wrap:wrap;gap:5px;}
+.name{width:100%;box-sizing:border-box;border:2px solid var(--line);border-radius:8px;padding:8px 10px;font-size:.95rem;font-weight:700;margin-top:12px;}
+.actions{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap;}
+.primary{border:2px solid var(--ink);background:var(--sun);border-radius:9px;padding:10px 16px;font-weight:800;cursor:pointer;font-size:.95rem;box-shadow:0 3px 0 var(--ink);}
+.ghostbtn{border:2px solid var(--line);background:#fff;border-radius:9px;padding:10px 16px;font-weight:700;cursor:pointer;font-size:.95rem;}
+
+.planhud{position:fixed;left:50%;transform:translateX(-50%);top:calc(env(safe-area-inset-top,0px) + 70px);width:min(440px,calc(100% - 32px));padding:10px 14px;z-index:3;display:flex;flex-direction:column;gap:6px;box-sizing:border-box;}
+.planhud .l1{display:flex;align-items:center;gap:10px;}
+.planhud b{font-size:1rem;}
+.planhud .step{font-family:var(--mono);font-size:.8rem;color:var(--muted);margin-left:auto;font-variant-numeric:tabular-nums;}
+.planhud .bar{height:10px;border-radius:6px;background:var(--soft);border:2px solid var(--ink);overflow:hidden;}
+.planhud .bar i{display:block;height:100%;background:var(--ok);width:0;transition:width .3s;}
+.planhud small{color:var(--muted);font-size:.8rem;}
+.planhud .end{border:2px solid var(--line);background:#fff;border-radius:7px;font-weight:700;font-size:.78rem;padding:4px 8px;cursor:pointer;}
+
+.toast{position:fixed;left:50%;top:calc(env(safe-area-inset-top,0px) + 74px);transform:translateX(-50%);background:var(--ink);color:#fff;font-weight:700;padding:8px 14px;border-radius:8px;font-size:.9rem;opacity:0;transition:opacity .2s;pointer-events:none;z-index:8;max-width:calc(100% - 32px);text-align:center;box-sizing:border-box;}
 .toast.show{opacity:1;}
-.empty{position:fixed;left:50%;top:38%;transform:translate(-50%,-50%);text-align:center;pointer-events:none;color:var(--ink);transition:opacity .4s;z-index:1;}
+.empty{position:fixed;left:50%;top:36%;transform:translate(-50%,-50%);text-align:center;color:var(--ink);transition:opacity .4s;z-index:1;width:min(460px,calc(100% - 32px));pointer-events:none;}
 .empty p{margin:0;font-size:1.4rem;font-weight:800;text-wrap:balance;text-shadow:0 2px 0 rgba(255,255,255,.7);}
 .empty small{display:block;margin-top:6px;font-size:.9rem;font-weight:500;color:var(--muted);}
+.empty .eb{display:flex;gap:8px;justify-content:center;margin-top:12px;pointer-events:auto;}
 .empty.gone{opacity:0;}
+.empty.gone .eb{pointer-events:none;}
+#confetti{position:fixed;inset:0;pointer-events:none;z-index:7;width:100%;height:100%;}
 
 @media (max-width:760px){
   .colors{grid-template-columns:repeat(25,26px);}
@@ -101,19 +186,36 @@ button:focus-visible{outline:3px solid #0055BF;outline-offset:2px;}
   .rail{top:auto;bottom:calc(env(safe-area-inset-bottom,0px) + 190px);transform:none;padding:4px;}
   .tool{width:44px;font-size:0;gap:0;padding:7px 0;}
   .brand h1{font-size:1.1rem;}
+  .brand .count{display:none;}
+  .tmid{order:3;width:100%;}
+  .big{height:40px;padding:0 10px;font-size:.88rem;}
+  .ibtn{width:38px;height:38px;}
+  .planhud{top:calc(env(safe-area-inset-top,0px) + 118px);}
+  .editor{grid-template-columns:1fr;}
+  .mapper{grid-template-columns:1fr;}
+  .preview{width:170px;margin:0 auto;}
+  .edleft{position:static;}
+  .etab{padding:7px 11px;font-size:.88rem;}
+  .editor .opts{min-height:0;}
 }
-@media (prefers-reduced-motion:reduce){.toast,.empty{transition:none}}
+@media (prefers-reduced-motion:reduce){.toast,.empty,.planhud .bar i{transition:none}}
 </style>
 </head>
 <body>
 <div id="stage"></div>
+<canvas id="confetti"></canvas>
 
-<div class="empty" id="empty"><p>Prázdná podložka čeká na první kostku</p><small>Vyber dílek a barvu dole a klikni na podložku</small></div>
+<div class="empty" id="empty"><p>Prázdná podložka čeká na první kostku</p><small>Vyber dílek dole a klikni na podložku. Nebo začni z hotového světa či podle plánu.</small>
+  <div class="eb"><button class="big" data-open="worlds">Vybrat svět</button><button class="big blue" data-open="plans">Plány</button></div></div>
 
 <div class="top">
   <div class="brand panel">
     <div class="logo" aria-hidden="true"></div>
     <div><h1>Kostkovna</h1><div class="count" id="count">0 dílků</div></div>
+  </div>
+  <div class="tmid">
+    <button class="big" data-open="worlds" title="Hotové světy"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3 3 15 0 18M12 3c-3 3-3 15 0 18"/></svg>Světy</button>
+    <button class="big blue" data-open="plans" title="Stavební plány"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M4 4h12l4 4v12H4z"/><path d="M8 10h8M8 14h8M8 18h5"/></svg>Plány</button>
   </div>
   <div class="tright">
     <button class="ibtn" id="nightBtn" aria-pressed="false" title="Den / noc (N)" aria-label="Den nebo noc">
@@ -125,6 +227,12 @@ button:focus-visible{outline:3px solid #0055BF;outline-offset:2px;}
     <button class="ibtn" id="helpBtn" aria-pressed="false" title="Ovládání (H)" aria-label="Ovládání">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M9.2 9a3 3 0 1 1 4.3 2.7c-1 .5-1.5 1.2-1.5 2.3"/><circle cx="12" cy="18" r=".6" fill="currentColor"/></svg></button>
   </div>
+</div>
+
+<div class="planhud panel" id="planHud" hidden>
+  <div class="l1"><b id="planName">Plán</b><span class="step" id="planStep">0 / 0</span><button class="end" id="planEnd">Ukončit</button></div>
+  <div class="bar"><i id="planBar"></i></div>
+  <small id="planTip">Postav blikající dílek. Správný dílek a barvu ti vyberu sám.</small>
 </div>
 
 <div class="rail panel" role="toolbar" aria-label="Nástroje">
@@ -141,11 +249,12 @@ button:focus-visible{outline:3px solid #0055BF;outline-offset:2px;}
 
 <div class="dock panel" aria-label="Dílky">
   <div class="row"><span class="label">Dílek</span><div class="types" id="types"></div></div>
-  <div class="row split">
+  <div class="row split" id="pieceRow">
     <div class="sizes" id="sizes"></div>
     <div class="vsep"></div>
     <div class="colors" id="colors"></div>
   </div>
+  <div class="row" id="figRow" hidden><div class="figs" id="figs"></div></div>
 </div>
 
 <div class="pop panel" id="helpPop" hidden>
@@ -175,20 +284,64 @@ button:focus-visible{outline:3px solid #0055BF;outline-offset:2px;}
   <button class="danger" id="clearBtn">Smazat všechny dílky</button>
 </div>
 
+<div class="scrim" id="worldsModal" hidden><div class="modal panel" role="dialog" aria-labelledby="wTitle">
+  <button class="x" data-close aria-label="Zavřít">✕</button>
+  <h2 id="wTitle">Vyber si svět</h2>
+  <p class="sub">Každý svět je už postavený. Můžeš ho dostavět, přestavět nebo zbourat. Tvoje současná stavba se nahradí.</p>
+  <div class="cards" id="worldCards"></div>
+</div></div>
+
+<div class="scrim" id="plansModal" hidden><div class="modal panel" role="dialog" aria-labelledby="pTitle">
+  <button class="x" data-close aria-label="Zavřít">✕</button>
+  <h2 id="pTitle">Stavební plány</h2>
+  <p class="sub">Plán ukáže průhledně, co postavit, a vede tě dílek po dílku. Za dokončené plány odemykáš nové postavičky. Stavět můžeš i bez plánu.</p>
+  <div class="cards" id="planCards"></div>
+</div></div>
+
+<div class="scrim" id="mapModal" hidden><div class="modal panel wide" role="dialog" aria-labelledby="mTitle">
+  <button class="x" data-close aria-label="Zavřít">✕</button>
+  <h2 id="mTitle">Namaluj si svět</h2>
+  <p class="sub">Maluj na mapu shora: tráva, voda, kopce, lesy, cesty. Přidej domy, věže, auta a postavičky. Pak klikni na Postavit svět a z obrázku se postaví celý svět z kostek.</p>
+  <div class="mapper">
+    <div class="mapleft"><canvas id="mapCv" class="mapcv" width="480" height="480" aria-label="Mapa světa na malování"></canvas>
+      <div class="chips maptools"><button class="chip" id="mFill">Kyblík</button><button class="chip" id="mIsland">Náhodný ostrov</button><button class="chip" id="mClear">Všude tráva</button></div></div>
+    <div class="mapright">
+      <h3>Krajina</h3><div class="brushes" id="mTerrain"></div>
+      <h3>Velikost štětce</h3><div class="chips" id="mSize"></div>
+      <h3>Stavby a postavičky</h3><div class="brushes" id="mObjects"></div>
+      <button class="primary mbuild" id="mBuild">Postavit svět</button>
+      <small class="mhint" id="mHint">Stavby se umisťují kliknutím.</small>
+    </div>
+  </div>
+</div></div>
+
+<div class="scrim" id="editorModal" hidden><div class="modal panel" role="dialog" aria-labelledby="eTitle">
+  <button class="x" data-close aria-label="Zavřít">✕</button>
+  <h2 id="eTitle">Vyrob si postavičku</h2>
+  <p class="sub" id="eSub">Poskládej si vlastního panáčka.</p>
+  <div class="editor">
+    <div class="edleft"><div class="preview"><img id="edPrev" alt="Náhled postavičky">
+      <div class="turn"><button class="ibtn" id="edLeft" aria-label="Otočit doleva" title="Otočit doleva">◀</button><button class="ibtn" id="edRight" aria-label="Otočit doprava" title="Otočit doprava">▶</button></div></div>
+      <input class="name" id="edName" maxlength="14" placeholder="Jméno postavičky" aria-label="Jméno postavičky"></div>
+    <div class="opts" id="edOpts"></div>
+  </div>
+  <div class="actions"><button class="primary" id="edSave">Uložit a postavit</button><button class="ghostbtn" id="edRandom">Náhodně</button><button class="ghostbtn" data-close>Zrušit</button></div>
+</div></div>
+
 <div class="toast" id="toast"></div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script>
 (function(){
 "use strict";
-/* ================= nastavení ================= */
-const U=0.4, GAP=0.025, BEV=0.035, SR=0.3, SH=0.17, MAXY=150;
+/* ================= definice ================= */
+const U=0.4, GAP=0.025, BEV=0.035, SR=0.3, SH=0.17, MAXY=180;
 const TYPES=[
   {id:'brick',name:'Kostka',h:3,sizes:[[1,1],[1,2],[1,3],[1,4],[1,6],[1,8],[2,2],[2,3],[2,4],[2,6],[2,8]],
    icon:'<rect x="2" y="7" width="22" height="11" rx="1.5"/><path d="M5 7V4.5h5V7M16 7V4.5h5V7"/>'},
   {id:'plate',name:'Placka',h:1,sizes:[[1,1],[1,2],[1,4],[1,6],[2,2],[2,4],[2,6],[4,4],[4,6],[6,6],[8,8],[8,16]],
    icon:'<rect x="2" y="11" width="22" height="5" rx="1"/><path d="M5 11V8.5h5V11M16 11V8.5h5V11"/>'},
-  {id:'tile',name:'Dlaždice',h:1,studs:false,sizes:[[1,1],[1,2],[1,4],[2,2],[2,4],[4,4]],
+  {id:'tile',name:'Dlaždice',h:1,sizes:[[1,1],[1,2],[1,4],[2,2],[2,4],[4,4]],
    icon:'<rect x="2" y="10" width="22" height="5" rx="1"/>'},
   {id:'slope',name:'Střecha',h:3,sizes:[[1,2],[2,2],[3,2],[4,2],[1,3],[2,3],[4,3]],
    icon:'<path d="M2 18V7h6l16 8.5V18z"/><path d="M3 7V4.5h4V7"/>'},
@@ -196,10 +349,12 @@ const TYPES=[
    icon:'<path d="M5 8h16v9a8 2.5 0 0 1-16 0z"/><ellipse cx="13" cy="8" rx="8" ry="2.5"/>'},
   {id:'cone',name:'Kužel',h:3,sizes:[[1,1],[2,2]],
    icon:'<path d="M9 5h8l4 13H5z"/>'},
-  {id:'window',name:'Okno',sizes:[[2,1,3],[3,1,3],[2,1,6],[4,1,6]],
+  {id:'window',name:'Okno',sizes:[[2,1,3],[3,1,3],[4,1,3],[2,1,6],[4,1,6]],
    icon:'<rect x="4" y="3" width="18" height="16" rx="1"/><rect x="7.5" y="6.5" width="11" height="9" fill="currentColor" fill-opacity=".25"/>'},
   {id:'dome',name:'Kopule',h:3,sizes:[[2,2],[4,4],[6,6]],
-   icon:'<path d="M3 17a10 10 0 0 1 20 0z"/>'}
+   icon:'<path d="M3 17a10 10 0 0 1 20 0z"/>'},
+  {id:'fig',name:'Postavičky',h:5,sizes:[[2,1]],
+   icon:'<rect x="9" y="1.5" width="8" height="6.5" rx="1.5"/><path d="M7 9h12l-1 6H8z"/><path d="M9 15h3.5v6H9zM13.5 15H17v6h-3.5z"/>'}
 ];
 const TBY=Object.fromEntries(TYPES.map(t=>[t.id,t]));
 const COLORS=[
@@ -209,27 +364,70 @@ const COLORS=[
  ['Tyrkysová','#36AEBF'],['Modrá','#0055BF'],['Tmavě modrá','#0A3463'],['Levandulová','#A07BC8'],['Fialová','#5F2D91'],
  ['Růžová','#F2A6C6'],['Magenta','#C4306E'],
  ['Sklo','#E8F4FA','trans'],['Modré sklo','#2B6FE0','trans'],['Červené sklo','#E02B2B','trans'],
- ['Zlatá','#D9A93A','metal'],['Stříbrná','#C4C9CE','metal']];
+ ['Zlatá','#D9A93A','metal'],['Stříbrná','#C4C9CE','metal'],
+ ['Světlá pleť','#F3C9A0',null,1],['Snědá pleť','#C68B59',null,1],['Tmavá pleť','#7B4A2B',null,1],['Plamen','#FF9A1F','trans',1]];
+const PAL=COLORS.map((c,i)=>i).filter(i=>!COLORS[i][3]);
+const C={white:0,lgray:1,dgray:2,black:3,red:4,wine:5,orange:6,yellow:7,tan:8,brown:9,lime:10,green:11,dgreen:12,teal:13,blue:14,dblue:15,lav:16,purple:17,pink:18,mag:19,glass:20,tblue:21,tred:22,gold:23,silver:24,skin:25,skin2:26,skin3:27,flame:28};
 const PLATES=[['Tráva','#3F8F3E'],['Šedá','#A0A5A9'],['Voda','#3E8DD6'],['Písek','#E4CD9E'],['Sníh','#F2F3F2'],['Noc','#2A2F38']];
 const NS=[32,48,64];
 
 let N=48, plateColor=0;
-let typeIdx=0, sizeIdx={}, colorIdx=4, rot=0, mode='build', soundOn=true, night=false;
+let typeIdx=0, sizeIdx={}, colorIdx=4, rot=0, mode='build', soundOn=true, night=false, override=null;
 TYPES.forEach(t=>sizeIdx[t.id]=Math.min(t.sizes.length-1, t.id==='brick'?8:t.id==='plate'?5:1));
+
+/* ================= postavičky ================= */
+const FACES=[['smile','Úsměv'],['grin','Smích'],['tongue','Jazyk'],['serious','Vážný'],['angry','Naštvaný'],['wow','Údiv'],['sleepy','Ospalý'],['shades','Brýle'],['patch','Páska']];
+const HATS=[['none','Nic'],['hair','Vlasy'],['long','Dlouhé vlasy'],['spiky','Ježek'],['mohawk','Číro'],['pigtails','Culíky'],['cap','Kšiltovka'],['backcap','Kšilt dozadu'],['beanie','Kulich'],['headband','Čelenka'],['helmet','Helma'],['viking','Vikinská helma'],['hat','Klobouk'],['chef','Kuchařská'],['cat','Kočičí uši'],['bunny','Zaječí uši'],['astro','Skafandr'],['hood','Kukla'],['wizard','Kouzelnický'],['crown','Koruna']];
+const ACCS=[['none','Nic'],['sword','Meč'],['pick','Krumpáč'],['hammer','Kladivo'],['shield','Štít'],['knight','Meč a štít'],['flag','Vlajka'],['torch','Pochodeň'],['wrench','Klíč'],['wand','Hůlka'],['flower','Kytka'],['icecream','Zmrzlina']];
+const LEGS=[['pants','Kalhoty'],['shorts','Kraťasy'],['skirt','Sukně']];
+const PATS=[['none','Nic'],['mark','Znak'],['stripes','Pruhy'],['heart','Srdce'],['star','Hvězda'],['tie','Kravata'],['buttons','Knoflíky'],['vest','Vesta'],['belt','Pásek']];
+const BEARDS=[['none','Nic'],['mustache','Knír'],['beard','Plnovous']];
+const BACKS=[['none','Nic'],['backpack','Batoh'],['cape','Plášť'],['wings','Křídla'],['jetpack','Raketový batoh']];
+const NOCOLOR_HATS=['none','astro'];
+const FIG_DEF={sk:25,fc:'smile',hat:'none',hc:9,bd:4,ar:-1,lg:14,lgs:'pants',sh:-1,pat:'none',pc:0,bl:0,brd:'none',brc:9,back:'none',bc:4,acc:'none'};
+function normFig(f){const o=Object.assign({},FIG_DEF,f||{});
+  if(f&&f.pat===undefined){o.pat=f.mk>=0?'mark':'none';o.pc=f.mk>=0?f.mk:0;} delete o.mk;
+  ['sk','hc','bd','lg','pc','brc','bc'].forEach(k=>{if(!COLORS[o[k]])o[k]=FIG_DEF[k];});   if(o.ar>=0&&!COLORS[o.ar])o.ar=-1; if(o.sh>=0&&!COLORS[o.sh])o.sh=-1;
+  const pt={}; if(o.paint) ['f','b','l'].forEach(k=>{const v=o.paint[k]; if(typeof v==='string'&&v.length===PW*PH&&/^[a-y.]+$/.test(v)&&/[a-y]/.test(v)) pt[k]=v;});
+  if(Object.keys(pt).length) o.paint=pt; else delete o.paint;
+  return o;}
+const PW=14, PH=10, PCH='abcdefghijklmnopqrstuvwxy';
+const SKINS=[C.skin,C.skin2,C.skin3,C.yellow,C.lime,C.silver,C.lav,C.teal];
+const FIGS=[
+ {id:'builder',name:'Stavitel',f:{sk:C.skin,fc:'smile',hat:'helmet',hc:C.yellow,bd:C.orange,lg:C.blue,mk:C.yellow,acc:'pick'}},
+ {id:'chef',name:'Kuchařka',f:{sk:C.skin2,fc:'grin',hat:'chef',hc:C.white,bd:C.white,lg:C.black,mk:C.red,acc:'none'}},
+ {id:'cowboy',name:'Kovboj',f:{sk:C.skin,fc:'smile',hat:'hat',hc:C.brown,bd:C.red,lg:C.dblue,mk:-1,acc:'flag'}},
+ {id:'fix',name:'Opravářka',f:{sk:C.skin3,fc:'smile',hat:'cap',hc:C.blue,bd:C.blue,lg:C.dgray,mk:C.white,acc:'wrench'}},
+ {id:'ninja',name:'Ninja',f:{sk:C.skin,fc:'serious',hat:'hood',hc:C.black,bd:C.black,lg:C.black,mk:C.red,acc:'sword'},lock:{k:'placed',n:50,t:'Polož 50 dílků'}},
+ {id:'princess',name:'Princezna',f:{sk:C.skin,fc:'smile',hat:'long',hc:C.yellow,bd:C.pink,lg:C.mag,mk:C.gold,acc:'none'},lock:{k:'placed',n:150,t:'Polož 150 dílků'}},
+ {id:'knight',name:'Rytíř',f:{sk:C.skin,fc:'serious',hat:'helmet',hc:C.silver,bd:C.lgray,lg:C.dgray,mk:C.red,acc:'knight'},lock:{k:'plans',n:1,t:'Dokonči 1 plán'}},
+ {id:'pirate',name:'Pirát',f:{sk:C.skin2,fc:'patch',hat:'hat',hc:C.black,bd:C.white,lg:C.brown,mk:C.red,acc:'sword'},lock:{k:'plan',id:'ship',t:'Dokonči plán Loď'}},
+ {id:'astro',name:'Astronautka',f:{sk:C.skin,fc:'smile',hat:'astro',hc:C.white,bd:C.white,lg:C.white,mk:C.blue,acc:'flag'},lock:{k:'plan',id:'rocket',t:'Dokonči plán Raketa'}},
+ {id:'explorer',name:'Průzkumník',f:{sk:C.skin3,fc:'wow',hat:'hair',hc:C.black,bd:C.green,lg:C.tan,mk:C.brown,acc:'torch'},lock:{k:'night',n:10,t:'Polož 10 dílků v noci'}},
+ {id:'alien',name:'Mimozemšťan',f:{sk:C.lime,fc:'wow',hat:'none',hc:C.lime,bd:C.purple,lg:C.purple,mk:C.lime,acc:'none'},lock:{k:'worlds',n:3,t:'Navštiv 3 světy'}},
+ {id:'robot',name:'Robot',f:{sk:C.silver,fc:'shades',hat:'none',hc:C.silver,bd:C.dgray,lg:C.lgray,mk:C.teal,acc:'wrench'},lock:{k:'placed',n:300,t:'Polož 300 dílků'}},
+ {id:'king',name:'Zlatý král',f:{sk:C.skin,fc:'grin',hat:'crown',hc:C.gold,bd:C.gold,lg:C.gold,mk:C.red,acc:'sword'},lock:{k:'plans',n:6,t:'Dokonči všech 6 plánů'}}
+];
+
+/* ================= postup hráče ================= */
+const PKEY='kostkovna-postup';
+let prog={placed:0,night:0,plans:[],worlds:[],custom:[],seen:[]};
+try{const s=JSON.parse(localStorage.getItem(PKEY)||'null');if(s)prog=Object.assign(prog,s);}catch(e){}
+function saveProg(){try{localStorage.setItem(PKEY,JSON.stringify(prog));}catch(e){}}
+function isUnlocked(fig){const l=fig.lock;if(!l)return true;
+  if(l.k==='placed')return prog.placed>=l.n; if(l.k==='night')return prog.night>=l.n; if(l.k==='plans')return prog.plans.length>=l.n;
+  if(l.k==='plan')return prog.plans.includes(l.id); if(l.k==='worlds')return prog.worlds.length>=l.n; return false;}
 
 /* ================= renderer a scéna ================= */
 const stage=document.getElementById('stage');
 const renderer=new THREE.WebGLRenderer({antialias:true,alpha:true,powerPreference:'high-performance'});
 renderer.setPixelRatio(Math.min(2,window.devicePixelRatio||1));
 renderer.shadowMap.enabled=true; renderer.shadowMap.type=THREE.PCFSoftShadowMap;
-renderer.outputEncoding=THREE.sRGBEncoding;
-renderer.setClearColor(0x000000,0);
+renderer.outputEncoding=THREE.sRGBEncoding; renderer.setClearColor(0x000000,0);
 stage.appendChild(renderer.domElement);
 const scene=new THREE.Scene();
-const camera=new THREE.PerspectiveCamera(38,1,0.1,800);
+const camera=new THREE.PerspectiveCamera(38,1,0.1,900);
 const lin=hex=>new THREE.Color(hex).convertSRGBToLinear();
-
-// prostředí pro odlesky
 (function(){
   const es=new THREE.Scene();
   const g=new THREE.SphereGeometry(50,32,16); const cols=[]; const p=g.attributes.position;
@@ -238,27 +436,16 @@ const lin=hex=>new THREE.Color(hex).convertSRGBToLinear();
   es.add(new THREE.Mesh(g,new THREE.MeshBasicMaterial({vertexColors:true,side:THREE.BackSide})));
   const pm=new THREE.MeshBasicMaterial({color:new THREE.Color(4,4,4)});
   [[20,30,10],[-25,20,-15],[5,25,-30]].forEach(([x,y,z])=>{const m=new THREE.Mesh(new THREE.PlaneGeometry(14,10),pm);m.position.set(x,y,z);m.lookAt(0,0,0);es.add(m);});
-  const pmrem=new THREE.PMREMGenerator(renderer);
-  scene.environment=pmrem.fromScene(es,0.03).texture;
+  scene.environment=new THREE.PMREMGenerator(renderer).fromScene(es,0.03).texture;
 })();
-
-function skyTex(top,mid,bot){
-  const c=document.createElement('canvas');c.width=4;c.height=256;const x=c.getContext('2d');
-  const gr=x.createLinearGradient(0,0,0,256);gr.addColorStop(0,top);gr.addColorStop(.62,mid);gr.addColorStop(1,bot);
-  x.fillStyle=gr;x.fillRect(0,0,4,256);const t=new THREE.CanvasTexture(c);t.encoding=THREE.sRGBEncoding;return t;
-}
-const SKY={day:skyTex('#6FAEE3','#BFD9EE','#E9F1F6'),night:skyTex('#050B1C','#152544','#2B3B5A')};
-scene.fog=new THREE.Fog('#E9F1F6',160,400);
-
+scene.fog=new THREE.Fog('#E9F1F6',160,420);
 const hemi=new THREE.HemisphereLight(0xffffff,0x8a9aa8,0.6); scene.add(hemi);
 const sun=new THREE.DirectionalLight(0xfff3e2,0.95); sun.castShadow=true;
 sun.shadow.mapSize.set(4096,4096); sun.shadow.bias=-0.0004; sun.shadow.normalBias=0.02;
 scene.add(sun); scene.add(sun.target);
-const ground=new THREE.Mesh(new THREE.CircleGeometry(400,64),new THREE.MeshStandardMaterial({color:lin('#C4D8E8'),roughness:1}));
+const ground=new THREE.Mesh(new THREE.CircleGeometry(450,64),new THREE.MeshStandardMaterial({color:lin('#C4D8E8'),roughness:1}));
 ground.rotation.x=-Math.PI/2; ground.position.y=-0.42; ground.receiveShadow=true; scene.add(ground);
-
-// hvězdy na noc
-const stars=(function(){const g=new THREE.BufferGeometry();const a=[];for(let i=0;i<900;i++){const th=Math.random()*Math.PI*2,ph=Math.random()*1.3;const r=380;a.push(r*Math.sin(ph)*Math.cos(th),r*Math.cos(ph)+20,r*Math.sin(ph)*Math.sin(th));}
+const stars=(function(){const g=new THREE.BufferGeometry();const a=[];for(let i=0;i<900;i++){const th=Math.random()*Math.PI*2,ph=Math.random()*1.3;const r=400;a.push(r*Math.sin(ph)*Math.cos(th),r*Math.cos(ph)+20,r*Math.sin(ph)*Math.sin(th));}
   g.setAttribute('position',new THREE.Float32BufferAttribute(a,3));const s=new THREE.Points(g,new THREE.PointsMaterial({color:0xffffff,size:1.6,sizeAttenuation:false,fog:false}));s.visible=false;scene.add(s);return s;})();
 
 /* ================= materiály ================= */
@@ -266,14 +453,15 @@ const mats=[];
 function colorMat(i){
   if(mats[i]) return mats[i];
   const [,hex,kind]=COLORS[i]; let m;
-  if(kind==='trans') m=new THREE.MeshPhysicalMaterial({color:lin(hex),transparent:true,opacity:hex==='#E8F4FA'?0.32:0.55,roughness:0.05,metalness:0,envMapIntensity:1.4,depthWrite:false,emissive:lin(hex),emissiveIntensity:0});
+  if(kind==='trans') m=new THREE.MeshPhysicalMaterial({color:lin(hex),transparent:true,opacity:hex==='#E8F4FA'?0.32:0.58,roughness:0.05,metalness:0,envMapIntensity:1.4,depthWrite:false,emissive:lin(hex),emissiveIntensity:night?0.9:(i===C.flame?0.5:0)});
   else if(kind==='metal') m=new THREE.MeshStandardMaterial({color:lin(hex),metalness:1,roughness:0.26,envMapIntensity:1.3});
   else m=new THREE.MeshStandardMaterial({color:lin(hex),roughness:0.3,metalness:0,envMapIntensity:0.75});
   m.userData.kind=kind||'solid'; mats[i]=m; return m;
 }
-const glassMat=()=>colorMat(20);
+const tMats=[];
+function planMat(i){ if(!tMats[i]) tMats[i]=new THREE.MeshStandardMaterial({color:lin(COLORS[i][1]),transparent:true,opacity:0.2,depthWrite:false,roughness:0.5}); return tMats[i]; }
 
-/* ================= geometrie dílků ================= */
+/* ================= geometrie ================= */
 function merge(list){
   const gs=list.map(g=>g.index?g.toNonIndexed():g); let n=0; gs.forEach(g=>n+=g.attributes.position.count);
   const pos=new Float32Array(n*3), nor=new Float32Array(n*3); let o=0;
@@ -282,106 +470,265 @@ function merge(list){
   out.computeBoundingSphere(); out.computeBoundingBox(); return out;
 }
 function rectShape(x0,y0,x1,y1){const s=new THREE.Shape();s.moveTo(x0,y0);s.lineTo(x1,y0);s.lineTo(x1,y1);s.lineTo(x0,y1);s.lineTo(x0,y0);return s;}
-function boxGeo(W,D,Hh,b){ // střed v x,z, spodek na y=0
-  b=b||BEV; const g=new THREE.ExtrudeGeometry(rectShape(-W/2+b,-D/2+b,W/2-b,D/2-b),{depth:Hh-2*b,bevelEnabled:true,bevelThickness:b,bevelSize:b,bevelSegments:2,steps:1,curveSegments:1});
+function boxGeo(W,D,Hh,b){
+  b=b||BEV; const g=new THREE.ExtrudeGeometry(rectShape(-W/2+b,-D/2+b,W/2-b,D/2-b),{depth:Math.max(0.001,Hh-2*b),bevelEnabled:true,bevelThickness:b,bevelSize:b,bevelSegments:2,steps:1,curveSegments:1});
   g.rotateX(-Math.PI/2); g.translate(0,b,0); return g;
 }
 function stud(x,y,z,r){const g=new THREE.CylinderGeometry(r||SR,r||SR,SH,20);g.translate(x,y+SH/2,z);return g;}
+const I4=new THREE.Matrix4();
 const geoCache={};
-function pieceGeo(t,w,d,h){
-  const k=t+'|'+w+'|'+d+'|'+h; if(geoCache[k]) return geoCache[k];
-  const W=w-2*GAP, D=d-2*GAP, Hh=h*U-0.01, parts=[]; let glass=null;
-  const studsAll=()=>{for(let i=0;i<w;i++)for(let j=0;j<d;j++)parts.push(stud(i-w/2+.5,Hh,j-d/2+.5));};
-  if(t==='brick'||t==='plate'){parts.push(boxGeo(W,D,Hh));studsAll();}
-  else if(t==='tile'){parts.push(boxGeo(W,D,Hh,0.05));}
-  else if(t==='slope'){
-    const b=0.015, s=new THREE.Shape(), lip=0.3;
-    s.moveTo(-D/2,0);s.lineTo(D/2,0);s.lineTo(D/2,lip);s.lineTo(-D/2+1-GAP,Hh);s.lineTo(-D/2,Hh);s.lineTo(-D/2,0);
-    const g=new THREE.ExtrudeGeometry(s,{depth:W-2*b,bevelEnabled:true,bevelThickness:b,bevelSize:b,bevelSegments:1,steps:1});
-    g.translate(0,0,-(W/2-b)); g.rotateY(-Math.PI/2); parts.push(g);
-    for(let i=0;i<w;i++)parts.push(stud(i-w/2+.5,Hh,-d/2+.5));
-  }
-  else if(t==='round'){const g=new THREE.CylinderGeometry(W/2,W/2,Hh,40);g.translate(0,Hh/2,0);parts.push(g);
-    if(w===1)parts.push(stud(0,Hh,0)); else studsAll();}
-  else if(t==='cone'){const g=new THREE.CylinderGeometry(w*0.2,W/2,Hh,40);g.translate(0,Hh/2,0);parts.push(g);parts.push(stud(0,Hh,0,w*0.2));}
-  else if(t==='dome'){const g=new THREE.SphereGeometry(1,40,20,0,Math.PI*2,0,Math.PI/2);g.scale(W/2,Math.min(Hh*1.4,W/2),D/2);parts.push(g);
-    const c=new THREE.CylinderGeometry(W/2,W/2,0.12,40);c.translate(0,0.06,0);parts.push(c);parts.push(stud(0,Math.min(Hh*1.4,W/2)-0.04,0,0.25));}
-  else if(t==='window'){
-    const b=0.02, f=0.16, s=rectShape(-W/2+b,b,W/2-b,Hh-b);
-    const hole=new THREE.Path();hole.moveTo(-W/2+f,f+0.1);hole.lineTo(-W/2+f,Hh-f);hole.lineTo(W/2-f,Hh-f);hole.lineTo(W/2-f,f+0.1);hole.lineTo(-W/2+f,f+0.1);s.holes.push(hole);
-    const g=new THREE.ExtrudeGeometry(s,{depth:D-2*b,bevelEnabled:true,bevelThickness:b,bevelSize:b,bevelSegments:1,steps:1});
-    g.translate(0,0,-(D/2-b)); parts.push(g);
-    const bar=new THREE.BoxGeometry(0.08,Hh-2*f-0.1,0.12);bar.translate(0,(Hh+0.1)/2,0);parts.push(bar);
-    const bar2=new THREE.BoxGeometry(W-2*f,0.08,0.12);bar2.translate(0,(Hh+0.1)/2,0);parts.push(bar2);
-    for(let i=0;i<w;i++)parts.push(stud(i-w/2+.5,Hh,0));
-    glass=new THREE.BoxGeometry(W-2*f+0.02,Hh-2*f-0.08,0.05);glass.translate(0,(Hh+0.1)/2,0.03);
-  }
-  return geoCache[k]={main:merge(parts),glass};
+function cached(k,fn){return geoCache[k]||(geoCache[k]=fn());}
+function brickParts(t,w,d,h,c){
+  const k=t+'|'+w+'|'+d+'|'+h;
+  const G=cached(k,()=>{
+    const W=w-2*GAP, D=d-2*GAP, Hh=h*U-0.01, parts=[]; let glass=null;
+    const studsAll=()=>{for(let i=0;i<w;i++)for(let j=0;j<d;j++)parts.push(stud(i-w/2+.5,Hh,j-d/2+.5));};
+    if(t==='brick'||t==='plate'){parts.push(boxGeo(W,D,Hh));studsAll();}
+    else if(t==='tile'){parts.push(boxGeo(W,D,Hh,0.05));}
+    else if(t==='slope'){
+      const b=0.015, s=new THREE.Shape(), lip=0.3;
+      s.moveTo(-D/2,0);s.lineTo(D/2,0);s.lineTo(D/2,lip);s.lineTo(-D/2+1-GAP,Hh);s.lineTo(-D/2,Hh);s.lineTo(-D/2,0);
+      const g=new THREE.ExtrudeGeometry(s,{depth:W-2*b,bevelEnabled:true,bevelThickness:b,bevelSize:b,bevelSegments:1,steps:1});
+      g.translate(0,0,-(W/2-b)); g.rotateY(-Math.PI/2); parts.push(g);
+      for(let i=0;i<w;i++)parts.push(stud(i-w/2+.5,Hh,-d/2+.5));
+    }
+    else if(t==='round'){const g=new THREE.CylinderGeometry(W/2,W/2,Hh,40);g.translate(0,Hh/2,0);parts.push(g); if(w===1)parts.push(stud(0,Hh,0)); else studsAll();}
+    else if(t==='cone'){const g=new THREE.CylinderGeometry(w*0.2,W/2,Hh,40);g.translate(0,Hh/2,0);parts.push(g);parts.push(stud(0,Hh,0,w*0.2));}
+    else if(t==='dome'){const top=Math.min(Hh*1.4,W/2);const g=new THREE.SphereGeometry(1,40,20,0,Math.PI*2,0,Math.PI/2);g.scale(W/2,top,D/2);parts.push(g);
+      const cc=new THREE.CylinderGeometry(W/2,W/2,0.12,40);cc.translate(0,0.06,0);parts.push(cc);parts.push(stud(0,top-0.04,0,0.25));}
+    else if(t==='window'){
+      const b=0.02, f=0.16, s=rectShape(-W/2+b,b,W/2-b,Hh-b);
+      const hole=new THREE.Path();hole.moveTo(-W/2+f,f+0.1);hole.lineTo(-W/2+f,Hh-f);hole.lineTo(W/2-f,Hh-f);hole.lineTo(W/2-f,f+0.1);hole.lineTo(-W/2+f,f+0.1);s.holes.push(hole);
+      const g=new THREE.ExtrudeGeometry(s,{depth:D-2*b,bevelEnabled:true,bevelThickness:b,bevelSize:b,bevelSegments:1,steps:1});
+      g.translate(0,0,-(D/2-b)); parts.push(g);
+      const bar=new THREE.BoxGeometry(0.08,Hh-2*f-0.1,0.12);bar.translate(0,(Hh+0.1)/2,0);parts.push(bar);
+      const bar2=new THREE.BoxGeometry(W-2*f,0.08,0.12);bar2.translate(0,(Hh+0.1)/2,0);parts.push(bar2);
+      for(let i=0;i<w;i++)parts.push(stud(i-w/2+.5,Hh,0));
+      glass=new THREE.BoxGeometry(W-2*f+0.02,Hh-2*f-0.08,0.05);glass.translate(0,(Hh+0.1)/2,0.03);
+    }
+    return {main:merge(parts),glass};
+  });
+  const out=[{key:k,geo:G.main,c,m:I4}];
+  if(G.glass) out.push({key:k+'|g',geo:G.glass,c:C.glass,m:I4});
+  return out;
+}
+/* postavička: 2 × 1 dílky, výška 5 placek, obličejem k +z */
+function fpart(list,name,geoFn,c,x,y,z,r){
+  const geo=cached('f-'+name,geoFn); const m=new THREE.Matrix4();
+  if(Array.isArray(r)) m.makeRotationFromEuler(new THREE.Euler(r[0],r[1],r[2])); else if(r) m.makeRotationZ(r);
+  m.setPosition(x,y,z); list.push({key:'f-'+name,geo,c,m});
+}
+const BX=(w,h,d)=>()=>new THREE.BoxGeometry(w,h,d);
+const SPH=(r,sx,sy,sz)=>()=>{const g=new THREE.SphereGeometry(r,18,12);g.scale(sx||1,sy||1,sz||1);return g;};
+function taper(w,h,d,bx,bz,top){return ()=>{const g=new THREE.BoxGeometry(w,h,d);const p=g.attributes.position;for(let i=0;i<p.count;i++){const up=p.getY(i)>0;if(up===!!top){p.setX(i,p.getX(i)*bx);p.setZ(i,p.getZ(i)*(bz||1));}}g.computeVertexNormals();return g;};}
+const heartGeo=()=>{const s=new THREE.Shape();s.moveTo(0,-0.09);s.bezierCurveTo(-0.02,-0.06,-0.1,-0.02,-0.1,0.03);s.bezierCurveTo(-0.1,0.08,-0.04,0.1,0,0.05);s.bezierCurveTo(0.04,0.1,0.1,0.08,0.1,0.03);s.bezierCurveTo(0.1,-0.02,0.02,-0.06,0,-0.09);return new THREE.ExtrudeGeometry(s,{depth:0.02,bevelEnabled:false,curveSegments:8});};
+const starGeo=r=>()=>{const s=new THREE.Shape();for(let i=0;i<10;i++){const a=i/10*Math.PI*2+Math.PI/2,rr=i%2?r*0.45:r,x=Math.cos(a)*rr,y=Math.sin(a)*rr;i?s.lineTo(x,y):s.moveTo(x,y);}return new THREE.ExtrudeGeometry(s,{depth:0.02,bevelEnabled:false});};
+const paintMats=new Map();
+function paintMat(str){
+  if(paintMats.has(str)) return paintMats.get(str);
+  const cv=document.createElement('canvas'); cv.width=PW; cv.height=PH; const x=cv.getContext('2d');
+  for(let i=0;i<PW*PH;i++){const ch=str[i]; if(ch==='.') continue; x.fillStyle=COLORS[PCH.indexOf(ch)][1]; x.fillRect(i%PW,Math.floor(i/PW),1,1);}
+  const t=new THREE.CanvasTexture(cv); t.encoding=THREE.sRGBEncoding; t.magFilter=THREE.NearestFilter; t.minFilter=THREE.NearestFilter; t.generateMipmaps=false;
+  const m=new THREE.MeshStandardMaterial({map:t,alphaTest:0.5,roughness:0.32,envMapIntensity:0.75,polygonOffset:true,polygonOffsetFactor:-2,polygonOffsetUnits:-2});
+  paintMats.set(str,m); return m;
+}
+const decShirt=()=>{const g=new THREE.PlaneGeometry(0.92,0.66);const p=g.attributes.position;for(let i=0;i<p.count;i++)if(p.getY(i)>0)p.setX(i,p.getX(i)*0.8);return g;};
+const decSkirt=()=>{const g=new THREE.PlaneGeometry(0.94,0.46);const p=g.attributes.position;for(let i=0;i<p.count;i++){if(p.getY(i)<0){p.setX(i,p.getX(i)*1.2);p.setZ(i,0.0369);}}g.computeVertexNormals();return g;};
+function dpart(L,name,geoFn,str,x,y,z,r){const geo=cached('d-'+name,geoFn);const m=new THREE.Matrix4();if(r)m.makeRotationY(r);m.setPosition(x,y,z);L.push({key:'d-'+name+'|'+str,geo,c:0,m,mat:paintMat(str)});}
+function figParts(f0){
+  const f=normFig(f0), L=[], sk=f.sk, Z=0.245, arm=f.ar>=0?f.ar:f.bd;
+  // nohy
+  if(f.lgs==='shorts'){[-0.235,0.235].forEach(x=>{fpart(L,'legU',BX(0.44,0.32,0.5),f.lg,x,0.5,0);fpart(L,'legL',BX(0.4,0.34,0.46),sk,x,0.17,0);});}
+  else if(f.lgs==='skirt'){[-0.235,0.235].forEach(x=>fpart(L,'legThin',BX(0.4,0.66,0.46),sk,x,0.33,0));fpart(L,'skirt',taper(0.94,0.46,0.52,1.2,1.14,false),f.lg,0,0.5,0);}
+  else {fpart(L,'leg',BX(0.44,0.66,0.5),f.lg,-0.235,0.33,0); fpart(L,'leg',BX(0.44,0.66,0.5),f.lg,0.235,0.33,0);}
+  if(f.sh>=0){fpart(L,'shoe',BX(0.46,0.12,0.56),f.sh,-0.235,0.06,0.03);fpart(L,'shoe',BX(0.46,0.12,0.56),f.sh,0.235,0.06,0.03);}
+  fpart(L,'hip',BX(0.94,0.14,0.52),f.lg,0,0.73,0);
+  // tělo
+  fpart(L,'torso',taper(0.92,0.66,0.5,0.8,1,true),f.bd,0,1.13,0);
+  const pc=f.pc, ZT=0.255;
+  if(f.pat==='mark') fpart(L,'mark',BX(0.34,0.2,0.03),pc,0,1.14,ZT);
+  else if(f.pat==='stripes'){fpart(L,'str1',BX(0.86,0.06,0.03),pc,0,0.95,ZT);fpart(L,'str2',BX(0.81,0.06,0.03),pc,0,1.13,ZT);fpart(L,'str3',BX(0.76,0.06,0.03),pc,0,1.31,ZT);}
+  else if(f.pat==='heart') fpart(L,'heart',heartGeo,pc,0,1.15,0.25);
+  else if(f.pat==='star') fpart(L,'starP',starGeo(0.13),pc,0,1.14,0.25);
+  else if(f.pat==='tie'){fpart(L,'knot',BX(0.08,0.07,0.03),pc,0,1.41,ZT);fpart(L,'tie',taper(0.09,0.42,0.03,1.7,1,false),pc,0,1.15,ZT);}
+  else if(f.pat==='buttons'){[1.0,1.15,1.3].forEach(y=>fpart(L,'btn',()=>{const g=new THREE.CylinderGeometry(0.035,0.035,0.03,12);g.rotateX(Math.PI/2);return g;},pc,0,y,ZT));}
+  else if(f.pat==='vest'){fpart(L,'vest',BX(0.17,0.64,0.03),pc,-0.25,1.13,ZT);fpart(L,'vest',BX(0.17,0.64,0.03),pc,0.25,1.13,ZT);}
+  else if(f.pat==='belt'){fpart(L,'belt',BX(0.95,0.08,0.53),pc,0,0.86,0);fpart(L,'buckle',BX(0.1,0.08,0.02),C.gold,0,0.86,0.27);}
+  if(f.paint){const P=f.paint;
+    if(P.f) dpart(L,'shirt',decShirt,P.f,0,1.13,0.2518);
+    if(P.b) dpart(L,'shirt',decShirt,P.b,0,1.13,-0.2518,Math.PI);
+    if(P.l){ if(f.lgs==='skirt') dpart(L,'skirt',decSkirt,P.l,0,0.5,0.2618); else dpart(L,'legs',()=>new THREE.PlaneGeometry(0.94,0.66),P.l,0,0.33,0.2518); }}
+  fpart(L,'arm',BX(0.2,0.56,0.26),arm,-0.53,1.16,0,-0.13); fpart(L,'arm',BX(0.2,0.56,0.26),arm,0.53,1.16,0,0.13);
+  fpart(L,'hand',SPH(0.11),sk,-0.6,0.86,0.05); fpart(L,'hand',SPH(0.11),sk,0.6,0.86,0.05);
+  fpart(L,'neck',()=>new THREE.CylinderGeometry(0.13,0.13,0.08,14),sk,0,1.5,0);
+  fpart(L,'head',()=>boxGeo(0.52,0.48,0.48,0.07),sk,0,1.53,0);
+  // obličej
+  const eye=BX(0.07,0.09,0.02);
+  if(f.fc==='shades'){fpart(L,'shades',BX(0.44,0.11,0.03),C.black,0,1.81,Z);}
+  else if(f.fc==='patch'){fpart(L,'eye',eye,C.black,0.11,1.8,Z);fpart(L,'patch',BX(0.15,0.14,0.03),C.black,-0.11,1.8,Z);fpart(L,'band',BX(0.535,0.035,0.495),C.black,0,1.86,0);}
+  else if(f.fc==='sleepy'){fpart(L,'eyeS',BX(0.09,0.025,0.02),C.black,-0.11,1.79,Z);fpart(L,'eyeS',BX(0.09,0.025,0.02),C.black,0.11,1.79,Z);}
+  else {fpart(L,'eye',eye,C.black,-0.11,1.8,Z);fpart(L,'eye',eye,C.black,0.11,1.8,Z);}
+  if(f.fc==='angry'){fpart(L,'brow',BX(0.12,0.03,0.02),C.black,-0.11,1.885,Z,-0.35);fpart(L,'brow',BX(0.12,0.03,0.02),C.black,0.11,1.885,Z,0.35);}
+  if(f.fc==='grin'){fpart(L,'mouthG',BX(0.24,0.09,0.02),C.black,0,1.66,Z);fpart(L,'teeth',BX(0.18,0.03,0.02),C.white,0,1.68,Z+0.006);}
+  else if(f.fc==='serious'||f.fc==='angry'||f.fc==='sleepy'){fpart(L,'mouthS',BX(0.18,0.035,0.02),C.black,0,1.66,Z);}
+  else if(f.fc==='wow'){fpart(L,'mouthO',BX(0.08,0.09,0.02),C.black,0,1.65,Z);}
+  else {fpart(L,'mouth',BX(0.18,0.035,0.02),C.black,0,1.65,Z);fpart(L,'corner',BX(0.04,0.04,0.02),C.black,-0.1,1.675,Z);fpart(L,'corner',BX(0.04,0.04,0.02),C.black,0.1,1.675,Z);
+    if(f.fc==='tongue') fpart(L,'tongue',BX(0.08,0.06,0.02),C.pink,0.03,1.62,Z);}
+  if(f.bl){fpart(L,'blush',BX(0.08,0.04,0.02),C.pink,-0.18,1.7,Z);fpart(L,'blush',BX(0.08,0.04,0.02),C.pink,0.18,1.7,Z);}
+  if(f.brd==='beard') fpart(L,'beard',()=>boxGeo(0.5,0.2,0.08,0.03),f.brc,0,1.5,0.22);
+  if(f.brd==='mustache'||f.brd==='beard') fpart(L,'stache',BX(0.24,0.05,0.025),f.brc,0,1.705,Z+0.005);
+  // hlava
+  const hc=f.hc, h=f.hat;
+  const hairTop=()=>fpart(L,'hairTop',BX(0.56,0.14,0.52),hc,0,2.04,0);
+  if(h==='hair'||h==='long'||h==='pigtails'||h==='spiky'||h==='cat'){hairTop();
+    if(h==='long'){fpart(L,'hairBackL',BX(0.56,0.62,0.12),hc,0,1.76,-0.22);fpart(L,'hairSide',BX(0.06,0.42,0.4),hc,-0.29,1.82,-0.02);fpart(L,'hairSide',BX(0.06,0.42,0.4),hc,0.29,1.82,-0.02);}
+    else fpart(L,'hairBack',BX(0.56,0.34,0.12),hc,0,1.9,-0.22);
+    if(h==='pigtails'){fpart(L,'tail',SPH(0.11,1,1.3,1),hc,-0.34,1.86,-0.08);fpart(L,'tail',SPH(0.11,1,1.3,1),hc,0.34,1.86,-0.08);}
+    if(h==='spiky'){[[-0.16,-0.1],[0,-0.12],[0.16,-0.1],[-0.09,0.1],[0.09,0.1]].forEach(([x,z])=>fpart(L,'spike2',()=>new THREE.ConeGeometry(0.08,0.18,6),hc,x,2.19,z));}
+    if(h==='cat'){fpart(L,'ear',()=>new THREE.ConeGeometry(0.09,0.18,4),hc,-0.18,2.19,0);fpart(L,'ear',()=>new THREE.ConeGeometry(0.09,0.18,4),hc,0.18,2.19,0);}}
+  else if(h==='mohawk'){fpart(L,'mohawk',()=>boxGeo(0.1,0.22,0.52,0.03),hc,0,1.97,0);}
+  else if(h==='cap'||h==='backcap'){fpart(L,'capTop',()=>new THREE.SphereGeometry(0.3,20,10,0,Math.PI*2,0,Math.PI/2),hc,0,1.98,0);fpart(L,'brim',BX(0.46,0.04,0.24),hc,0,2.0,h==='cap'?0.3:-0.3);}
+  else if(h==='beanie'){fpart(L,'beanie',()=>{const g=new THREE.SphereGeometry(0.31,20,10,0,Math.PI*2,0,Math.PI/2);g.scale(1,0.95,1);return g;},hc,0,1.95,0);fpart(L,'beanieR',()=>new THREE.CylinderGeometry(0.32,0.32,0.09,24),hc,0,1.97,0);fpart(L,'pompom',SPH(0.08),C.white,0,2.27,0);}
+  else if(h==='headband'){fpart(L,'hband',BX(0.54,0.06,0.5),hc,0,1.95,0);}
+  else if(h==='helmet'||h==='viking'){fpart(L,'helm',()=>{const g=new THREE.SphereGeometry(0.36,24,12,0,Math.PI*2,0,Math.PI/2);g.scale(1,0.85,1);return g;},hc,0,1.88,0);fpart(L,'helmRim',()=>new THREE.CylinderGeometry(0.39,0.39,0.05,24),hc,0,1.9,0);
+    if(h==='viking'){fpart(L,'horn',()=>new THREE.ConeGeometry(0.06,0.24,10),C.tan,-0.36,2.06,0,0.9);fpart(L,'horn',()=>new THREE.ConeGeometry(0.06,0.24,10),C.tan,0.36,2.06,0,-0.9);}}
+  else if(h==='hat'||h==='wizard'){fpart(L,'hatBrim',()=>new THREE.CylinderGeometry(0.46,0.46,0.04,28),hc,0,2.03,0);
+    if(h==='hat') fpart(L,'hatTop',()=>new THREE.CylinderGeometry(0.23,0.26,0.3,24),hc,0,2.2,0);
+    else {fpart(L,'wizTop',()=>new THREE.ConeGeometry(0.26,0.62,24),hc,0,2.35,0);fpart(L,'wizStar',starGeo(0.07),C.gold,0.05,2.3,0.13,[-0.4,0,0]);}}
+  else if(h==='chef'){fpart(L,'chefB',()=>new THREE.CylinderGeometry(0.27,0.27,0.2,24),hc,0,2.1,0);fpart(L,'chefT',SPH(0.33,1,0.7,1),hc,0,2.3,0);}
+  else if(h==='bunny'){[-0.12,0.12].forEach(x=>{fpart(L,'bear',()=>boxGeo(0.11,0.42,0.06,0.025),hc,x,1.98,-0.04);fpart(L,'bearIn',BX(0.05,0.3,0.01),C.pink,x,2.2,-0.006);});}
+  else if(h==='astro'){fpart(L,'astroB',()=>new THREE.SphereGeometry(0.42,28,18),C.glass,0,1.77,0);fpart(L,'astroR',()=>new THREE.CylinderGeometry(0.34,0.36,0.1,24),hc,0,1.46,0);}
+  else if(h==='hood'){fpart(L,'hoodT',BX(0.56,0.14,0.52),hc,0,2.04,0);fpart(L,'hoodB',BX(0.56,0.5,0.1),hc,0,1.78,-0.23);fpart(L,'hoodM',BX(0.54,0.18,0.03),hc,0,1.62,Z+0.003);
+    fpart(L,'hoodS',BX(0.04,0.48,0.48),hc,-0.275,1.78,0);fpart(L,'hoodS',BX(0.04,0.48,0.48),hc,0.275,1.78,0);}
+  else if(h==='crown'){fpart(L,'crownB',()=>new THREE.CylinderGeometry(0.27,0.25,0.12,24,1,true),hc,0,2.07,0);
+    for(let i=0;i<6;i++){const a=i/6*Math.PI*2;fpart(L,'spike',()=>new THREE.ConeGeometry(0.05,0.13,8),hc,Math.sin(a)*0.25,2.19,Math.cos(a)*0.25);}
+    fpart(L,'jewel',SPH(0.04),C.red,0,2.08,0.26);}
+  // záda
+  const bc=f.bc;
+  if(f.back==='backpack'){fpart(L,'pack',()=>boxGeo(0.6,0.58,0.24,0.05),bc,0,0.84,-0.37);fpart(L,'pocket',()=>boxGeo(0.4,0.22,0.06,0.02),bc,0,0.9,-0.5);fpart(L,'strap',BX(0.06,0.6,0.02),C.black,-0.2,1.14,0.255);fpart(L,'strap',BX(0.06,0.6,0.02),C.black,0.2,1.14,0.255);}
+  else if(f.back==='cape'){fpart(L,'cape',BX(0.84,1.08,0.04),bc,0,0.95,-0.32,[0.15,0,0]);}
+  else if(f.back==='wings'){fpart(L,'wing',SPH(1,0.04,0.48,0.3),bc,-0.3,1.3,-0.34,[0,0,0.55]);fpart(L,'wing',SPH(1,0.04,0.48,0.3),bc,0.3,1.3,-0.34,[0,0,-0.55]);}
+  else if(f.back==='jetpack'){[-0.17,0.17].forEach(x=>{fpart(L,'tank',()=>new THREE.CylinderGeometry(0.14,0.14,0.6,16),bc,x,1.12,-0.4);fpart(L,'tankTop',SPH(0.14,1,0.6,1),C.silver,x,1.42,-0.4);fpart(L,'jflame',()=>{const g=new THREE.ConeGeometry(0.1,0.28,12);g.rotateX(Math.PI);return g;},C.flame,x,0.68,-0.4);});}
+  // v ruce
+  const a=f.acc, HX=0.6, HZ=0.12;
+  if(a==='sword'||a==='knight'){fpart(L,'blade',BX(0.06,0.62,0.12),C.silver,HX,1.31,HZ);fpart(L,'guard',BX(0.26,0.05,0.07),C.gold,HX,0.98,HZ);fpart(L,'grip',BX(0.07,0.2,0.07),C.brown,HX,0.86,HZ);}
+  if(a==='shield'||a==='knight'){fpart(L,'shield',()=>boxGeo(0.06,0.42,0.5,0.025),f.pat!=='none'?pc:C.lgray,-0.72,0.84,0.08);fpart(L,'shieldB',BX(0.07,0.14,0.14),C.silver,-0.75,1.05,0.08);}
+  if(a==='pick'){fpart(L,'pickH',BX(0.06,0.72,0.06),C.brown,HX,1.0,HZ);fpart(L,'pickT',()=>{const g=new THREE.BoxGeometry(0.5,0.08,0.08,6,1,1);const p=g.attributes.position;for(let i=0;i<p.count;i++){const x=p.getX(i);p.setY(i,p.getY(i)-x*x*0.5);}g.computeVertexNormals();return g;},C.dgray,HX,1.36,HZ);}
+  if(a==='hammer'){fpart(L,'hamH',BX(0.06,0.56,0.06),C.brown,HX,1.04,HZ);fpart(L,'hamT',()=>boxGeo(0.28,0.14,0.14,0.02),C.dgray,HX,1.26,HZ);}
+  if(a==='flag'){fpart(L,'pole',()=>new THREE.CylinderGeometry(0.03,0.03,1.3,10),C.lgray,HX,1.25,HZ);fpart(L,'cloth',BX(0.02,0.3,0.48),f.pat!=='none'?pc:C.red,HX,1.74,0.38);}
+  if(a==='torch'){fpart(L,'torchS',BX(0.07,0.5,0.07),C.brown,HX,1.02,HZ);fpart(L,'flame',SPH(0.1,1,1.6,1),C.flame,HX,1.36,HZ);}
+  if(a==='wrench'){fpart(L,'wrH',BX(0.06,0.5,0.06),C.silver,HX,1.05,HZ);fpart(L,'wrT',()=>new THREE.TorusGeometry(0.08,0.03,8,14,Math.PI*1.4),C.silver,HX,1.36,HZ);}
+  if(a==='wand'){fpart(L,'wandS',BX(0.04,0.5,0.04),C.black,HX,1.03,HZ);fpart(L,'wandStar',starGeo(0.1),C.gold,HX,1.34,HZ-0.01);}
+  if(a==='flower'){fpart(L,'stem',()=>new THREE.CylinderGeometry(0.02,0.02,0.5,8),C.green,HX,1.05,HZ);fpart(L,'petal',SPH(0.1,1,1,0.5),C.pink,HX,1.32,HZ);fpart(L,'fcenter',SPH(0.045),C.yellow,HX,1.32,HZ+0.05);}
+  if(a==='icecream'){fpart(L,'icone',()=>{const g=new THREE.ConeGeometry(0.08,0.24,12);g.rotateX(Math.PI);return g;},C.tan,HX,0.98,HZ);fpart(L,'scoop',SPH(0.1),C.pink,HX,1.13,HZ);}
+  return L;
+}
+const figCache=new Map();
+function partsOf(p){
+  if(p.t==='fig'){const k=JSON.stringify(normFig(p.f));if(!figCache.has(k))figCache.set(k,figParts(p.f));return figCache.get(k);}
+  return brickParts(p.t,p.w,p.d,p.h,p.c);
 }
 const fw=p=>p.r%2?p.d:p.w, fd=p=>p.r%2?p.w:p.d;
-function buildObj(p,mat,gmat){
-  const G=pieceGeo(p.t,p.w,p.d,p.h); const g=new THREE.Group();
-  const m=new THREE.Mesh(G.main,mat); m.castShadow=true; m.receiveShadow=true; g.add(m);
-  if(G.glass){const gm=new THREE.Mesh(G.glass,gmat||glassMat()); g.add(gm);}
-  placeObj(g,p); return g;
+const _q=new THREE.Quaternion(), _v=new THREE.Vector3(), _s=new THREE.Vector3(1,1,1), _yax=new THREE.Vector3(0,1,0);
+function pieceMatrix(p,base,dy,out){
+  _q.setFromAxisAngle(_yax,p.r*Math.PI/2);
+  _v.set(p.x+fw(p)/2-base,p.y*U+(dy||0),p.z+fd(p)/2-base);
+  return (out||new THREE.Matrix4()).compose(_v,_q,_s);
 }
-function placeObj(g,p){g.position.set(p.x+fw(p)/2-N/2,p.y*U,p.z+fd(p)/2-N/2);g.rotation.y=p.r*Math.PI/2;}
+function placeObj(g,p,base){if(base===undefined)base=N/2;g.position.set(p.x+fw(p)/2-base,p.y*U,p.z+fd(p)/2-base);g.rotation.y=p.r*Math.PI/2;}
+function partsGroup(p,matFn,base){
+  const g=new THREE.Group();
+  partsOf(p).forEach(pt=>{const m=new THREE.Mesh(pt.geo,(pt.mat&&matFn===colorMat)?pt.mat:matFn(pt.c));m.matrixAutoUpdate=false;m.matrix.copy(pt.m);g.add(m);});
+  placeObj(g,p,base); return g;
+}
+
+/* ================= instancované vykreslování ================= */
+const _tm=new THREE.Matrix4(), _pm=new THREE.Matrix4();
+class BatchSet{
+  constructor(sc,sh){this.sc=sc;this.sh=sh;this.map=new Map();this.meshes=[];}
+  get(key,geo,mat){let b=this.map.get(key);if(!b){b={geo,mat,cap:0,n:0,refs:[],mesh:null};this.map.set(key,b);this.grow(b);}return b;}
+  grow(b){
+    const cap=Math.max(8,b.cap*2); const m=new THREE.InstancedMesh(b.geo,b.mat,cap); m.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
+    if(b.mesh){m.instanceMatrix.array.set(b.mesh.instanceMatrix.array);this.sc.remove(b.mesh);this.meshes.splice(this.meshes.indexOf(b.mesh),1);if(b.mesh.dispose)b.mesh.dispose();}
+    m.count=b.n; m.castShadow=m.receiveShadow=this.sh; m.frustumCulled=false; m.userData.batch=b;
+    if(b.mat.transparent) m.renderOrder=1;
+    b.mesh=m; b.cap=cap; this.sc.add(m); this.meshes.push(m);
+  }
+  add(b,ref,mat){if(b.n>=b.cap)this.grow(b);b.mesh.setMatrixAt(b.n,mat);b.refs[b.n]=ref;ref.b=b;ref.slot=b.n;b.n++;b.mesh.count=b.n;b.mesh.instanceMatrix.needsUpdate=true;}
+  remove(ref){const b=ref.b,s=ref.slot,last=b.n-1;
+    if(s!==last){b.mesh.getMatrixAt(last,_tm);b.mesh.setMatrixAt(s,_tm);const r2=b.refs[last];b.refs[s]=r2;r2.slot=s;}
+    b.refs.length=last;b.n=last;b.mesh.count=last;b.mesh.instanceMatrix.needsUpdate=true;}
+  set(ref,mat){ref.b.mesh.setMatrixAt(ref.slot,mat);ref.b.mesh.instanceMatrix.needsUpdate=true;}
+  reset(){this.map.forEach(b=>{b.n=0;b.refs.length=0;b.mesh.count=0;});}
+  dispose(){this.meshes.forEach(m=>{this.sc.remove(m);if(m.dispose)m.dispose();});this.map.clear();this.meshes=[];}
+  addPiece(p,id,base,matFn){
+    pieceMatrix(p,base,0,_pm); const refs=[];
+    partsOf(p).forEach(pt=>{const b=this.get(pt.key+'#'+pt.c,pt.geo,(pt.mat&&!matFn)?pt.mat:(matFn||colorMat)(pt.c));const ref={id,local:pt.m};_tm.multiplyMatrices(_pm,pt.m);this.add(b,ref,_tm);refs.push(ref);});
+    return refs;
+  }
+}
+const batches=new BatchSet(scene,true);
 
 /* ================= podložka ================= */
 let plateObj=null, plateStuds=null; const plateMat=new THREE.MeshStandardMaterial({roughness:0.38,envMapIntensity:0.6});
 function buildPlate(){
-  if(plateObj){scene.remove(plateObj);scene.remove(plateStuds);plateObj.geometry.dispose();plateStuds.dispose();}
+  if(plateObj){scene.remove(plateObj);scene.remove(plateStuds);plateObj.geometry.dispose();if(plateStuds.dispose)plateStuds.dispose();}
   plateMat.color.copy(lin(PLATES[plateColor][1]));
   plateObj=new THREE.Mesh(boxGeo(N,N,0.4,0.06),plateMat); plateObj.position.y=-0.4; plateObj.receiveShadow=true; plateObj.userData.isPlate=true; scene.add(plateObj);
   plateStuds=new THREE.InstancedMesh(new THREE.CylinderGeometry(SR,SR,0.15,14),plateMat,N*N);
   const m4=new THREE.Matrix4(); let i=0;
   for(let x=0;x<N;x++)for(let z=0;z<N;z++){m4.makeTranslation(x-N/2+.5,0.075,z-N/2+.5);plateStuds.setMatrixAt(i++,m4);}
-  plateStuds.receiveShadow=true; plateStuds.castShadow=false; scene.add(plateStuds);
-  const s=N/2+6; Object.assign(sun.shadow.camera,{left:-s,right:s,top:s,bottom:-s,near:1,far:N*3+60}); sun.shadow.camera.updateProjectionMatrix();
-  sun.position.set(N*0.45,N*0.9+20,N*0.3);
+  plateStuds.receiveShadow=true; scene.add(plateStuds);
+  const s=N/2+8; Object.assign(sun.shadow.camera,{left:-s,right:s,top:s,bottom:-s,near:1,far:N*3+90}); sun.shadow.camera.updateProjectionMatrix();
+  sun.position.set(N*0.45,N*0.9+30,N*0.3);
 }
 
 /* ================= data ================= */
-const pieces=new Map(); const occ=new Map(); const pickables=[]; let nextId=1;
+const pieces=new Map(); const occ=new Map(); let nextId=1;
 const key=(x,y,z)=>x+','+y+','+z;
 function cellsOf(p){const r=[],W=fw(p),D=fd(p);for(let i=0;i<W;i++)for(let j=0;j<D;j++)for(let k=0;k<p.h;k++)r.push(key(p.x+i,p.y+k,p.z+j));return r;}
 function fits(p){
   if(p.y<0||p.y+p.h>MAXY||p.x<0||p.z<0||p.x+fw(p)>N||p.z+fd(p)>N) return false;
   return cellsOf(p).every(k=>!occ.has(k));
 }
-const plain=p=>({t:p.t,w:p.w,d:p.d,h:p.h,r:p.r,x:p.x,y:p.y,z:p.z,c:p.c});
+const plain=p=>{const o={t:p.t,w:p.w,d:p.d,h:p.h,r:p.r||0,x:p.x,y:p.y,z:p.z,c:p.c};if(p.f)o.f=Object.assign({},p.f);return o;};
+function validPiece(p){return TBY[p.t]&&COLORS[p.c]&&p.w>0&&p.d>0&&p.h>0&&(p.t!=='fig'||(p.f&&COLORS[p.f.sk]));}
+const anims=[]; const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
 function addPiece(p,anim){
-  p=plain(p); if(!TBY[p.t]||!COLORS[p.c]||!fits(p)) return null;
-  const id=nextId++; const obj=buildObj(p,colorMat(p.c)); obj.userData.id=id;
-  scene.add(obj); pickables.push(obj); cellsOf(p).forEach(k=>occ.set(k,id)); pieces.set(id,{p,obj});
-  if(anim) dropIn(obj); return id;
+  p=plain(p); if(!validPiece(p)||!fits(p)) return null;
+  const id=nextId++; const refs=batches.addPiece(p,id,N/2);
+  cellsOf(p).forEach(k=>occ.set(k,id)); pieces.set(id,{p,refs});
+  if(anim&&!reduce) anims.push({id,t:0,s:0});
+  return id;
 }
 function removeId(id){
   const e=pieces.get(id); if(!e) return null;
-  scene.remove(e.obj); pickables.splice(pickables.indexOf(e.obj),1); cellsOf(e.p).forEach(k=>occ.delete(k)); pieces.delete(id); return e.p;
+  e.refs.forEach(r=>batches.remove(r)); cellsOf(e.p).forEach(k=>occ.delete(k)); pieces.delete(id); return e.p;
 }
+function clearAll(){batches.reset();pieces.clear();occ.clear();anims.length=0;}
 const idAt=p=>occ.get(key(p.x,p.y,p.z));
-function recolor(id,c){const e=pieces.get(id); if(!e) return; e.p.c=c; e.obj.children[0].material=colorMat(c);}
-const anims=[]; const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
-function dropIn(g){ if(reduce) return; anims.push({g,y:g.position.y,t:0,s:0}); g.position.y+=0.7; }
-function popOut(g){ if(reduce) return; const c=g.clone(); scene.add(c); anims.push({g:c,y:c.position.y,t:0,s:1}); }
+function recolor(id,c){const e=pieces.get(id); if(!e||e.p.t==='fig') return; const p=plain(e.p); removeId(id); p.c=c; addPiece(p);}
+function setPieceY(e,dy){pieceMatrix(e.p,N/2,dy,_pm);e.refs.forEach(r=>{_tm.multiplyMatrices(_pm,r.local);batches.set(r,_tm);});}
+function popOut(p){ if(reduce) return; const g=partsGroup(p,colorMat); scene.add(g); anims.push({g,y:g.position.y,t:0,s:1}); }
 
 /* ================= ukládání ================= */
 const SKEY='kostkovna-v2'; let saveT;
-function save(){clearTimeout(saveT);saveT=setTimeout(()=>{try{localStorage.setItem(SKEY,JSON.stringify({N,plate:plateColor,night,list:[...pieces.values()].map(e=>e.p)}));}catch(e){}},300);updateCount();}
+let plan=null;
+function save(){clearTimeout(saveT);saveT=setTimeout(()=>{try{localStorage.setItem(SKEY,JSON.stringify({N,plate:plateColor,night,list:[...pieces.values()].map(e=>e.p)}));}catch(e){}},400);updateCount();}
 function updateCount(){
-  const n=pieces.size; let lay=0; pieces.forEach(e=>lay=Math.max(lay,e.p.y+e.p.h));
+  const n=pieces.size; let lay=0, figs=0; pieces.forEach(e=>{lay=Math.max(lay,e.p.y+e.p.h);if(e.p.t==='fig')figs++;});
   const word=n===1?'dílek':(n>=2&&n<=4?'dílky':'dílků');
-  document.getElementById('count').textContent=`${n} ${word} · výška ${(lay/3).toFixed(lay%3?1:0).replace('.',',')} kostek`;
-  document.getElementById('empty').classList.toggle('gone',n>0);
+  $('count').textContent=`${n} ${word}`+(figs?` · ${figs} postav`:'')+` · výška ${Math.round(lay/3)}`;
+  $('empty').classList.toggle('gone',n>0||!!plan);
 }
+const $=id=>document.getElementById(id);
 
 /* ================= kamera ================= */
-const cam={tx:0,ty:1,tz:0,r:70,th:0.7,ph:0.95, vth:0,vph:0};
+const cam={tx:0,ty:1,tz:0,r:70,th:0.7,ph:0.95,vth:0,vph:0};
 const camGoal={...cam}; let camAnim=false;
 function defaultView(){return {tx:0,ty:1,tz:0,r:N*1.35+(innerWidth<640?N*0.5:0),th:0.7,ph:0.95};}
 function clampCam(){
-  cam.ph=Math.max(0.03,Math.min(1.68,cam.ph)); cam.r=Math.max(4,Math.min(N*4,cam.r));
+  cam.ph=Math.max(0.03,Math.min(1.68,cam.ph)); cam.r=Math.max(3,Math.min(N*4,cam.r));
   const L=N/2+12; cam.tx=Math.max(-L,Math.min(L,cam.tx)); cam.tz=Math.max(-L,Math.min(L,cam.tz)); cam.ty=Math.max(-2,Math.min(MAXY*U,cam.ty));
 }
 function placeCam(){
@@ -389,13 +736,10 @@ function placeCam(){
   camera.position.set(cam.tx+cam.r*Math.sin(cam.ph)*Math.sin(cam.th),cam.ty+cam.r*Math.cos(cam.ph),cam.tz+cam.r*Math.sin(cam.ph)*Math.cos(cam.th));
   camera.lookAt(cam.tx,cam.ty,cam.tz);
 }
-function pan(dx,dy){ // v pixelech obrazovky
-  const s=cam.r*0.0013;
-  cam.tx-=(Math.cos(cam.th)*dx - Math.sin(cam.th)*Math.cos(cam.ph)*0)*s;
-  cam.tz-=(-Math.sin(cam.th)*dx)*s;
-  // svislý pohyb myši posouvá dopředu/dozadu po podložce
-  cam.tx-=Math.sin(cam.th)*dy*s; cam.tz-=Math.cos(cam.th)*dy*s;
-}
+function pan(dx,dy){const s=cam.r*0.0013;
+  cam.tx-=Math.cos(cam.th)*dx*s; cam.tz+=Math.sin(cam.th)*dx*s;
+  cam.tx-=Math.sin(cam.th)*dy*s; cam.tz-=Math.cos(cam.th)*dy*s;}
+function flyTo(o){Object.assign(camGoal,cam,o);camAnim=true;}
 function resize(){const w=stage.clientWidth,h=stage.clientHeight;renderer.setSize(w,h,false);camera.aspect=w/h;camera.updateProjectionMatrix();placeCam();}
 window.addEventListener('resize',resize);
 
@@ -405,109 +749,127 @@ function pick(cx,cy){
   const r=renderer.domElement.getBoundingClientRect();
   ndc.set(((cx-r.left)/r.width)*2-1,-((cy-r.top)/r.height)*2+1);
   ray.setFromCamera(ndc,camera);
-  const h=ray.intersectObjects([plateObj,...pickables],true)[0]; if(!h) return null;
-  let o=h.object; while(o&&o.userData.id===undefined&&!o.userData.isPlate) o=o.parent;
-  return {h,o};
+  const hs=ray.intersectObjects([plateObj,...batches.meshes],false);
+  for(const h of hs){
+    if(h.object.userData.isPlate) return {h,id:null,plate:true,n:h.face.normal.clone()};
+    const b=h.object.userData.batch; const ref=b&&b.refs[h.instanceId]; if(!ref) continue;
+    h.object.getMatrixAt(h.instanceId,_tm); const n=h.face.normal.clone().transformDirection(_tm);
+    return {h,id:ref.id,plate:false,n};
+  }
+  return null;
 }
 function curType(){return TYPES[typeIdx];}
-function curDims(){const t=curType(),s=t.sizes[sizeIdx[t.id]];return {t:t.id,w:s[0],d:s[1],h:s[2]||t.h,r:rot};}
+let curFig=FIGS[0].f, curFigId='builder';
+function curDims(){
+  if(override) return {t:override.t,w:override.w,d:override.d,h:override.h,r:rot,c:colorIdx,f:override.f};
+  const t=curType(); if(t.id==='fig') return {t:'fig',w:2,d:1,h:5,r:rot,c:C.white,f:curFig};
+  const s=t.sizes[sizeIdx[t.id]]; return {t:t.id,w:s[0],d:s[1],h:s[2]||t.h,r:rot,c:colorIdx};
+}
 let target=null, hoverId=null;
 function effMode(e){ if(e&&e.shiftKey) return 'smash'; if(e&&e.altKey) return 'pick'; return mode; }
 function computeTarget(hit,m){
   target=null; hoverId=null; if(!hit) return;
-  const {h,o}=hit;
-  if(m!=='build'){ if(o.userData.id!==undefined) hoverId=o.userData.id; return; }
-  const n=h.face.normal.clone().transformDirection(h.object.matrixWorld);
-  const q=curDims(); let y;
-  if(o.userData.isPlate){ if(n.y<0.5) return; y=0; }
-  else { const p=pieces.get(o.userData.id).p; if(n.y>0.5) y=p.y+p.h; else if(n.y<-0.5) y=p.y-q.h; else y=p.y; }
-  const pt=h.point.clone().addScaledVector(n,0.06);
-  const cx=Math.floor(pt.x+N/2), cz=Math.floor(pt.z+N/2);
-  const W=fw(q),D=fd(q);
-  q.x=Math.max(0,Math.min(N-W,cx-Math.floor((W-1)/2)));
-  q.z=Math.max(0,Math.min(N-D,cz-Math.floor((D-1)/2)));
-  q.y=y; q.c=colorIdx; q.ok=fits(q); target=q;
+  if(m!=='build'){ if(hit.id) hoverId=hit.id; return; }
+  const n=hit.n; const q=curDims(); let y;
+  if(hit.plate){ if(n.y<0.5) return; y=0; }
+  else { const p=pieces.get(hit.id).p; if(n.y>0.5) y=p.y+p.h; else if(n.y<-0.5) y=p.y-q.h; else y=p.y; }
+  const W=fw(q),D=fd(q); q.y=y;
+  for(const off of (Math.abs(n.y)>0.5?[0.06]:[0.06,0.55,1.05])){
+    const pt=hit.h.point.clone().addScaledVector(n,off);
+    const cx=Math.floor(pt.x+N/2), cz=Math.floor(pt.z+N/2);
+    q.x=Math.max(0,Math.min(N-W,cx-Math.floor((W-1)/2)));
+    q.z=Math.max(0,Math.min(N-D,cz-Math.floor((D-1)/2)));
+    q.ok=fits(q); if(q.ok) break;
+  }
+  target=q;
 }
-
-/* ghost a obrys */
-const ghostMat=new THREE.MeshStandardMaterial({transparent:true,opacity:0.5,roughness:0.4,depthWrite:false,emissive:0x000000});
+const ghostMat=new THREE.MeshStandardMaterial({transparent:true,opacity:0.5,roughness:0.4,depthWrite:false});
 let ghost=null, ghostKey='';
 function rebuildGhost(){
-  const q=curDims(); const k=q.t+q.w+'x'+q.d+'x'+q.h+'r'+q.r;
+  const q=curDims(); const k=q.t+q.w+'x'+q.d+'x'+q.h+'r'+q.r+(q.f?JSON.stringify(q.f):'');
   if(ghost&&ghostKey===k) return;
   if(ghost) scene.remove(ghost);
-  ghost=buildObj({...q,x:0,y:0,z:0},ghostMat,ghostMat); ghost.traverse(o=>{o.castShadow=false;o.receiveShadow=false;o.renderOrder=2;});
+  ghost=partsGroup({...q,x:0,y:0,z:0},()=>ghostMat); ghost.traverse(o=>{o.renderOrder=2;});
   ghost.visible=false; ghostKey=k; scene.add(ghost);
 }
-const outline=new THREE.LineSegments(new THREE.EdgesGeometry(new THREE.BoxGeometry(1,1,1)),new THREE.LineBasicMaterial({color:0xffffff,depthTest:false,transparent:true}));
-outline.renderOrder=3; outline.visible=false; scene.add(outline);
+function mkOutline(){const o=new THREE.LineSegments(new THREE.EdgesGeometry(new THREE.BoxGeometry(1,1,1)),new THREE.LineBasicMaterial({color:0xffffff,depthTest:false,transparent:true}));o.renderOrder=3;o.visible=false;scene.add(o);return o;}
+const outline=mkOutline(), planOutline=mkOutline();
 const footprint=new THREE.Mesh(new THREE.PlaneGeometry(1,1),new THREE.MeshBasicMaterial({color:0x000000,transparent:true,opacity:0.18,depthWrite:false}));
 footprint.rotation.x=-Math.PI/2; footprint.visible=false; scene.add(footprint);
-function boxOutline(p,color){
-  outline.visible=true; outline.material.color.set(color);
-  outline.scale.set(fw(p)+0.08,p.h*U+0.08,fd(p)+0.08);
-  outline.position.set(p.x+fw(p)/2-N/2,p.y*U+p.h*U/2,p.z+fd(p)/2-N/2);
+function boxOutline(o,p,color){
+  o.visible=true; o.material.color.set(color);
+  o.scale.set(fw(p)+0.08,p.h*U+0.08,fd(p)+0.08);
+  o.position.set(p.x+fw(p)/2-N/2,p.y*U+p.h*U/2,p.z+fd(p)/2-N/2);
 }
 let curMode='build';
 function refreshVisuals(){
   outline.visible=false; footprint.visible=false;
   if(target&&curMode==='build'){
     ghost.visible=true; placeObj(ghost,target);
-    const c=COLORS[colorIdx][1];
+    const c=target.t==='fig'?'#FFB547':COLORS[target.c][1];
     ghostMat.color.copy(lin(target.ok?c:'#ff3b30')); ghostMat.opacity=target.ok?0.55:0.3;
-    boxOutline(target,target.ok?'#ffffff':'#ff3b30');
+    boxOutline(outline,target,target.ok?'#ffffff':'#ff3b30');
     if(target.ok&&target.y>0){footprint.visible=true;footprint.scale.set(fw(target),fd(target),1);footprint.position.set(outline.position.x,0.16,outline.position.z);}
-  } else ghost.visible=false;
+  } else if(ghost) ghost.visible=false;
   if(hoverId&&pieces.has(hoverId)){
     const p=pieces.get(hoverId).p;
-    boxOutline(p,curMode==='smash'?'#ff3b30':curMode==='paint'?COLORS[colorIdx][1]:'#FFD43B');
+    boxOutline(outline,p,curMode==='smash'?'#ff3b30':curMode==='paint'?COLORS[colorIdx][1]:'#FFD43B');
   }
 }
 
 /* ================= akce, zpět/znovu ================= */
 const undoS=[], redoS=[];
 function push(a){undoS.push(a);redoS.length=0;syncHist();}
-function apply(a,dir){ // dir 1 = udělat, -1 = vrátit
+function apply(a,dir){
   if(a.t==='add'){ if(dir>0) addPiece(a.p,true); else removeId(idAt(a.p)); }
   else if(a.t==='del'){ if(dir>0) removeId(idAt(a.p)); else addPiece(a.p,true); }
   else if(a.t==='paint'){ recolor(idAt(a.p),dir>0?a.to:a.from); }
-  else if(a.t==='clear'){ if(dir>0) [...pieces.keys()].forEach(removeId); else a.list.forEach(p=>addPiece(p)); }
+  else if(a.t==='clear'){ if(dir>0) clearAll(); else a.list.forEach(p=>addPiece(p)); }
+  planCheck();
 }
 function undo(){const a=undoS.pop(); if(!a){toast('Není co vracet');return;} apply(a,-1); redoS.push(a); save(); syncHist(); snd('undo');}
 function redo(){const a=redoS.pop(); if(!a) return; apply(a,1); undoS.push(a); save(); syncHist(); snd('place');}
-function syncHist(){document.getElementById('t-undo').disabled=!undoS.length;document.getElementById('t-redo').disabled=!redoS.length;}
+function syncHist(){$('t-undo').disabled=!undoS.length;$('t-redo').disabled=!redoS.length;}
 function act(m){
   if(m==='build'){
     if(!target) return;
     if(!target.ok){snd('bad');return;}
-    const p=plain(target); if(addPiece(p,true)){push({t:'add',p});snd('place');save();}
+    const p=plain(target); if(addPiece(p,true)){push({t:'add',p});snd('place');save();
+      prog.placed++; if(night) prog.night++; saveProg(); planCheck(); checkUnlocks();}
   } else if(m==='smash'){
-    if(!hoverId) return; const e=pieces.get(hoverId); popOut(e.obj); const p=removeId(hoverId); hoverId=null;
-    push({t:'del',p}); snd('smash'); save();
+    if(!hoverId) return; const e=pieces.get(hoverId); popOut(e.p); const p=removeId(hoverId); hoverId=null;
+    push({t:'del',p}); snd('smash'); save(); planCheck();
   } else if(m==='paint'){
-    if(!hoverId) return; const e=pieces.get(hoverId); if(e.p.c===colorIdx) return;
-    push({t:'paint',p:plain(e.p),from:e.p.c,to:colorIdx}); recolor(hoverId,colorIdx); snd('paint'); save();
+    if(!hoverId) return; const e=pieces.get(hoverId); if(e.p.t==='fig'){toast('Postavičku změníš ve výrobně postaviček');return;} if(e.p.c===colorIdx) return;
+    push({t:'paint',p:plain(e.p),from:e.p.c,to:colorIdx}); recolor(hoverId,colorIdx); hoverId=null; snd('paint'); save(); planCheck();
   } else if(m==='pick'){
     if(!hoverId) return; const p=pieces.get(hoverId).p;
-    typeIdx=TYPES.findIndex(t=>t.id===p.t); const t=TYPES[typeIdx];
-    sizeIdx[t.id]=Math.max(0,t.sizes.findIndex(s=>s[0]===p.w&&s[1]===p.d&&(s[2]||t.h)===p.h));
-    colorIdx=p.c; rot=p.r; setMode('build'); buildSizes(); syncUI(); toast(`${t.name} ${p.w}×${p.d} · ${COLORS[p.c][0]}`); snd('paint');
+    typeIdx=TYPES.findIndex(t=>t.id===p.t); const t=TYPES[typeIdx]; rot=p.r; override=null;
+    if(p.t==='fig'){curFig=Object.assign({},p.f);curFigId=null;}
+    else {const si=t.sizes.findIndex(s=>s[0]===p.w&&s[1]===p.d&&(s[2]||t.h)===p.h);
+      if(si>=0) sizeIdx[t.id]=si; else override={t:p.t,w:p.w,d:p.d,h:p.h};
+      colorIdx=p.c;}
+    setMode('build'); syncUI(); toast(p.t==='fig'?'Postavička vybrána':`${t.name} ${p.w}×${p.d} · ${COLORS[p.c][0]}`); snd('paint');
   }
 }
 
 /* ================= zvuk ================= */
 let actx=null;
 function ac(){ if(!actx){try{actx=new (window.AudioContext||window.webkitAudioContext)();}catch(e){}} if(actx&&actx.state==='suspended')actx.resume(); return actx; }
-function tone(f1,f2,dur,type,vol,delay){const a=actx,t=a.currentTime+(delay||0),o=a.createOscillator(),g=a.createGain();o.type=type;o.frequency.setValueAtTime(f1,t);o.frequency.exponentialRampToValueAtTime(f2,t+dur);g.gain.setValueAtTime(vol,t);g.gain.exponentialRampToValueAtTime(0.001,t+dur);o.connect(g).connect(a.destination);o.start(t);o.stop(t+dur+0.02);}
+function tone(f1,f2,dur,type,vol,delay){const a=actx,t=a.currentTime+(delay||0),o=a.createOscillator(),g=a.createGain();o.type=type;o.frequency.setValueAtTime(f1,t);o.frequency.exponentialRampToValueAtTime(f2,t+dur);g.gain.setValueAtTime(0.0001,a.currentTime);g.gain.setValueAtTime(vol,t);g.gain.exponentialRampToValueAtTime(0.001,t+dur);o.connect(g).connect(a.destination);o.start(a.currentTime);o.stop(t+dur+0.02);}
 function noise(dur,vol,freq){const a=actx,n=Math.floor(a.sampleRate*dur),b=a.createBuffer(1,n,a.sampleRate),d=b.getChannelData(0);for(let i=0;i<n;i++)d[i]=(Math.random()*2-1)*Math.pow(1-i/n,3);const s=a.createBufferSource();s.buffer=b;const f=a.createBiquadFilter();f.type='bandpass';f.frequency.value=freq;const g=a.createGain();g.gain.value=vol;s.connect(f).connect(g).connect(a.destination);s.start();}
 function snd(k){
   if(!soundOn||!ac()) return;
+  try{
   if(k==='place'){noise(0.04,0.9,2800);tone(1300,700,0.05,'triangle',0.12);}
   else if(k==='smash'){noise(0.12,0.7,1200);tone(500,140,0.12,'square',0.05);}
   else if(k==='paint'){tone(700,1100,0.08,'sine',0.12);tone(1100,1500,0.08,'sine',0.08,0.06);}
   else if(k==='undo'){tone(800,400,0.07,'triangle',0.1);}
   else if(k==='bad'){tone(160,120,0.09,'square',0.05);}
   else if(k==='ui'){tone(1600,1600,0.02,'sine',0.05);}
+  else if(k==='step'){tone(880,1320,0.1,'triangle',0.12);}
+  else if(k==='win'){[523,659,784,1047].forEach((f,i)=>tone(f,f*1.001,0.2,'triangle',0.14,i*0.11));}
+  }catch(e){}
 }
 
 /* ================= ukazatel ================= */
@@ -516,7 +878,7 @@ function gestInfo(){const [a,b]=[...ptrs.values()];return {cx:(a.x+b.x)/2,cy:(a.
 el.addEventListener('pointerdown',e=>{
   el.setPointerCapture(e.pointerId); ptrs.set(e.pointerId,{x:e.clientX,y:e.clientY}); camAnim=false; closePops();
   if(ptrs.size===1){drag={sx:e.clientX,sy:e.clientY,lx:e.clientX,ly:e.clientY,t:performance.now(),moved:false,btn:e.button,shift:e.shiftKey,alt:e.altKey}; cam.vth=cam.vph=0;}
-  else if(ptrs.size===2){gest=gestInfo(); if(drag) drag.moved=true; ghost.visible=false;}
+  else if(ptrs.size===2){gest=gestInfo(); if(drag) drag.moved=true; if(ghost)ghost.visible=false;}
 });
 el.addEventListener('pointermove',e=>{
   if(ptrs.has(e.pointerId)) ptrs.set(e.pointerId,{x:e.clientX,y:e.clientY});
@@ -556,16 +918,299 @@ el.addEventListener('pointerleave',e=>{if(e.pointerType==='mouse'&&!drag){target
 el.addEventListener('contextmenu',e=>e.preventDefault());
 el.addEventListener('wheel',e=>{e.preventDefault();camAnim=false;cam.r*=Math.exp(e.deltaY*0.0012);placeCam();},{passive:false});
 
-/* ================= panel ================= */
-const $=id=>document.getElementById(id);
-const typesEl=$('types'), sizesEl=$('sizes'), colorsEl=$('colors');
+/* ================= náhledové obrázky ================= */
+const thumbScene=new THREE.Scene(); thumbScene.environment=scene.environment;
+thumbScene.add(new THREE.HemisphereLight(0xffffff,0x8a9aa8,0.7));
+const tsun=new THREE.DirectionalLight(0xfff3e2,1.0); tsun.position.set(5,10,7); thumbScene.add(tsun);
+const thumbCam=new THREE.PerspectiveCamera(30,1,0.1,2000);
+const thumbRT=new THREE.WebGLRenderTarget(64,64); thumbRT.texture.encoding=THREE.sRGBEncoding;
+const tcv=document.createElement('canvas'), tcv2=document.createElement('canvas');
+function renderThumb(list,W,H,opt){
+  opt=opt||{}; const bs=new BatchSet(thumbScene,false); let extra=null;
+  const mn=new THREE.Vector3(1e9,1e9,1e9), mx=new THREE.Vector3(-1e9,-1e9,-1e9);
+  list.forEach(p=>{bs.addPiece(p,0,0);mn.min(_v.set(p.x,p.y*U,p.z));mx.max(_v.set(p.x+fw(p),(p.y+p.h)*U,p.z+fd(p)));});
+  if(list.length===1&&list[0].t==='fig') mx.y+=0.45;
+  if(!list.length){mn.set(0,0,0);mx.set(1,1,1);}
+  if(opt.plate!==undefined){extra=new THREE.Mesh(boxGeo(opt.n,opt.n,0.4,0.06),new THREE.MeshStandardMaterial({color:lin(PLATES[opt.plate][1]),roughness:0.5}));extra.position.set(opt.n/2,-0.4,opt.n/2);thumbScene.add(extra);mn.set(0,-0.4,0);mx.x=Math.max(mx.x,opt.n);mx.z=Math.max(mx.z,opt.n);mx.y=Math.max(mx.y,2);}
+  const ctr=mn.clone().add(mx).multiplyScalar(0.5), size=mx.clone().sub(mn);
+  const rad=Math.max(0.6,size.length()/2);
+  thumbCam.aspect=W/H; thumbCam.updateProjectionMatrix();
+  const dir=(opt.dir||new THREE.Vector3(1,0.9,1.4)).clone().normalize();
+  const dist=rad/Math.sin(THREE.MathUtils.degToRad(thumbCam.fov/2))*(opt.zoom||0.92)*(W<H?H/W:1);
+  thumbCam.position.copy(ctr).addScaledVector(dir,dist); thumbCam.lookAt(ctr);
+  const S=2; thumbRT.setSize(W*S,H*S);
+  renderer.setRenderTarget(thumbRT); renderer.clear(); renderer.render(thumbScene,thumbCam);
+  const px=new Uint8Array(W*S*H*S*4); renderer.readRenderTargetPixels(thumbRT,0,0,W*S,H*S,px); renderer.setRenderTarget(null);
+  bs.dispose(); if(extra){thumbScene.remove(extra);extra.geometry.dispose();extra.material.dispose();}
+  tcv.width=W*S; tcv.height=H*S; const cx=tcv.getContext('2d'); const id=cx.createImageData(W*S,H*S); const row=W*S*4;
+  for(let y=0;y<H*S;y++) id.data.set(px.subarray((H*S-1-y)*row,(H*S-y)*row),y*row);
+  cx.putImageData(id,0,0); tcv2.width=W; tcv2.height=H; const c2=tcv2.getContext('2d'); c2.clearRect(0,0,W,H); c2.imageSmoothingQuality='high'; c2.drawImage(tcv,0,0,W,H);
+  return tcv2.toDataURL('image/png');
+}
+const figThumb=new Map();
+function figImg(f,W,H,ang){W=W||112;H=H||124;ang=ang||0;const nf=normFig(f);const k=JSON.stringify(nf)+W+'|'+ang; if(!figThumb.has(k)){const a=0.42+ang;figThumb.set(k,renderThumb([{t:'fig',w:2,d:1,h:5,r:0,x:0,y:0,z:0,c:0,f:nf}],W,H,{dir:new THREE.Vector3(Math.sin(a),0.25,Math.cos(a)),zoom:0.78}));} return figThumb.get(k);}
+
+/* ================= generátory ================= */
+function rng(seed){return ()=>{seed|=0;seed=seed+0x6D2B79F5|0;let t=Math.imul(seed^seed>>>15,1|seed);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+function noise2(r,cells){const g=[];for(let i=0;i<=cells+1;i++){g[i]=[];for(let j=0;j<=cells+1;j++)g[i][j]=r();}
+  const sm=t=>t*t*(3-2*t);
+  return (x,z)=>{const i=Math.floor(x),j=Math.floor(z),fx=sm(x-i),fz=sm(z-j);const a=g[i][j],b=g[i+1][j],c=g[i][j+1],d=g[i+1][j+1];return a+(b-a)*fx+(c-a)*fz+(a-b-c+d)*fx*fz;};}
+function Builder(n){
+  const o=new Set(), list=[];
+  const B={list,n,
+    add(t,w,d,x,y,z,c,r,h,f){const p={t,w,d,h:h||TBY[t].h,r:r||0,x,y,z,c};if(f)p.f=f;
+      if(p.x<0||p.z<0||p.y<0||p.x+fw(p)>n||p.z+fd(p)>n) return false;
+      const cs=cellsOf(p); if(cs.some(k=>o.has(k))) return false; cs.forEach(k=>o.add(k)); list.push(p); return true;},
+    free(x,y,z){return !o.has(key(x,y,z));},
+    top(x,z,w,d){let y=0;for(;y<MAXY;y++){let ok=true;for(let i=0;i<w&&ok;i++)for(let j=0;j<d&&ok;j++)if(o.has(key(x+i,y,z+j)))ok=false;if(ok){let clear=true;for(let k=1;k<6&&clear;k++)for(let i=0;i<w&&clear;i++)for(let j=0;j<d&&clear;j++)if(o.has(key(x+i,y+k,z+j)))clear=false;if(clear)return y;}}return y;},
+    fig(x,y,z,f,r){if(y===null||y===undefined)y=B.top(x,z,r%2?1:2,r%2?2:1);return B.add('fig',2,1,x,y,z,C.white,r||0,5,f);}
+  };
+  return B;
+}
+function figOf(id){return FIGS.find(f=>f.id===id).f;}
+function wallRing(B,x0,z0,W,D,y0,layers,c,skip,colorFn){
+  const per=[];
+  for(let x=x0;x<x0+W;x++)per.push([x,z0,1,0]);
+  for(let z=z0+1;z<z0+D;z++)per.push([x0+W-1,z,0,1]);
+  for(let x=x0+W-2;x>=x0;x--)per.push([x,z0+D-1,-1,0]);
+  for(let z=z0+D-2;z>z0;z--)per.push([x0,z,0,-1]);
+  const inR=(x,z)=>x>=x0&&x<x0+W&&z>=z0&&z<z0+D&&(x===x0||x===x0+W-1||z===z0||z===z0+D-1);
+  for(let L=0;L<layers;L++){
+    const y=y0+L*3, off=(L%2)*2;
+    for(let n=0;n<per.length;n++){
+      const [x,z,dx,dz]=per[(n+off)%per.length];
+      if(!B.free(x,y,z)||(skip&&skip(x,y,z))) continue;
+      const col=colorFn?colorFn(x,y,z):c;
+      for(const len of [4,2,1]){
+        let ok=true; const cs=[];
+        for(let k=0;k<len;k++){const cx=x+dx*k,cz=z+dz*k;if(!inR(cx,cz)||!B.free(cx,y,cz)||(skip&&skip(cx,y,cz))){ok=false;break;}cs.push([cx,cz]);}
+        if(!ok) continue;
+        const ax=Math.min(...cs.map(q=>q[0])), az=Math.min(...cs.map(q=>q[1]));
+        if(B.add('brick',dx?len:1,dz?len:1,ax,y,az,col)) break;
+      }
+    }
+  }
+}
+function house(B,x0,z0,W,D,y0,wallC,roofC,o){
+  o=o||{}; const dx0=x0+Math.floor(W/2)-1;
+  const door=(x,y,z)=>z===z0&&(x===dx0||x===dx0+1)&&y<y0+6;
+  const wins=[];
+  if(W>=8){wins.push([x0+1,z0,0],[x0+W-3,z0,0]);}
+  if(D>=6){wins.push([x0,z0+Math.floor(D/2)-1,1],[x0+W-1,z0+Math.floor(D/2)-1,1]);}
+  wins.push([x0+Math.floor(W/2)-1,z0+D-1,0]);
+  const winCell=(x,y,z)=>y>=y0+3&&y<y0+6&&wins.some(([wx,wz,r])=>r?(x===wx&&(z===wz||z===wz+1)):(z===wz&&(x===wx||x===wx+1)));
+  wallRing(B,x0,z0,W,D,y0,3,wallC,(x,y,z)=>door(x,y,z)||winCell(x,y,z));
+  wins.forEach(([wx,wz,r])=>B.add('window',2,1,wx,y0+3,wz,o.winC!==undefined?o.winC:C.white,r,3));
+  const ry=y0+9; let fs=z0, bs=z0+D-2, k=0;
+  const rowSlopes=(z,r,y)=>{let x=x0;while(x<x0+W){const len=Math.min(4,x0+W-x);B.add('slope',len,2,x,y,z,roofC,r);x+=len;}};
+  while(bs-fs>=2){rowSlopes(fs,2,ry+3*k);rowSlopes(bs,0,ry+3*k);fs+=2;bs-=2;k++;}
+  const gap=bs+2-fs; if(gap>0){let x=x0;while(x<x0+W){const len=Math.min(4,x0+W-x);B.add('brick',len,gap,x,ry+3*k,fs,roofC);x+=len;}}
+}
+function car(B,x,z,y,c){
+  [[0,1],[3,1],[0,4],[3,4]].forEach(([a,b])=>B.add('round',1,1,x+a,y,z+b,C.black));
+  B.add('plate',4,6,x,y+3,z,c); B.add('brick',4,2,x,y+4,z,c); B.add('window',4,1,x,y+4,z+2,C.black,0,3);
+  B.add('brick',4,2,x,y+4,z+4,c); B.add('tile',1,1,x,y+7,z,C.yellow); B.add('tile',1,1,x+3,y+7,z,C.yellow); B.add('tile',4,2,x,y+7,z+4,C.black);
+}
+function tree(B,x,z,y,tall){
+  const h=tall||3; for(let i=0;i<h;i++) B.add('round',1,1,x,y+i*3,z,C.brown);
+  const t=y+h*3; B.add('brick',2,2,x-1,t,z-1,C.green);B.add('brick',2,2,x+1,t,z-1,C.green);B.add('brick',2,2,x-1,t,z+1,C.green);B.add('brick',2,2,x+1,t,z+1,C.green);
+  B.add('brick',2,2,x,t+3,z,C.lime);
+}
+
+/* ===== plány ===== */
+const PLANS=[
+ {id:'tree',name:'Strom',sub:'Rychlá rozcvička',build(B){B.add('round',2,2,1,0,1,C.brown);B.add('round',2,2,1,3,1,C.brown);B.add('round',2,2,1,6,1,C.brown);
+   B.add('brick',2,2,0,9,0,C.green);B.add('brick',2,2,2,9,0,C.green);B.add('brick',2,2,0,9,2,C.green);B.add('brick',2,2,2,9,2,C.green);
+   B.add('brick',2,2,1,12,1,C.lime);B.add('cone',2,2,1,15,1,C.dgreen);}},
+ {id:'car',name:'Auto',sub:'Kola, kapota a okno',build(B){car(B,0,0,0,C.red);}},
+ {id:'rocket',name:'Raketa',sub:'Odemkne Astronautku',build(B){const o=2;
+   B.add('slope',1,2,o-2,0,o+1,C.red,3);B.add('slope',1,2,o+4,0,o+2,C.red,1);B.add('slope',1,2,o+1,0,o-2,C.red,2);B.add('slope',1,2,o+2,0,o+4,C.red,0);
+   B.add('round',4,4,o,0,o,C.white);B.add('round',4,4,o,3,o,C.white);B.add('round',4,4,o,6,o,C.teal);B.add('round',4,4,o,9,o,C.white);
+   B.add('round',4,4,o,12,o,C.red);B.add('cone',2,2,o+1,15,o+1,C.red);B.add('cone',1,1,o+1,18,o+1,C.gold);}},
+ {id:'house',name:'Domeček',sub:'Zdi, okna a střecha',build(B){house(B,0,0,6,6,0,C.red,C.blue);}},
+ {id:'tower',name:'Hradní věž',sub:'Cimbuří a vlajka',build(B){
+   wallRing(B,0,0,4,4,0,5,C.lgray,(x,y,z)=>(z===0&&(x===1||x===2)&&y<6)||(z===0&&(x===1||x===2)&&y>=9&&y<12));
+   B.add('window',2,1,1,9,0,C.dgray,0,3); B.add('plate',2,2,1,15,1,C.dgray);
+   [[0,0],[3,0],[0,3],[3,3]].forEach(([x,z])=>B.add('brick',1,1,x,15,z,C.lgray));
+   B.add('round',1,1,1,16,1,C.white);B.add('round',1,1,1,19,1,C.white);B.add('tile',1,2,2,21,1,C.red,1);}},
+ {id:'ship',name:'Loď',sub:'Odemkne Piráta',build(B){
+   B.add('plate',4,8,0,0,0,C.brown); B.add('brick',1,8,0,1,0,C.brown); B.add('brick',1,8,3,1,0,C.brown);
+   B.add('slope',2,2,1,1,0,C.brown,2); B.add('brick',2,1,1,1,7,C.brown);
+   B.add('brick',2,2,1,1,5,C.white); B.add('tile',2,2,1,4,5,C.red);
+   for(let i=0;i<4;i++)B.add('round',1,1,1,1+i*3,3,C.brown);
+   B.add('brick',4,1,0,4,2,C.white);B.add('brick',4,1,0,7,2,C.white);B.add('brick',2,1,1,10,2,C.white);
+   B.add('tile',1,2,1,13,3,C.black);}}
+];
+PLANS.forEach(pl=>{const B=Builder(64);pl.build(B);let mx=1e9,mz=1e9;B.list.forEach(p=>{mx=Math.min(mx,p.x);mz=Math.min(mz,p.z);});
+  pl.pieces=B.list.map(p=>({...p,x:p.x-mx,z:p.z-mz})).sort((a,b)=>a.y-b.y||a.z-b.z||a.x-b.x);
+  pl.w=Math.max(...pl.pieces.map(p=>p.x+fw(p))); pl.d=Math.max(...pl.pieces.map(p=>p.z+fd(p)));});
+
+/* ===== světy ===== */
+const WORLDS=[
+ {id:'empty',name:'Prázdná podložka',sub:'Začni úplně od nuly',plate:0,gen(){}},
+ {id:'blocky',name:'Kostičkový svět',sub:'Kopce, voda, stromy, kytky a vzácné rudy',plate:0,gen(B,n){
+   const r=rng(7), nz=noise2(r,8), G=n/2;
+   const H=[];for(let i=0;i<G;i++){H[i]=[];for(let j=0;j<G;j++){const v=nz(i/G*7,j/G*7)*0.8+nz((i/G*14)%7,(j/G*14)%7)*0.2;H[i][j]=Math.round(v*7)-2;}}
+   for(let i=0;i<G;i++)for(let j=0;j<G;j++){const h=H[i][j],x=i*2,z=j*2;
+     if(h<0){B.add('plate',2,2,x,0,z,C.tblue);continue;}
+     if(h===0){B.add('plate',2,2,x,0,z,C.tan);continue;}
+     for(let k=0;k<h;k++){let c=k<h-2?C.lgray:C.brown; if(k<h-2&&r()<0.08)c=r()<0.5?C.gold:C.teal; B.add('brick',2,2,x,k*3,z,c);}
+     B.add('plate',2,2,x,h*3,z,h>=5?C.white:C.green);}
+   for(let i=1;i<G-1;i++)for(let j=1;j<G-1;j++){const h=H[i][j];
+     if(h>=1&&h<5&&r()<0.07){const x=i*2,z=j*2,y=h*3+1;
+       for(let k=0;k<3;k++)B.add('brick',1,1,x,y+k*3,z,C.brown);
+       const t=y+9;B.add('brick',2,2,x-1,t,z-1,C.dgreen);B.add('brick',2,2,x+1,t,z-1,C.dgreen);B.add('brick',2,2,x-1,t,z+1,C.dgreen);B.add('brick',2,2,x+1,t,z+1,C.dgreen);B.add('brick',2,2,x,t+3,z,C.dgreen);}
+     else if(h>=1&&h<5&&r()<0.06){B.add('plate',1,1,i*2+(r()<.5?0:1),h*3+1,j*2,r()<0.5?C.red:C.yellow);}}
+   const spots=[['explorer',8,10],['builder',30,16],['fix',20,34]];
+   spots.forEach(([id,x,z])=>B.fig(x,null,z,figOf(id),1));
+ }},
+ {id:'obby',name:'Překážková dráha',sub:'Skákací ostrůvky, láva a zlatý vrchol',plate:1,gen(B,n){
+   const cols=[C.red,C.blue,C.yellow,C.green,C.orange,C.purple,C.mag,C.teal];
+   B.add('plate',6,6,1,0,1,C.lime); B.add('plate',6,6,1,1,1,C.lime); B.fig(3,2,3,figOf('builder'),0);
+   let y=3, inset=4; const path=[];
+   while(inset<n/2-4){const a=inset,b=n-inset-4;
+     for(let x=a;x<b;x+=5)path.push([x,a]); for(let z=a;z<b;z+=5)path.push([b,z]); for(let x=b;x>a;x-=5)path.push([x,b]); for(let z=b;z>a+5;z-=5)path.push([a,z]);
+     inset+=7;}
+   path.forEach(([x,z],k)=>{
+     const kind=k%7, c=cols[k%cols.length];
+     if(kind===6){B.add('plate',4,4,x,y,z,C.lime);B.add('round',1,1,x+3,y+1,z+3,C.white);B.add('round',1,1,x+3,y+4,z+3,C.white);B.add('tile',1,2,x+3,y+7,z+1,C.red);}
+     else if(kind===3){B.add('plate',4,4,x,y,z,c);B.add('tile',2,2,x+1,y+1,z+1,C.tred);}
+     else if(kind===5){B.add('plate',2,2,x+1,y,z+1,c);}
+     else B.add('plate',k%2?4:2,4,x,y,z,c);
+     if(k%3===0){for(let py=0;py+3<=y;py+=3)B.add('round',1,1,x+1,py,z+1,C.lgray);}
+     y+=2;});
+   const [lx,lz]=path[path.length-1]; const fx=Math.max(0,Math.min(n-6,lx-1)), fz=Math.max(0,Math.min(n-6,lz-1));
+   B.add('plate',6,6,fx,y,fz,C.gold); B.add('round',2,2,fx+2,y+1,fz+2,C.gold); B.add('cone',2,2,fx+2,y+4,fz+2,C.gold);
+   B.fig(fx,y+1,fz+4,figOf('ninja'),0);
+ }},
+ {id:'island',name:'Bitevní ostrov',sub:'Ostrov s pevností, truhlami, palmami a molem',plate:2,gen(B,n){
+   const r=rng(21), nz=noise2(r,6), G=n/2, c=G/2;
+   for(let i=0;i<G;i++)for(let j=0;j<G;j++){const d=Math.hypot(i-c+.5,j-c+.5)/(c-1)+(nz(i/G*5,j/G*5)-0.5)*0.35;
+     const x=i*2,z=j*2; if(d>0.95) continue;
+     if(d>0.8){B.add('plate',2,2,x,0,z,C.tan);continue;}
+     const h=d<0.4?2:1; for(let k=0;k<h;k++)B.add('brick',2,2,x,k*3,z,C.brown); B.add('plate',2,2,x,h*3,z,C.green);}
+   const fx=c*2-4,fz=c*2-4,fy=B.top(fx,fz,8,8);
+   for(let L=0;L<3;L++){const y=fy+L*7;
+     B.add('plate',8,8,fx,y,fz,C.tan);
+     wallRing(B,fx,fz,8,8,y+1,2,C.brown,(x,yy,z)=>(z===fz&&x>=fx+3&&x<=fx+4)||((x===fx||x===fx+7)&&z>=fz+3&&z<=fz+4&&yy>y+3));}
+   B.add('plate',8,8,fx,fy+21,fz,C.tan); [[0,0],[7,0],[0,7],[7,7]].forEach(([a,b])=>B.add('brick',1,1,fx+a,fy+22,fz+b,C.brown));
+   [[c*2+8,c*2+2],[c*2-10,c*2+6],[c*2+2,c*2-10],[c*2-6,c*2-9]].forEach(([x,z])=>{const y=B.top(x,z,2,1); B.add('brick',2,1,x,y,z,C.brown); B.add('tile',2,1,x,y+3,z,C.gold);});
+   [[c*2+12,c*2-6],[c*2-13,c*2-2],[c*2+6,c*2+12],[c*2-4,c*2+13]].forEach(([x,z])=>{const y=B.top(x,z,1,1);
+     for(let k=0;k<4;k++)B.add('round',1,1,x,y+k*3,z,C.tan); const t=y+12;
+     B.add('plate',1,1,x,t,z,C.green);B.add('plate',2,1,x+1,t,z,C.green);B.add('plate',2,1,x-2,t,z,C.green);B.add('plate',1,2,x,t,z+1,C.green);B.add('plate',1,2,x,t,z-2,C.green);});
+   for(let k=0;k<4;k++){const z=n-8+k*2; if(B.free(c*2-1,0,z)){B.add('round',1,1,c*2-1,0,z,C.brown);} B.add('plate',2,2,c*2-1,3,z,C.brown);}
+   B.fig(fx+3,fy+22,fz+2,figOf('knight'),0); B.fig(c*2+6,null,c*2+4,figOf('explorer'),3); B.fig(c*2-8,null,c*2-4,figOf('ninja'),1); B.fig(c*2-5,null,c*2+8,figOf('cowboy'),0);
+ }},
+ {id:'town',name:'Městečko',sub:'Silnice, domky, auta, park s fontánou',plate:0,gen(B,n){
+   const mid=n/2-2;
+   for(let x=0;x<n;x+=4){B.add('plate',4,4,x,0,mid,C.dgray);}
+   for(let z=0;z<n;z+=4){if(z===mid)continue;B.add('plate',4,4,mid,0,z,C.dgray);}
+   for(let x=1;x<n;x+=4){if(x>=mid-1&&x<=mid+4)continue;B.add('tile',2,1,x,1,mid+1,C.white);}
+   for(let z=1;z<n;z+=4){if(z>=mid-1&&z<=mid+4)continue;B.add('tile',1,2,mid+1,1,z,C.white);}
+   const H=[[3,4,8,6,C.red,C.dgray],[13,4,6,6,C.yellow,C.blue],[30,4,8,6,C.white,C.red],[40,4,6,8,C.teal,C.dgray],
+            [3,30,6,6,C.blue,C.red],[12,30,8,6,C.tan,C.brown],[30,32,6,6,C.pink,C.purple]];
+   H.forEach(([x,z,w,d,wc,rc])=>{B.add('plate',w,d+3,x,0,z,C.lgray);house(B,x,z+3,w,d,1,wc,rc);});
+   B.add('round',4,4,38,0,34,C.lgray); B.add('round',2,2,39,3,35,C.tblue); B.add('round',1,1,39,6,35,C.tblue);
+   tree(B,44,30,0,2); tree(B,44,41,0,3); tree(B,34,43,0,2);
+   car(B,mid,6,1,C.red); car(B,mid,36,1,C.blue);
+   B.fig(15,0,19,figOf('chef'),0); B.fig(28,0,27,figOf('fix'),2); B.fig(8,0,27,figOf('cowboy'),0); B.fig(36,0,40,figOf('builder'),3);
+ }},
+ {id:'castle',name:'Hrad',sub:'Hradby, věže, příkop, padací most a nádvoří',plate:0,gen(B,n){
+   const a=8,b=n-8,W=b-a;
+   for(let x=a-4;x<b+4;x+=2)for(const z of [a-4,b+2]) B.add('plate',2,2,x,0,z,C.tblue);
+   for(let z=a-2;z<b+2;z+=2)for(const x of [a-4,b+2]) B.add('plate',2,2,x,0,z,C.tblue);
+   const gx=a+W/2-2;
+   [[a-2,a-2],[b-2,a-2],[a-2,b-2],[b-2,b-2]].forEach(([x,z])=>{for(let k=0;k<6;k++)B.add('round',4,4,x,k*3,z,C.dgray);B.add('cone',2,2,x+1,18,z+1,C.red);B.add('round',1,1,x+1,21,z+1,C.white);B.add('tile',1,2,x+2,23,z+1,C.blue);});
+   wallRing(B,a,a,W,W,0,4,C.lgray,(x,y,z)=>z===a&&x>=gx&&x<gx+4&&y<9,(x,y,z)=>(x*3+z+y)%7===0?C.dgray:C.lgray);
+   for(let x=a;x<b;x+=2){B.add('brick',1,1,x,12,a,C.lgray);B.add('brick',1,1,x,12,b-1,C.lgray);}
+   for(let z=a+2;z<b-1;z+=2){B.add('brick',1,1,a,12,z,C.lgray);B.add('brick',1,1,b-1,12,z,C.lgray);}
+   B.add('plate',4,4,gx,1,a-4,C.brown);
+   const kx=n/2-5,kz=n/2-3;
+   wallRing(B,kx,kz,10,10,0,7,C.lgray,(x,y,z)=>(z===kz&&x>=kx+4&&x<=kx+5&&y<6)||(z===kz&&(x===kx+1||x===kx+2||x===kx+7||x===kx+8)&&y>=9&&y<12));
+   B.add('window',2,1,kx+1,9,kz,C.dgray,0,3);B.add('window',2,1,kx+7,9,kz,C.dgray,0,3);
+   B.add('plate',8,8,kx+1,21,kz+1,C.dgray);
+   for(let x=kx;x<kx+10;x+=2){B.add('brick',1,1,x,21,kz,C.lgray);B.add('brick',1,1,x,21,kz+9,C.lgray);}
+   for(let k=0;k<3;k++)B.add('round',2,2,kx+4,22+k*3,kz+4,C.lgray); B.add('cone',2,2,kx+4,31,kz+4,C.red);
+   B.fig(gx+1,2,a-3,figOf('knight'),0); B.fig(kx+4,22,kz+1,figOf('princess'),0); B.fig(a+4,0,a+6,figOf('chef'),1); B.fig(b-10,0,a+4,figOf('king'),0);
+   tree(B,a+5,b-6,0,2); tree(B,b-7,b-6,0,2);
+ }}
+];
+
+/* ================= plán ================= */
+const nextMats=[];
+function nextMat(i){if(!nextMats[i])nextMats[i]=new THREE.MeshStandardMaterial({color:lin(COLORS[i][1]),transparent:true,opacity:0.6,depthWrite:false,roughness:0.4,emissive:lin(COLORS[i][1]),emissiveIntensity:0.25});return nextMats[i];}
+function match(p,s){return p.t===s.t&&p.x===s.x&&p.y===s.y&&p.z===s.z&&p.h===s.h&&fw(p)===fw(s)&&fd(p)===fd(s)&&p.c===s.c&&(s.t!=='slope'||p.r===s.r);}
+function stepDone(s){const id=idAt(s); if(!id) return false; return match(pieces.get(id).p,s);}
+function startPlan(def){
+  endPlan();
+  const hm=new Map(); pieces.forEach(e=>{const p=e.p;for(let i=0;i<fw(p);i++)for(let j=0;j<fd(p);j++){const k=(p.x+i)+','+(p.z+j);hm.set(k,Math.max(hm.get(k)||0,p.y+p.h));}});
+  const cands=[];
+  for(let x=0;x+def.w<=N;x++)for(let z=0;z+def.d<=N;z++){
+    let by=0; for(let i=0;i<def.w;i++)for(let j=0;j<def.d;j++)by=Math.max(by,hm.get((x+i)+','+(z+j))||0);
+    const dc=Math.hypot(x+def.w/2-N/2,z+def.d/2-N/2); cands.push({x,z,by,s:by*6+dc});}
+  cands.sort((a,b)=>a.s-b.s);
+  let spot=null;
+  for(const c of cands){ if(def.pieces.every(p=>fits({...p,x:p.x+c.x,y:p.y+c.by,z:p.z+c.z}))){spot=c;break;} }
+  if(!spot){toast('Na podložce není místo pro tento plán. Zkus něco zbourat.');return;}
+  const steps=def.pieces.map(p=>({...p,x:p.x+spot.x,y:p.y+spot.by,z:p.z+spot.z}));
+  const ghosts=steps.map(s=>{const g=partsGroup(s,c=>planMat(c));g.children.forEach(m=>m.renderOrder=2);scene.add(g);return g;});
+  ghosts.forEach((g,i)=>{const parts=partsOf(steps[i]);let k=0;g.children.forEach(m=>{m.userData.c=parts[k++].c;});});
+  plan={def,steps,ghosts,last:-1};
+  $('planHud').hidden=false; $('planName').textContent='Plán: '+def.name; setMode('build');
+  const cx=spot.x+def.w/2-N/2, cz=spot.z+def.d/2-N/2;
+  flyTo({tx:cx,ty:spot.by*U+3,tz:cz,r:Math.max(18,Math.max(def.w,def.d)*3.2),ph:0.95});
+  planCheck(); updateCount();
+}
+function planCheck(){
+  if(!plan) return; let done=0,next=-1;
+  plan.steps.forEach((s,i)=>{const d=stepDone(s); plan.ghosts[i].visible=!d; if(d)done++; else if(next<0)next=i;});
+  const tot=plan.steps.length;
+  $('planStep').textContent=`${done} / ${tot}`; $('planBar').style.width=(done/tot*100)+'%';
+  if(next<0){completePlan();return;}
+  if(next!==plan.last){
+    if(plan.last>=0) snd('step');
+    if(plan.last>=0&&plan.ghosts[plan.last]) plan.ghosts[plan.last].children.forEach(m=>{m.material=planMat(m.userData.c);});
+    plan.last=next; const s=plan.steps[next];
+    plan.ghosts[next].children.forEach(m=>{m.material=nextMat(m.userData.c);});
+    typeIdx=TYPES.findIndex(t=>t.id===s.t); const t=TYPES[typeIdx];
+    const si=t.sizes.findIndex(z=>z[0]===s.w&&z[1]===s.d&&(z[2]||t.h)===s.h);
+    if(si>=0){sizeIdx[t.id]=si;override=null;} else override={t:s.t,w:s.w,d:s.d,h:s.h};
+    rot=s.r; colorIdx=s.c; syncUI();
+    $('planTip').textContent=`Teď: ${t.name} ${s.w}×${s.d}, ${COLORS[s.c][0].toLowerCase()}. Polož ho na blikající místo.`;
+  }
+  boxOutline(planOutline,plan.steps[next],'#FFD43B');
+}
+function completePlan(){
+  const def=plan.def; endPlan();
+  if(!prog.plans.includes(def.id)){prog.plans.push(def.id);saveProg();}
+  confetti(); snd('win'); toast(`Hotovo! Postavil jsi: ${def.name}`);
+  setTimeout(checkUnlocks,1200); planCardsDirty=true;
+}
+function endPlan(){
+  if(!plan) return;
+  plan.ghosts.forEach(g=>scene.remove(g)); plan=null; override=null;
+  $('planHud').hidden=true; planOutline.visible=false; syncUI(); updateCount();
+}
+$('planEnd').onclick=()=>{endPlan();toast('Plán ukončen. Stav si volně.');};
+
+/* ================= konfety ================= */
+const cvs=$('confetti'), cctx=cvs.getContext('2d'); let conf=[];
+function confetti(){ if(reduce) return; cvs.width=innerWidth; cvs.height=innerHeight;
+  const cols=['#E3241B','#FFD43B','#0055BF','#237841','#FE8A18','#F2A6C6','#36AEBF'];
+  for(let i=0;i<160;i++)conf.push({x:innerWidth/2+(Math.random()-.5)*200,y:innerHeight*0.4,vx:(Math.random()-.5)*16,vy:-Math.random()*14-4,w:8+Math.random()*8,h:5+Math.random()*5,r:Math.random()*6,vr:(Math.random()-.5)*0.4,c:cols[i%cols.length],life:1});}
+function drawConfetti(dt){ if(!conf.length) return; cctx.clearRect(0,0,cvs.width,cvs.height);
+  conf.forEach(p=>{p.vy+=30*dt;p.x+=p.vx*dt*30;p.y+=p.vy*dt*30;p.r+=p.vr;p.life-=dt*0.45;cctx.save();cctx.globalAlpha=Math.max(0,p.life);cctx.translate(p.x,p.y);cctx.rotate(p.r);cctx.fillStyle=p.c;cctx.fillRect(-p.w/2,-p.h/2,p.w,p.h);cctx.restore();});
+  conf=conf.filter(p=>p.life>0&&p.y<cvs.height+40); if(!conf.length) cctx.clearRect(0,0,cvs.width,cvs.height);}
+
+/* ================= panel dílků ================= */
+const typesEl=$('types'), sizesEl=$('sizes'), colorsEl=$('colors'), figsEl=$('figs');
 TYPES.forEach((t,i)=>{
-  const b=document.createElement('button'); b.className='type'; b.id='type-'+t.id; b.title=t.name;
+  const b=document.createElement('button'); b.className='type'+(t.id==='fig'?' figtab':''); b.id='type-'+t.id; b.title=t.name;
   b.innerHTML=`<svg viewBox="0 0 26 22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round">${t.icon}</svg><span>${t.name}</span>`;
-  b.onclick=()=>{typeIdx=i;rot=0;setMode('build');buildSizes();syncUI();snd('ui');}; typesEl.appendChild(b);
+  b.onclick=()=>{typeIdx=i;rot=0;override=null;setMode('build');syncUI();snd('ui');}; typesEl.appendChild(b);
 });
 function buildSizes(){
-  sizesEl.innerHTML=''; const t=curType();
+  sizesEl.innerHTML=''; const t=curType(); if(t.id==='fig') return;
   t.sizes.forEach((s,i)=>{
     const [w,d]=s, hh=s[2]||t.h; const b=document.createElement('button'); b.className='size'; b.id='size-'+i;
     b.title=`${t.name} ${w}×${d}`+(hh===6?' (dvojitá výška)':'')+(i<9?` · klávesa ${i+1}`:'');
@@ -573,34 +1218,342 @@ function buildSizes(){
     const dots=document.createElement('div'); dots.className='dots'; dots.style.gridTemplateColumns=`repeat(${w},${dot}px)`;
     for(let k=0;k<w*d;k++){const ii=document.createElement('i');ii.style.width=ii.style.height=dot+'px';dots.appendChild(ii);}
     b.appendChild(dots); const sp=document.createElement('span'); sp.textContent=`${w}×${d}`+(hh===6?'↑':''); b.appendChild(sp);
-    b.onclick=()=>{sizeIdx[t.id]=i;setMode('build');syncUI();snd('ui');}; sizesEl.appendChild(b);
+    b.onclick=()=>{sizeIdx[t.id]=i;override=null;setMode('build');syncUI();snd('ui');}; sizesEl.appendChild(b);
   });
 }
-COLORS.forEach(([name,hex,kind],i)=>{
+PAL.forEach(i=>{const [name,hex,kind]=COLORS[i];
   const b=document.createElement('button'); b.className='sw'+(kind?' '+kind:''); b.id='color-'+i; b.style.backgroundColor=hex; b.title=name; b.setAttribute('aria-label',name);
   b.onclick=()=>{colorIdx=i;if(mode!=='paint')setMode('build');syncUI();snd('ui');}; colorsEl.appendChild(b);
 });
+const LOCK='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>';
+let figsBuilt=false;
+function buildFigs(){
+  if(!figsBuilt&&$('figRow').hidden) return; figsBuilt=true;
+  figsEl.innerHTML='';
+  const mk=(id,name,f,locked,lockTxt,custom)=>{
+    const b=document.createElement('button'); b.className='fig'+(locked?' locked':''); b.dataset.id=id;
+    b.title=locked?`${name} – zamčeno: ${lockTxt}`:name;
+    b.innerHTML=`<img alt="" src="${figImg(f)}"><span>${name}</span>`+(locked?`<i class="lock">${LOCK}</i>`:'');
+    b.onclick=()=>{ if(locked){toast(`${name} je zamčený. ${lockTxt}.`);snd('bad');return;}
+      curFig=Object.assign({},f); curFigId=id; override=null; setMode('build'); syncUI(); snd('ui'); };
+    if(custom){const d=document.createElement('span');d.className='del';d.textContent='✕';d.setAttribute('role','button');d.title='Smazat postavičku';
+      d.onclick=ev=>{ev.stopPropagation();prog.custom=prog.custom.filter(c=>c.id!==id);saveProg();buildFigs();toast(name+' smazána');};b.appendChild(d);
+      const e=document.createElement('span');e.className='edit';e.textContent='✎';e.setAttribute('role','button');e.title='Upravit postavičku';
+      e.onclick=ev=>{ev.stopPropagation();openEditor(id);};b.appendChild(e);}
+    figsEl.appendChild(b);
+  };
+  const nb=document.createElement('button'); nb.className='fig new'; nb.innerHTML='<b>+</b><span>Vyrob si</span>'; nb.onclick=()=>openEditor(); figsEl.appendChild(nb);
+  prog.custom.forEach(c=>mk(c.id,c.name,c.f,false,'',true));
+  FIGS.forEach(f=>mk(f.id,f.name,f.f,!isUnlocked(f),f.lock&&f.lock.t));
+  syncFigSel();
+}
+function syncFigSel(){figsEl.querySelectorAll('.fig').forEach(b=>b.setAttribute('aria-pressed',b.dataset.id===curFigId&&curType().id==='fig'));}
+function checkUnlocks(){
+  const fresh=FIGS.filter(f=>f.lock&&isUnlocked(f)&&!prog.seen.includes(f.id));
+  if(fresh.length){fresh.forEach(f=>prog.seen.push(f.id));saveProg();buildFigs();
+    setTimeout(()=>{toast('Odemčená postavička: '+fresh.map(f=>f.name).join(', '));snd('win');},300);}
+}
+
+/* ================= editor postaviček ================= */
+let ed=null, edTab='head', edAng=0, edEditId=null;
+const STYLE_LOCK={
+  crown:()=>isUnlocked(FIGS.find(f=>f.id==='king'))?'':'Odemkne se se Zlatým králem',
+  wizard:()=>prog.placed>=100?'':'Polož 100 dílků',
+  wings:()=>prog.plans.length>=2?'':'Dokonči 2 plány',
+  jetpack:()=>prog.plans.includes('rocket')?'':'Dokonči plán Raketa'};
+const styleLock=id=>STYLE_LOCK[id]?STYLE_LOCK[id]():'';
+function openEditor(editId){
+  edEditId=editId||null; const c=editId&&prog.custom.find(x=>x.id===editId);
+  ed=JSON.parse(JSON.stringify(normFig(c?c.f:curFig))); edTab='head'; edAng=0; pSurf='f'; pTool='brush';
+  $('edName').value=c?c.name:'';
+  $('eTitle').textContent=c?'Uprav postavičku':'Vyrob si postavičku';
+  $('eSub').textContent=c?'Změň, co chceš, a ulož.':'Začínáš od vybrané postavičky. Přepni záložky Hlava, Tělo a Doplňky a poskládej si vlastní styl.';
+  $('edSave').textContent=c?'Uložit změny':'Uložit a postavit';
+  renderEditor(); openModal('editorModal');
+}
+function swRow(list,val,fn,noneLabel){
+  const row=document.createElement('div'); row.className='swrow';
+  if(noneLabel){const b=document.createElement('button');b.className='sw none';b.title=noneLabel;b.setAttribute('aria-label',noneLabel);b.setAttribute('aria-pressed',val<0);b.onclick=()=>fn(-1);row.appendChild(b);}
+  list.forEach(i=>{const [name,hex,kind]=COLORS[i];const b=document.createElement('button');b.className='sw'+(kind?' '+kind:'');b.style.backgroundColor=hex;b.title=name;b.setAttribute('aria-label',name);b.setAttribute('aria-pressed',i===val);b.onclick=()=>fn(i);row.appendChild(b);});
+  return row;
+}
+const SLOCK='<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.6"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>';
+function chipRow(list,val,fn){
+  const row=document.createElement('div'); row.className='chips';
+  list.forEach(([id,name])=>{const b=document.createElement('button');b.className='chip';b.textContent=name;b.setAttribute('aria-pressed',id===val);
+    const lk=styleLock(id); if(lk){b.classList.add('lockd');b.title=lk;b.innerHTML=name+' '+SLOCK;b.onclick=()=>{toast(`${name}: ${lk}`);snd('bad');};}
+    else b.onclick=()=>fn(id);
+    row.appendChild(b);});
+  return row;
+}
+const SKIN_ALL=[C.skin,C.skin2,C.skin3,C.yellow,C.lime,C.green,C.teal,C.blue,C.lav,C.pink,C.red,C.silver,C.gold,C.white,C.black];
+function renderEditor(){
+  const o=$('edOpts'); o.innerHTML='';
+  const tabs=document.createElement('div'); tabs.className='etabs'; tabs.setAttribute('role','tablist');
+  [['head','Hlava'],['body','Tělo'],['extra','Doplňky'],['paint','Malování']].forEach(([id,name])=>{const b=document.createElement('button');b.className='etab';b.textContent=name;b.setAttribute('role','tab');b.setAttribute('aria-selected',id===edTab);b.onclick=()=>{edTab=id;renderEditor();snd('ui');};tabs.appendChild(b);});
+  o.appendChild(tabs);
+  const sec=(t,node)=>{const h=document.createElement('h3');h.textContent=t;o.appendChild(h);o.appendChild(node);};
+  const set=(k,v)=>{ed[k]=v;renderEditor();snd('ui');};
+  if(edTab==='head'){
+    sec('Barva hlavy a rukou',swRow(SKIN_ALL,ed.sk,v=>set('sk',v)));
+    sec('Obličej',chipRow(FACES,ed.fc,v=>set('fc',v)));
+    sec('Tvářičky',chipRow([[0,'Ne'],[1,'Ano']],ed.bl?1:0,v=>set('bl',v)));
+    sec('Vousy',chipRow(BEARDS,ed.brd,v=>set('brd',v)));
+    if(ed.brd!=='none') sec('Barva vousů',swRow(PAL,ed.brc,v=>set('brc',v)));
+    sec('Na hlavě',chipRow(HATS,ed.hat,v=>set('hat',v)));
+    if(!NOCOLOR_HATS.includes(ed.hat)) sec('Barva vlasů nebo čepice',swRow(PAL,ed.hc,v=>set('hc',v)));
+  } else if(edTab==='body'){
+    sec('Tričko',swRow(PAL,ed.bd,v=>set('bd',v)));
+    sec('Rukávy',swRow(PAL,ed.ar,v=>set('ar',v),'Stejné jako tričko'));
+    sec('Vzor na tričku',chipRow(PATS,ed.pat,v=>set('pat',v)));
+    if(ed.pat!=='none') sec('Barva vzoru',swRow(PAL,ed.pc,v=>set('pc',v)));
+    sec('Spodek',chipRow(LEGS,ed.lgs,v=>set('lgs',v)));
+    sec(ed.lgs==='skirt'?'Barva sukně':'Barva kalhot',swRow(PAL,ed.lg,v=>set('lg',v)));
+    sec('Boty',swRow(PAL,ed.sh,v=>set('sh',v),'Bez bot'));
+  } else if(edTab==='extra'){
+    sec('Na zádech',chipRow(BACKS,ed.back,v=>set('back',v)));
+    if(ed.back!=='none') sec(ed.back==='jetpack'?'Barva nádrží':'Barva',swRow(PAL,ed.bc,v=>set('bc',v)));
+    sec('V ruce',chipRow(ACCS,ed.acc,v=>set('acc',v)));
+  } else renderPainter(o,sec);
+  $('edPrev').src=figImg(ed,240,280,edAng);
+}
+/* ----- malování oblečení ----- */
+let pSurf='f', pTool='brush', pColor=0, pMirror=false, painting=false, pCanvas=null;
+const STAMPS={
+  heart:['.xx.xx.','xxxxxxx','xxxxxxx','.xxxxx.','..xxx..','...x...'],
+  smile:['..xxx..','.x...x.','x.x.x.x','x.....x','x.xxx.x','.x...x.','..xxx..'],
+  bolt:['...xx','..xx.','.xx..','xxxx.','..xx.','.xx..','.x...'],
+  star:['...x...','...x...','xxxxxxx','.xxxxx.','..xxx..','.xx.xx.','xx...xx'],
+  skull:['.xxxxx.','xxxxxxx','x..x..x','xxxxxxx','.xx.xx.','.x.x.x.'],
+  flower:['.x.x.','xxxxx','.x+x.','xxxxx','.x.x.','..x..','..x..']};
+const STAMP_NAMES=[['heart','Srdce'],['smile','Smajlík'],['star','Hvězda'],['bolt','Blesk'],['skull','Lebka'],['flower','Kytka']];
+const blank=()=>'.'.repeat(PW*PH);
+function pStr(){return (ed.paint&&ed.paint[pSurf])||blank();}
+function pSet(str){const p=Object.assign({},ed.paint||{}); if(/[a-y]/.test(str)) p[pSurf]=str; else delete p[pSurf]; ed.paint=Object.keys(p).length?p:undefined;}
+function surfBase(){return COLORS[pSurf==='l'?ed.lg:ed.bd][1];}
+function drawPaint(){
+  if(!pCanvas) return; const S=28, x=pCanvas.getContext('2d'), str=pStr();
+  x.fillStyle=surfBase(); x.fillRect(0,0,PW*S,PH*S);
+  for(let i=0;i<PW*PH;i++){const ch=str[i]; if(ch==='.') continue; x.fillStyle=COLORS[PCH.indexOf(ch)][1]; x.fillRect((i%PW)*S,Math.floor(i/PW)*S,S,S);}
+  x.strokeStyle='rgba(0,0,0,.14)'; x.lineWidth=1; x.beginPath();
+  for(let i=1;i<PW;i++){x.moveTo(i*S+.5,0);x.lineTo(i*S+.5,PH*S);} for(let j=1;j<PH;j++){x.moveTo(0,j*S+.5);x.lineTo(PW*S,j*S+.5);} x.stroke();
+  if(pMirror){x.strokeStyle='rgba(227,36,27,.6)';x.lineWidth=2;x.setLineDash([6,5]);x.beginPath();x.moveTo(PW*S/2,0);x.lineTo(PW*S/2,PH*S);x.stroke();x.setLineDash([]);}
+}
+function pPreview(){ if(figThumb.size>240) figThumb.clear(); $('edPrev').src=figImg(ed,240,280,edAng); }
+function pFill(arr,x,y,ch){const from=arr[y*PW+x]; if(from===ch) return; const st=[[x,y]];
+  while(st.length){const [a,b]=st.pop(); if(a<0||b<0||a>=PW||b>=PH||arr[b*PW+a]!==from) continue; arr[b*PW+a]=ch; st.push([a+1,b],[a-1,b],[a,b+1],[a,b-1]);}}
+function paintAt(e){
+  const r=pCanvas.getBoundingClientRect(); const x=Math.floor((e.clientX-r.left)/r.width*PW), y=Math.floor((e.clientY-r.top)/r.height*PH);
+  if(x<0||y<0||x>=PW||y>=PH) return;
+  const ch=pTool==='erase'?'.':PCH[pColor]; const arr=pStr().split('');
+  const pts=[[x,y]]; if(pMirror&&PW-1-x!==x) pts.push([PW-1-x,y]);
+  if(pTool==='fill'){pts.forEach(([a,b])=>pFill(arr,a,b,ch));} else pts.forEach(([a,b])=>arr[b*PW+a]=ch);
+  const ns=arr.join(''); if(ns!==pStr()){pSet(ns);drawPaint();}
+}
+function stamp(id){
+  const rows=STAMPS[id], h=rows.length, w=rows[0].length, ox=Math.floor((PW-w)/2), oy=Math.floor((PH-h)/2), arr=pStr().split('');
+  rows.forEach((row,j)=>[...row].forEach((c,i)=>{ if(c==='x') arr[(oy+j)*PW+ox+i]=PCH[pColor]; else if(c==='+') arr[(oy+j)*PW+ox+i]=PCH[C.yellow]; }));
+  pSet(arr.join('')); drawPaint(); pPreview(); snd('paint');
+}
+function renderPainter(o,sec){
+  const surf=[['f','Tričko vpředu'],['b','Tričko vzadu'],['l',ed.lgs==='skirt'?'Sukně':'Kalhoty']];
+  sec('Kam maluješ',chipRow(surf,pSurf,v=>{pSurf=v;edAng=v==='b'?Math.PI:0;renderEditor();snd('ui');}));
+  const wrap=document.createElement('div'); wrap.className='pwrap';
+  pCanvas=document.createElement('canvas'); pCanvas.width=PW*28; pCanvas.height=PH*28; pCanvas.className='pgrid'; pCanvas.setAttribute('aria-label','Plátno na malování oblečení');
+  pCanvas.addEventListener('pointerdown',e=>{e.preventDefault();pCanvas.setPointerCapture(e.pointerId);painting=true;paintAt(e);});
+  pCanvas.addEventListener('pointermove',e=>{if(painting)paintAt(e);});
+  const up=()=>{if(painting){painting=false;pPreview();snd('paint');}};
+  pCanvas.addEventListener('pointerup',up); pCanvas.addEventListener('pointercancel',up);
+  wrap.appendChild(pCanvas); o.appendChild(wrap); drawPaint();
+  const tools=document.createElement('div'); tools.className='chips ptools';
+  [['brush','Štětec'],['fill','Kyblík'],['erase','Guma']].forEach(([id,n])=>{const b=document.createElement('button');b.className='chip';b.textContent=n;b.setAttribute('aria-pressed',pTool===id);b.onclick=()=>{pTool=id;renderEditor();snd('ui');};tools.appendChild(b);});
+  const mb=document.createElement('button');mb.className='chip';mb.textContent='Zrcadlo';mb.title='Maluje zároveň na levou i pravou stranu';mb.setAttribute('aria-pressed',pMirror);mb.onclick=()=>{pMirror=!pMirror;renderEditor();snd('ui');};tools.appendChild(mb);
+  const cb=document.createElement('button');cb.className='chip';cb.textContent='Smazat obrázek';cb.onclick=()=>{pSet(blank());drawPaint();pPreview();snd('smash');};tools.appendChild(cb);
+  o.appendChild(tools);
+  sec('Barva',swRow(PAL,pTool==='erase'?-2:pColor,v=>{pColor=v;if(pTool==='erase')pTool='brush';renderEditor();snd('ui');}));
+  sec('Obrázky na jedno kliknutí',chipRow(STAMP_NAMES,'',v=>stamp(v)));
+}
+$('edLeft').onclick=()=>{edAng-=Math.PI/4;$('edPrev').src=figImg(ed,240,280,edAng);snd('ui');};
+$('edRight').onclick=()=>{edAng+=Math.PI/4;$('edPrev').src=figImg(ed,240,280,edAng);snd('ui');};
+$('edRandom').onclick=()=>{const R=a=>a[Math.floor(Math.random()*a.length)], ok=l=>l.map(x=>x[0]).filter(x=>!styleLock(x));
+  ed=normFig({sk:R(SKIN_ALL.slice(0,7)),fc:R(ok(FACES)),hat:R(ok(HATS)),hc:R(PAL),bd:R(PAL),ar:Math.random()<0.6?-1:R(PAL),lg:R(PAL),lgs:R(ok(LEGS)),sh:Math.random()<0.4?-1:R(PAL),
+    pat:R(ok(PATS)),pc:R(PAL),bl:Math.random()<0.3?1:0,brd:Math.random()<0.75?'none':R(['mustache','beard']),brc:R(PAL),back:Math.random()<0.5?'none':R(ok(BACKS)),bc:R(PAL),acc:R(ok(ACCS)),paint:ed.paint});
+  renderEditor(); snd('paint');};
+$('edSave').onclick=()=>{
+  let name=($('edName').value||'').trim();
+  if(edEditId){const c=prog.custom.find(x=>x.id===edEditId); if(c){c.f=JSON.parse(JSON.stringify(ed)); if(name)c.name=name; name=c.name;}}
+  else {name=name||'Moje postavička '+(prog.custom.length+1); edEditId='c'+Date.now(); prog.custom.unshift({id:edEditId,name,f:JSON.parse(JSON.stringify(ed))}); prog.custom=prog.custom.slice(0,24);}
+  saveProg();
+  curFig=JSON.parse(JSON.stringify(ed)); curFigId=edEditId; typeIdx=TYPES.findIndex(t=>t.id==='fig'); override=null;
+  closeModals(); setMode('build'); syncUI(); buildFigs(); toast(`${name} je připravená. Klikni na podložku a postav ji.`); snd('win');
+};
+
+/* ================= okna: světy a plány ================= */
+function openModal(id){closeModals();closePops();$(id).hidden=false;}
+function closeModals(){['worldsModal','plansModal','editorModal','mapModal'].forEach(i=>$(i).hidden=true);document.querySelectorAll('.card.armed').forEach(c=>{c.classList.remove('armed');c.querySelector('small').textContent=c.dataset.sub;});}
+document.querySelectorAll('[data-close]').forEach(b=>b.onclick=closeModals);
+document.querySelectorAll('.scrim').forEach(s=>s.addEventListener('pointerdown',e=>{if(e.target===s)closeModals();}));
+document.querySelectorAll('[data-open]').forEach(b=>b.onclick=()=>{b.dataset.open==='worlds'?openWorlds():openPlans();});
+const worldThumbs={}; let planCardsDirty=true;
+function card(img,name,sub,badge){
+  const b=document.createElement('button'); b.className='card'; b.dataset.sub=sub;
+  b.innerHTML=`<div class="pic">${img?`<img alt="" src="${img}">`:'<span class="wait">Kreslím náhled…</span>'}${badge?`<span class="badge">${badge}</span>`:''}</div><div class="txt"><b>${name}</b><small>${sub}</small></div>`;
+  return b;
+}
+function openWorlds(){
+  openModal('worldsModal'); const wc=$('worldCards'); wc.innerHTML='';
+  const pcard=card(null,'Namaluj si svět','Namaluj mapu a postaví se z ní svět'); pcard.classList.add('paintcard'); pcard.querySelector('.pic').innerHTML='<b>Malovat</b>'; pcard.onclick=()=>openMapper(); wc.appendChild(pcard);
+  WORLDS.forEach((w,i)=>{
+    const b=card(worldThumbs[w.id],w.name,w.sub); wc.appendChild(b);
+    b.onclick=()=>{
+      if(pieces.size&&!b.classList.contains('armed')){wc.querySelectorAll('.card.armed').forEach(c=>{c.classList.remove('armed');c.querySelector('small').textContent=c.dataset.sub;});
+        b.classList.add('armed'); b.querySelector('small').textContent='Klikni znovu. Tvoje stavba se nahradí tímto světem.'; snd('ui'); return;}
+      loadWorld(w);
+    };
+    if(!worldThumbs[w.id]) setTimeout(()=>{const B=Builder(48);w.gen(B,48);worldThumbs[w.id]=renderThumb(B.list,320,240,{plate:w.plate,n:48,dir:new THREE.Vector3(1,1.05,1.35),zoom:0.62});
+      const pic=b.querySelector('.pic'); pic.innerHTML=`<img alt="" src="${worldThumbs[w.id]}">`;},60+i*40);
+  });
+}
+function loadWorld(w){
+  endPlan(); clearAll(); N=48; plateColor=w.plate; buildPlate();
+  const B=Builder(N); w.gen(B,N); B.list.forEach(p=>addPiece(p));
+  undoS.length=redoS.length=0; syncHist(); Object.assign(cam,defaultView()); placeCam(); syncUI(); save(); closeModals();
+  if(w.id!=='empty'&&!prog.worlds.includes(w.id)){prog.worlds.push(w.id);saveProg();}
+  toast(w.id==='empty'?'Prázdná podložka je připravená':`${w.name} je tvůj. Stav dál!`); snd('win'); checkUnlocks();
+}
+/* ================= namaluj si svět ================= */
+const MG=24;
+const MT=[['g','Tráva','#4FA34A'],['w','Voda','#3E8DD6'],['s','Písek','#E4CD9E'],['r','Cesta','#55585C'],['h','Kopec','#2E7A33'],['m','Hora','#9AA0A6'],['f','Les','#1E5A2C'],['k','Kytky','#7CC36B'],['l','Láva','#E5482B'],['.','Guma','#DDE6EC']];
+const MO=[['D','Domeček',3,3,'#C91A09'],['T','Věž',2,2,'#8E9296'],['A','Auto',2,3,'#0055BF'],['P','Postavička',1,1,'#FE8A18']];
+const MOBJ=Object.fromEntries(MO.map(o=>[o[0],{w:o[2],d:o[3],col:o[4],name:o[1]}]));
+let mapStr=null, mBrush='g', mSize=2, mFillMode=false, mDown=false, mArmT;
+function mapGet(){if(!mapStr){mapStr=(typeof prog.map==='string'&&prog.map.length===MG*MG)?prog.map:'g'.repeat(MG*MG);}return mapStr.split('');}
+function mapPut(a){mapStr=a.join('');prog.map=mapStr;saveProg();}
+const isObj=c=>'DdTtAaPp'.includes(c);
+function objAnchors(a){const r=[];for(let j=0;j<MG;j++)for(let i=0;i<MG;i++){const c=a[j*MG+i];if(MOBJ[c])r.push([i,j,c]);}return r;}
+function clearObjAt(a,x,y){objAnchors(a).forEach(([i,j,c])=>{const o=MOBJ[c];if(x>=i&&x<i+o.w&&y>=j&&y<j+o.d){for(let v=0;v<o.d;v++)for(let u=0;u<o.w;u++)a[(j+v)*MG+i+u]='g';}});}
+function drawMap(){
+  const cv=$('mapCv'), x=cv.getContext('2d'), S=cv.width/MG, a=mapGet();
+  for(let j=0;j<MG;j++)for(let i=0;i<MG;i++){let c=a[j*MG+i]; const t=MT.find(q=>q[0]===c);
+    x.fillStyle=t?t[2]:'#4FA34A'; x.fillRect(i*S,j*S,S,S);
+    const cx=i*S+S/2, cy=j*S+S/2;
+    if(c==='h'){x.fillStyle='#8B5A2B';x.beginPath();x.moveTo(i*S+3,j*S+S-3);x.lineTo(cx,j*S+4);x.lineTo(i*S+S-3,j*S+S-3);x.fill();x.fillStyle='#4FA34A';x.beginPath();x.moveTo(cx-4,j*S+9);x.lineTo(cx,j*S+4);x.lineTo(cx+4,j*S+9);x.fill();}
+    if(c==='m'){x.fillStyle='#6C6E68';x.beginPath();x.moveTo(i*S+2,j*S+S-2);x.lineTo(cx,j*S+2);x.lineTo(i*S+S-2,j*S+S-2);x.fill();x.fillStyle='#fff';x.beginPath();x.moveTo(cx-4,j*S+8);x.lineTo(cx,j*S+2);x.lineTo(cx+4,j*S+8);x.fill();}
+    if(c==='f'){x.fillStyle='#2F8F3A';x.beginPath();x.arc(cx,cy-1,S*0.32,0,7);x.fill();x.fillStyle='#6B3A1E';x.fillRect(cx-1.5,cy+3,3,5);}
+    if(c==='k'){[['#E02B2B',-4,-3],['#F2CD37',4,-1],['#F2A6C6',-1,4]].forEach(([col,dx,dy])=>{x.fillStyle=col;x.beginPath();x.arc(cx+dx,cy+dy,2.4,0,7);x.fill();});}
+    if(c==='w'||c==='l'){x.strokeStyle='rgba(255,255,255,.45)';x.lineWidth=1.5;x.beginPath();x.moveTo(i*S+4,cy);x.quadraticCurveTo(cx-2,cy-4,cx,cy);x.quadraticCurveTo(cx+2,cy+4,i*S+S-4,cy);x.stroke();}
+    if(isObj(c)){x.fillStyle='#4FA34A';x.fillRect(i*S,j*S,S,S);}
+  }
+  objAnchors(a).forEach(([i,j,c])=>{const o=MOBJ[c],X=i*S+2,Y=j*S+2,W=o.w*S-4,H=o.d*S-4;
+    x.fillStyle='rgba(0,0,0,.18)';x.fillRect(X+2,Y+3,W,H);x.fillStyle=o.col;x.fillRect(X,Y,W,H);x.strokeStyle='#16212B';x.lineWidth=2;x.strokeRect(X,Y,W,H);
+    x.fillStyle='#fff';x.font='bold '+Math.round(S*0.62)+'px sans-serif';x.textAlign='center';x.textBaseline='middle';
+    x.fillText(c==='D'?'Dům':c==='T'?'Věž':c==='A'?'Auto':'',X+W/2,Y+H/2);
+    if(c==='P'){x.fillStyle='#F3C9A0';x.beginPath();x.arc(X+W/2,Y+H/2-2,4,0,7);x.fill();}});
+  x.strokeStyle='rgba(0,0,0,.08)';x.lineWidth=1;x.beginPath();for(let k=1;k<MG;k++){x.moveTo(k*S+.5,0);x.lineTo(k*S+.5,cv.height);x.moveTo(0,k*S+.5);x.lineTo(cv.width,k*S+.5);}x.stroke();
+}
+function mapCell(e){const cv=$('mapCv'),r=cv.getBoundingClientRect();return [Math.floor((e.clientX-r.left)/r.width*MG),Math.floor((e.clientY-r.top)/r.height*MG)];}
+function mapPaint(e,first){
+  const [x,y]=mapCell(e); if(x<0||y<0||x>=MG||y>=MG) return; const a=mapGet();
+  if(MOBJ[mBrush]){ if(!first) return; const o=MOBJ[mBrush];
+    const ax=Math.min(MG-o.w,x), ay=Math.min(MG-o.d,y);
+    for(let v=0;v<o.d;v++)for(let u=0;u<o.w;u++)clearObjAt(a,ax+u,ay+v);
+    for(let v=0;v<o.d;v++)for(let u=0;u<o.w;u++){const c=a[(ay+v)*MG+ax+u];a[(ay+v)*MG+ax+u]=(u||v)?mBrush.toLowerCase():mBrush; if(!(u||v)) continue;}
+    for(let v=0;v<o.d;v++)for(let u=0;u<o.w;u++){if(u||v)a[(ay+v)*MG+ax+u]='x';}
+    mapPut(a); drawMap(); snd('place'); return; }
+  if(mFillMode){ if(!first) return; clearObjAt(a,x,y); const from=a[y*MG+x]; if(from!==mBrush){const st=[[x,y]];while(st.length){const [i,j]=st.pop();if(i<0||j<0||i>=MG||j>=MG||a[j*MG+i]!==from)continue;a[j*MG+i]=mBrush;st.push([i+1,j],[i-1,j],[i,j+1],[i,j-1]);}} mapPut(a);drawMap();snd('paint');return;}
+  const r0=Math.floor((mSize-1)/2);
+  for(let v=0;v<mSize;v++)for(let u=0;u<mSize;u++){const i=x-r0+u,j=y-r0+v;if(i<0||j<0||i>=MG||j>=MG)continue;if(isObj(a[j*MG+i])||a[j*MG+i]==='x')clearObjAt(a,i,j);a[j*MG+i]=mBrush;}
+  mapPut(a); drawMap();
+}
+function randomIsland(){
+  const r=rng(Math.floor(Math.random()*1e6)), nz=noise2(r,6), a=[];
+  for(let j=0;j<MG;j++)for(let i=0;i<MG;i++){const d=Math.hypot(i-MG/2+.5,j-MG/2+.5)/(MG/2)+(nz(i/MG*5,j/MG*5)-0.5)*0.5;
+    a.push(d>0.92?'w':d>0.8?'s':d<0.3?(r()<0.5?'m':'h'):d<0.45?'h':r()<0.18?'f':r()<0.06?'k':'g');}
+  const spots=[[5,10],[15,6],[14,15],[8,4]]; spots.forEach(([i,j],k)=>{if(a[j*MG+i]==='g'||a[j*MG+i]==='f'||a[j*MG+i]==='k'){const c=k%2?'P':'D';const o=MOBJ[c];let ok=true;for(let v=0;v<o.d;v++)for(let u=0;u<o.w;u++)if('hmws'.includes(a[(j+v)*MG+i+u]))ok=false;
+    if(ok){for(let v=0;v<o.d;v++)for(let u=0;u<o.w;u++)a[(j+v)*MG+i+u]=(u||v)?'x':c;}}});
+  mapPut(a); drawMap(); snd('paint');
+}
+function genPainted(B){
+  const a=mapGet(), uFig=FIGS.filter(isUnlocked).map(f=>f.f), r=rng(5);
+  const walls=[C.red,C.yellow,C.white,C.teal,C.tan,C.blue,C.pink], roofs=[C.dgray,C.blue,C.red,C.brown,C.purple];
+  for(let j=0;j<MG;j++)for(let i=0;i<MG;i++){const c=a[j*MG+i],x=i*2,z=j*2;
+    if(c==='.') continue;
+    if(c==='w'){B.add('plate',2,2,x,0,z,C.tblue);continue;} if(c==='s'){B.add('plate',2,2,x,0,z,C.tan);continue;}
+    if(c==='r'){B.add('plate',2,2,x,0,z,C.dgray);continue;} if(c==='l'){B.add('plate',2,2,x,0,z,C.tred);continue;}
+    if(c==='h'){B.add('brick',2,2,x,0,z,C.brown);B.add('brick',2,2,x,3,z,C.brown);B.add('plate',2,2,x,6,z,C.green);continue;}
+    if(c==='m'){for(let k=0;k<4;k++)B.add('brick',2,2,x,k*3,z,k<3?C.lgray:C.dgray);B.add('plate',2,2,x,12,z,C.white);continue;}
+    B.add('plate',2,2,x,0,z,C.green);
+    if(c==='f'){B.add('round',1,1,x,1,z,C.brown);B.add('round',1,1,x,4,z,C.brown);B.add('brick',2,2,x,7,z,C.dgreen);B.add('brick',2,2,x,10,z,C.green);B.add('cone',2,2,x,13,z,C.dgreen);}
+    if(c==='k'){B.add('plate',1,1,x,1,z,[C.red,C.yellow,C.pink][(i+j)%3]);B.add('plate',1,1,x+1,1,z+1,[C.yellow,C.pink,C.red][(i+j)%3]);}
+  }
+  objAnchors(a).forEach(([i,j,c],k)=>{const x=i*2,z=j*2;
+    if(c==='D') house(B,x,z,6,6,1,walls[k%walls.length],roofs[k%roofs.length]);
+    else if(c==='T'){const T=PLANS.find(p=>p.id==='tower');T.pieces.forEach(p=>B.add(p.t,p.w,p.d,p.x+x,p.y+1,p.z+z,p.c,p.r,p.h));}
+    else if(c==='A') car(B,x,z,1,walls[(k+2)%walls.length]);
+    else if(c==='P'&&uFig.length) B.fig(x,1,z,uFig[Math.floor(r()*uFig.length)],0);
+  });
+}
+function openMapper(){
+  openModal('mapModal');
+  const mk=(el,list,isObjList)=>{const box=$(el);box.innerHTML='';list.forEach(q=>{const b=document.createElement('button');b.className='brush';b.dataset.b=q[0];
+    b.innerHTML=`<i style="background:${isObjList?q[4]:q[2]}"></i>${q[1]}`;b.onclick=()=>{mBrush=q[0];syncMapUI();snd('ui');};box.appendChild(b);});};
+  mk('mTerrain',MT,false); mk('mObjects',MO,true);
+  const sz=$('mSize'); sz.innerHTML=''; [[1,'Malý'],[2,'Střední'],[3,'Velký']].forEach(([v,n])=>{const b=document.createElement('button');b.className='chip';b.dataset.s=v;b.textContent=n;b.onclick=()=>{mSize=v;mFillMode=false;syncMapUI();snd('ui');};sz.appendChild(b);});
+  disarmBuild(); syncMapUI(); drawMap();
+}
+function syncMapUI(){
+  document.querySelectorAll('#mapModal .brush').forEach(b=>b.setAttribute('aria-pressed',b.dataset.b===mBrush));
+  document.querySelectorAll('#mSize .chip').forEach(b=>b.setAttribute('aria-pressed',!mFillMode&&+b.dataset.s===mSize));
+  $('mFill').setAttribute('aria-pressed',mFillMode);
+  $('mHint').textContent=MOBJ[mBrush]?`${MOBJ[mBrush].name}: klikni na mapu, kam ji chceš postavit.`:mFillMode?'Kyblík vybarví celou souvislou plochu.':'Táhni po mapě a maluj.';
+}
+function disarmBuild(){clearTimeout(mArmT);const b=$('mBuild');b.classList.remove('armed');b.textContent='Postavit svět';}
+const mcv=$('mapCv');
+mcv.addEventListener('pointerdown',e=>{e.preventDefault();mcv.setPointerCapture(e.pointerId);mDown=true;mapPaint(e,true);});
+mcv.addEventListener('pointermove',e=>{if(mDown)mapPaint(e,false);});
+const mUp=()=>{if(mDown){mDown=false;snd('paint');}}; mcv.addEventListener('pointerup',mUp); mcv.addEventListener('pointercancel',mUp);
+$('mFill').onclick=()=>{mFillMode=!mFillMode;if(MOBJ[mBrush])mBrush='g';syncMapUI();snd('ui');};
+$('mIsland').onclick=randomIsland;
+$('mClear').onclick=()=>{mapPut('g'.repeat(MG*MG).split(''));drawMap();snd('smash');};
+$('mBuild').onclick=()=>{const b=$('mBuild');
+  if(pieces.size&&!b.classList.contains('armed')){b.classList.add('armed');b.textContent='Klikni znovu. Tvoje stavba se nahradí.';mArmT=setTimeout(disarmBuild,3500);return;}
+  disarmBuild(); loadWorld({id:'painted',name:'Tvůj namalovaný svět',plate:0,gen:genPainted});
+};
+function openPlans(){
+  openModal('plansModal'); const pc=$('planCards'); pc.innerHTML='';
+  PLANS.forEach((pl,i)=>{
+    if(!pl.img) pl.img=renderThumb(pl.pieces,320,240,{zoom:0.85});
+    const done=prog.plans.includes(pl.id);
+    const b=card(pl.img,pl.name,`${pl.sub} · ${pl.pieces.length} dílků`,done?'Hotovo':''); pc.appendChild(b);
+    b.onclick=()=>{closeModals();startPlan(pl);snd('ui');};
+  });
+}
+
+/* ================= nastavení a ovládání ================= */
 NS.forEach(n=>{const b=document.createElement('button');b.className='chip';b.dataset.n=n;b.textContent=`${n} × ${n}`;b.onclick=()=>setN(n);$('nChips').appendChild(b);});
 PLATES.forEach(([name,hex],i)=>{const b=document.createElement('button');b.className='chip';b.dataset.i=i;b.innerHTML=`<b style="background:${hex}"></b>${name}`;b.onclick=()=>{plateColor=i;plateMat.color.copy(lin(hex));syncUI();save();};$('pChips').appendChild(b);});
-
 function setMode(m){mode=m;curMode=m;target=null;hoverId=null;refreshVisuals();syncUI();}
+let lastType=-1;
 function syncUI(){
-  TYPES.forEach((t,i)=>$('type-'+t.id).setAttribute('aria-pressed',i===typeIdx));
-  sizesEl.querySelectorAll('.size').forEach((b,i)=>b.setAttribute('aria-pressed',i===sizeIdx[curType().id]));
-  COLORS.forEach((c,i)=>$('color-'+i).setAttribute('aria-pressed',i===colorIdx));
+  const t=curType(); const isFig=t.id==='fig';
+  if(lastType!==typeIdx){lastType=typeIdx;buildSizes();}
+  $('pieceRow').hidden=isFig; $('figRow').hidden=!isFig; if(isFig&&!figsBuilt) buildFigs();
+  TYPES.forEach((tt,i)=>$('type-'+tt.id).setAttribute('aria-pressed',i===typeIdx));
+  sizesEl.querySelectorAll('.size').forEach((b,i)=>b.setAttribute('aria-pressed',!override&&i===sizeIdx[t.id]));
+  PAL.forEach(i=>$('color-'+i).setAttribute('aria-pressed',i===colorIdx));
   ['build','smash','paint','pick'].forEach(m=>$('t-'+m).setAttribute('aria-pressed',mode===m));
   $('soundBtn').setAttribute('aria-pressed',soundOn); $('waves').style.display=soundOn?'':'none';
   $('nightBtn').setAttribute('aria-pressed',night);
   $('nChips').querySelectorAll('.chip').forEach(b=>b.setAttribute('aria-pressed',+b.dataset.n===N));
   $('pChips').querySelectorAll('.chip').forEach(b=>b.setAttribute('aria-pressed',+b.dataset.i===plateColor));
-  rebuildGhost();
+  syncFigSel(); rebuildGhost();
 }
-function rotate(){rot=(rot+1)%4;rebuildGhost();if(target){const l=lastMouse;computeTarget(pick(l.x,l.y),curMode);}refreshVisuals();snd('ui');}
-const lastMouse={x:0,y:0}; window.addEventListener('pointermove',e=>{lastMouse.x=e.clientX;lastMouse.y=e.clientY;});
+const lastMouse={x:-1,y:-1}; window.addEventListener('pointermove',e=>{lastMouse.x=e.clientX;lastMouse.y=e.clientY;});
+function rotate(){rot=(rot+1)%4;rebuildGhost();if(target){computeTarget(pick(lastMouse.x,lastMouse.y),curMode);}refreshVisuals();snd('ui');}
 $('t-build').onclick=()=>setMode('build'); $('t-smash').onclick=()=>setMode('smash');
 $('t-paint').onclick=()=>setMode('paint'); $('t-pick').onclick=()=>setMode('pick');
 $('t-rot').onclick=rotate; $('t-undo').onclick=undo; $('t-redo').onclick=redo;
-$('t-view').onclick=()=>{Object.assign(camGoal,defaultView());camAnim=true;};
+$('t-view').onclick=()=>flyTo(defaultView());
 $('soundBtn').onclick=()=>{soundOn=!soundOn;syncUI();};
 $('nightBtn').onclick=()=>setNight(!night);
 function togglePop(id,btn){const p=$(id),open=p.hidden;closePops();p.hidden=!open;$(btn).setAttribute('aria-pressed',open);}
@@ -612,12 +1565,12 @@ function disarm(){clearTimeout(armT);clearBtn.classList.remove('armed');clearBtn
 clearBtn.onclick=()=>{
   if(!pieces.size){toast('Podložka už je prázdná');return;}
   if(!clearBtn.classList.contains('armed')){clearBtn.classList.add('armed');clearBtn.textContent='Opravdu smazat? Klikni znovu';armT=setTimeout(disarm,3000);return;}
-  disarm(); const list=[...pieces.values()].map(e=>e.p); apply({t:'clear'},1); push({t:'clear',list}); save(); closePops(); toast('Smazáno · Zpět to vrátí'); snd('smash');
+  disarm(); const list=[...pieces.values()].map(e=>e.p); clearAll(); push({t:'clear',list}); planCheck(); save(); closePops(); toast('Smazáno · Zpět to vrátí'); snd('smash');
 };
 function setN(n){
-  if(n===N) return;
+  if(n===N) return; endPlan();
   const off=Math.floor((n-N)/2), list=[...pieces.values()].map(e=>({...e.p,x:e.p.x+off,z:e.p.z+off}));
-  [...pieces.keys()].forEach(removeId); N=n; buildPlate();
+  clearAll(); N=n; buildPlate();
   let lost=0; list.forEach(p=>{if(!addPiece(p))lost++;});
   undoS.length=redoS.length=0; syncHist(); Object.assign(cam,defaultView()); placeCam(); syncUI(); save();
   toast(lost?`Podložka ${n}×${n} · ${lost} dílků se nevešlo`:`Podložka ${n}×${n}`);
@@ -627,13 +1580,15 @@ function setNight(v){
   scene.fog.color.set(v?'#1d2b47':'#E9F1F6');
   hemi.intensity=v?0.25:0.6; hemi.color.set(v?'#8fa8ff':'#ffffff'); hemi.groundColor.set(v?'#1a2030':'#8a9aa8');
   sun.intensity=v?0.45:0.95; sun.color.set(v?'#a9c1ff':'#fff3e2');
-  ground.material.color.copy(lin(v?'#1F2A3D':'#C4D8E8'));
-  stars.visible=v;
-  mats.forEach(m=>{if(m&&m.userData.kind==='trans')m.emissiveIntensity=v?0.9:0;});
+  ground.material.color.copy(lin(v?'#1F2A3D':'#C4D8E8')); stars.visible=v;
+  mats.forEach((m,i)=>{if(m&&m.userData.kind==='trans')m.emissiveIntensity=v?0.9:(i===C.flame?0.5:0);});
   syncUI(); save();
 }
+const keys=new Set();
 window.addEventListener('keydown',e=>{
-  if(e.target.closest&&e.target.closest('input,textarea')) return;
+  const modalOpen=[...document.querySelectorAll('.scrim')].some(s=>!s.hidden);
+  if(e.key==='Escape'){closeModals();closePops();return;}
+  if(modalOpen||(e.target.closest&&e.target.closest('input,textarea'))) return;
   const k=e.key.toLowerCase();
   if((e.ctrlKey||e.metaKey)&&k==='z'){e.preventDefault();e.shiftKey?redo():undo();return;}
   if((e.ctrlKey||e.metaKey)&&k==='y'){e.preventDefault();redo();return;}
@@ -641,31 +1596,28 @@ window.addEventListener('keydown',e=>{
   if(k==='r') rotate(); else if(k==='b') setMode('build'); else if(k==='x') setMode('smash');
   else if(k==='c') setMode('paint'); else if(k==='i') setMode('pick'); else if(k==='v') $('t-view').click();
   else if(k==='n') setNight(!night); else if(k==='h') togglePop('helpPop','helpBtn');
-  else if(k==='escape') closePops();
-  else if(k>='1'&&k<='9'){const t=curType();const i=+k-1;if(i<t.sizes.length){sizeIdx[t.id]=i;syncUI();}}
+  else if(k>='1'&&k<='9'){const t=curType();const i=+k-1;if(t.id!=='fig'&&i<t.sizes.length){sizeIdx[t.id]=i;override=null;syncUI();}}
   else keys.add(k);
   if(e.key==='Shift'||e.key==='Alt'){curMode=effMode(e);computeTarget(pick(lastMouse.x,lastMouse.y),curMode);refreshVisuals();}
 });
 window.addEventListener('keyup',e=>{keys.delete(e.key.toLowerCase());if(e.key==='Shift'||e.key==='Alt'){curMode=mode;computeTarget(pick(lastMouse.x,lastMouse.y),curMode);refreshVisuals();}});
 window.addEventListener('blur',()=>keys.clear());
-const keys=new Set();
-let toastT; function toast(t){const x=$('toast');x.textContent=t;x.classList.add('show');clearTimeout(toastT);toastT=setTimeout(()=>x.classList.remove('show'),1600);}
+let toastT; function toast(t){const x=$('toast');x.textContent=t;x.classList.add('show');clearTimeout(toastT);toastT=setTimeout(()=>x.classList.remove('show'),2200);}
 
 /* ================= start ================= */
 try{const s=JSON.parse(localStorage.getItem(SKEY)||'null');
   if(s&&NS.includes(s.N)){N=s.N;plateColor=PLATES[s.plate]?s.plate:0;night=!!s.night;}
   buildPlate(); if(s&&Array.isArray(s.list)) s.list.forEach(p=>addPiece(p));
 }catch(e){ if(!plateObj) buildPlate(); }
+FIGS.forEach(f=>{if(f.lock&&isUnlocked(f)&&!prog.seen.includes(f.id))prog.seen.push(f.id);});
 Object.assign(cam,defaultView());
-buildSizes(); setNight(night); syncUI(); syncHist(); updateCount(); resize();
+setNight(night); syncUI(); syncHist(); updateCount(); resize();
 
 /* ================= smyčka ================= */
-let last=performance.now();
+let last=performance.now(), clock=0;
 function loop(now){
-  const dt=Math.min(0.05,(now-last)/1000); last=now; let moved=false;
-  // setrvačnost otáčení
+  const dt=Math.min(0.05,(now-last)/1000); last=now; clock+=dt; let moved=false;
   if(!drag&&!gest&&(Math.abs(cam.vth)>1e-4||Math.abs(cam.vph)>1e-4)){cam.th+=cam.vth;cam.ph+=cam.vph;const f=Math.pow(0.0025,dt);cam.vth*=f;cam.vph*=f;moved=true;}
-  // klávesnice
   if(keys.size){const sp=(8+cam.r*0.45)*dt; let fx=0,fz=0;
     if(keys.has('w')||keys.has('arrowup'))fz-=1; if(keys.has('s')||keys.has('arrowdown'))fz+=1;
     if(keys.has('a')||keys.has('arrowleft'))fx-=1; if(keys.has('d')||keys.has('arrowright'))fx+=1;
@@ -674,12 +1626,14 @@ function loop(now){
     if(keys.has('+')||keys.has('=')){cam.r*=1-1.5*dt;moved=true;} if(keys.has('-')){cam.r*=1+1.5*dt;moved=true;}
   }
   if(camAnim){const k=1-Math.pow(0.002,dt);let dth=camGoal.th-cam.th;dth=Math.atan2(Math.sin(dth),Math.cos(dth));cam.th+=dth*k;
-    ['tx','ty','tz','r','ph'].forEach(p=>cam[p]+=(camGoal[p]-cam[p])*k); if(Math.abs(camGoal.r-cam.r)<0.05&&Math.abs(dth)<0.002)camAnim=false; moved=true;}
-  if(moved){placeCam(); if(ghost.visible||outline.visible){computeTarget(pick(lastMouse.x,lastMouse.y),curMode);refreshVisuals();}}
+    ['tx','ty','tz','r','ph'].forEach(p=>cam[p]+=(camGoal[p]-cam[p])*k); if(Math.abs(camGoal.r-cam.r)<0.05&&Math.abs(dth)<0.002&&Math.abs(camGoal.tx-cam.tx)<0.02)camAnim=false; moved=true;}
+  if(moved){placeCam(); if(lastMouse.x>=0&&(ghost.visible||outline.visible)){computeTarget(pick(lastMouse.x,lastMouse.y),curMode);refreshVisuals();}}
   for(let i=anims.length-1;i>=0;i--){const a=anims[i];
-    if(a.s===0){a.t+=dt/0.16;const k=Math.min(1,a.t);a.g.position.y=a.y+0.7*(1-k)*(1-k);if(k>=1)anims.splice(i,1);}
+    if(a.s===0){const e=pieces.get(a.id); if(!e){anims.splice(i,1);continue;} a.t+=dt/0.16;const k=Math.min(1,a.t);setPieceY(e,0.7*(1-k)*(1-k));if(k>=1)anims.splice(i,1);}
     else {a.t+=dt/0.18;const k=Math.min(1,a.t);a.g.scale.setScalar(1-k*0.6);a.g.position.y=a.y+k*0.8;if(k>=1){scene.remove(a.g);anims.splice(i,1);}}
   }
+  if(plan){const o=0.35+0.3*(0.5+0.5*Math.sin(clock*5));nextMats.forEach(m=>{if(m)m.opacity=o;});}
+  drawConfetti(dt);
   renderer.render(scene,camera); requestAnimationFrame(loop);
 }
 requestAnimationFrame(loop);
