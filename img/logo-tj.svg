@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" role="img" aria-labelledby="t">
+  <title id="t">Logo TJ – Theodor</title>
+  <circle cx="100" cy="100" r="98" fill="#22994f"/>
+  <circle cx="100" cy="100" r="88" fill="#2563c9"/>
+  <circle cx="100" cy="100" r="81" fill="none" stroke="#ffffff" stroke-width="2.5" opacity=".7"/>
+
+  <!-- TJ -->
+  <g fill="#ffffff" transform="translate(4 -6)">
+    <path d="M52 40h50v15H84v58H70V55H52z"/>
+    <path d="M110 40h34v15h-6v38a24 24 0 0 1-48 0v-5h15v5a9 9 0 0 0 18 0V55h-13z"/>
+  </g>
+
+  <g transform="translate(0 -7)">
+  <!-- paličky -->
+  <g stroke-linecap="round">
+    <line x1="40" y1="118" x2="86" y2="140" stroke="#f3d9a4" stroke-width="6"/>
+    <line x1="112" y1="118" x2="66" y2="140" stroke="#f3d9a4" stroke-width="6"/>
+  </g>
+  <circle cx="40" cy="118" r="5.5" fill="#f3d9a4"/>
+  <circle cx="112" cy="118" r="5.5" fill="#f3d9a4"/>
+
+  <!-- buben -->
+  <path d="M46 142v22c0 5 13 9 30 9s30-4 30-9v-22z" fill="#22994f" stroke="#ffffff" stroke-width="3"/>
+  <path d="M46 150l10 14l10-14l10 14l10-14l10 14l10-14" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linejoin="round"/>
+  <ellipse cx="76" cy="142" rx="30" ry="9" fill="#ffffff"/>
+
+  <!-- míč -->
+  <g transform="translate(138 150)">
+    <circle r="22" fill="#ffffff" stroke="#14315e" stroke-width="2.5"/>
+    <polygon points="0,-9 8.6,-2.8 5.3,7.3 -5.3,7.3 -8.6,-2.8" fill="#14315e"/>
+    <g stroke="#14315e" stroke-width="2.5" stroke-linecap="round">
+      <line x1="0" y1="-9" x2="0" y2="-21"/>
+      <line x1="8.6" y1="-2.8" x2="20" y2="-6.5"/>
+      <line x1="5.3" y1="7.3" x2="12.3" y2="17"/>
+      <line x1="-5.3" y1="7.3" x2="-12.3" y2="17"/>
+      <line x1="-8.6" y1="-2.8" x2="-20" y2="-6.5"/>
+    </g>
+  </g>
+  </g>
+</svg>
