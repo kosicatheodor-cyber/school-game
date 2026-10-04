@@ -1,0 +1,250 @@
+<!doctype html>
+<html lang="cs">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pozor na řetězovky</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;800&family=Nunito:wght@400;600;800&display=swap">
+<style>
+/* Layout: one friendly reading column; chat bubbles carry the examples, the test is a stack of question cards */
+:root{
+  --bg:#eef6f3; --paper:#ffffff; --fg:#17312b; --muted:#4d6a62;
+  --accent:#0f8a6a; --accent-soft:#d3efe5;
+  --warn:#d9472b; --warn-soft:#fde3dc;
+  --ok:#1f8f4e; --ok-soft:#dcf3e4;
+  --bubble:#262d2b; --bubble-fg:#f1f4f3; --line:#c9ddd6;
+  --display:"Baloo 2","Trebuchet MS",system-ui,sans-serif;
+  --body:"Nunito",system-ui,-apple-system,"Segoe UI",sans-serif;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0f1a17; --paper:#17251f; --fg:#e4f1ec; --muted:#9fbab1;
+  --accent:#3cc9a0; --accent-soft:#18392f;
+  --warn:#ff7a5c; --warn-soft:#3d1f18;
+  --ok:#52d38a; --ok-soft:#173523;
+  --bubble:#232b29; --bubble-fg:#f1f4f3; --line:#2b4038; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0f1a17; --paper:#17251f; --fg:#e4f1ec; --muted:#9fbab1;
+  --accent:#3cc9a0; --accent-soft:#18392f;
+  --warn:#ff7a5c; --warn-soft:#3d1f18;
+  --ok:#52d38a; --ok-soft:#173523;
+  --bubble:#232b29; --bubble-fg:#f1f4f3; --line:#2b4038; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:18px;line-height:1.6;padding-inline:16px;padding-block:24px 64px}
+main{max-width:760px;margin:0 auto;display:flex;flex-direction:column;gap:48px}
+h1,h2,h3{font-family:var(--display);line-height:1.15;text-wrap:balance;margin:0}
+h1{font-size:clamp(2.2rem,7vw,3.4rem);font-weight:800}
+h2{font-size:clamp(1.6rem,5vw,2.1rem);font-weight:800}
+h3{font-size:1.25rem;font-weight:600}
+p{margin:0}
+.lead{font-size:1.2rem;color:var(--muted);max-width:60ch}
+section{display:flex;flex-direction:column;gap:18px}
+.tag{font-family:var(--display);font-weight:600;font-size:.85rem;letter-spacing:.08em;text-transform:uppercase;color:var(--accent)}
+.hero{display:flex;flex-direction:column;gap:14px}
+.hero h1 span{color:var(--warn)}
+
+/* chat bubble */
+.chat{background:var(--bubble);color:var(--bubble-fg);border-radius:18px;padding:16px 20px;max-width:440px;font-size:1rem;line-height:1.5;position:relative}
+.chat .who{color:#f4a07a;font-weight:800}
+.chat .fw{color:#9aa5a2;font-style:italic;font-size:.9rem;margin-bottom:8px}
+.chat .fake-voice{font-family:ui-monospace,Menlo,monospace;letter-spacing:.02em;margin:10px 0 10px 24px;white-space:nowrap;overflow-x:auto}
+.chat .time{text-align:right;color:#9aa5a2;font-size:.8rem}
+.mark{background:var(--warn);color:#fff;border-radius:999px;font-family:var(--display);font-weight:800;font-size:.85rem;width:24px;height:24px;display:inline-grid;place-items:center;flex:none}
+.annot{display:flex;flex-wrap:wrap;gap:28px;align-items:flex-start}
+.annot .chat{flex:1 1 300px}
+.reasons{flex:1 1 280px;min-width:0;list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:14px}
+.reasons li{display:flex;gap:12px}
+.reasons b{display:block}
+
+.rule{background:var(--accent);color:#fff;border-radius:20px;padding:22px 24px;font-family:var(--display);font-size:1.35rem;font-weight:600;line-height:1.3}
+:root[data-theme="dark"] .rule{color:#0f1a17}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .rule{color:#0f1a17}}
+
+.signs{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:14px}
+.sign{background:var(--paper);border:2px solid var(--line);border-radius:16px;padding:16px;display:flex;flex-direction:column;gap:6px}
+.sign h3{color:var(--warn)}
+
+.examples{display:flex;flex-direction:column;gap:22px}
+.ex{display:flex;flex-wrap:wrap;gap:16px;align-items:flex-start}
+.ex .chat{flex:1 1 300px}
+.ex .why{flex:1 1 240px;min-width:0;color:var(--muted)}
+.ex .why b{color:var(--fg)}
+
+.todo{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:10px}
+.todo li{background:var(--paper);border-radius:14px;padding:12px 16px;border:2px solid var(--line)}
+.todo li::before{content:"✓ ";color:var(--ok);font-weight:800}
+
+/* test */
+.test{display:flex;flex-direction:column;gap:18px}
+.q{background:var(--paper);border:2px solid var(--line);border-radius:18px;padding:18px 20px;display:flex;flex-direction:column;gap:12px}
+.q .num{font-family:var(--display);font-weight:800;color:var(--accent)}
+.q .prompt{font-weight:800}
+.q .quote{background:var(--bubble);color:var(--bubble-fg);border-radius:14px;padding:10px 14px;font-size:.98rem}
+.opts{display:flex;flex-direction:column;gap:8px}
+.opt{font:inherit;font-size:1rem;text-align:left;background:var(--bg);color:var(--fg);border:2px solid var(--line);border-radius:12px;padding:10px 14px;cursor:pointer}
+.opt:hover:not(:disabled){border-color:var(--accent)}
+.opt:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.opt:disabled{cursor:default}
+.opt.right{background:var(--ok-soft);border-color:var(--ok)}
+.opt.wrong{background:var(--warn-soft);border-color:var(--warn)}
+.fb{border-radius:12px;padding:10px 14px;font-size:1rem}
+.fb.good{background:var(--ok-soft)} .fb.bad{background:var(--warn-soft)}
+.score{position:sticky;top:env(safe-area-inset-top,0px);z-index:2;background:var(--paper);border:2px solid var(--accent);border-radius:999px;padding:8px 18px;font-family:var(--display);font-weight:600;align-self:flex-start;font-variant-numeric:tabular-nums}
+.result{background:var(--accent-soft);border-radius:20px;padding:22px;display:flex;flex-direction:column;gap:12px;align-items:flex-start}
+.result .big{font-family:var(--display);font-size:2.4rem;font-weight:800;line-height:1}
+.btn{font-family:var(--display);font-weight:600;font-size:1.05rem;background:var(--accent);color:var(--paper);border:0;border-radius:999px;padding:10px 22px;cursor:pointer}
+.btn:focus-visible{outline:3px solid var(--fg);outline-offset:2px}
+footer{color:var(--muted);font-size:.9rem}
+@media (prefers-reduced-motion:no-preference){.fb{animation:pop .25s ease-out}@keyframes pop{from{transform:translateY(-4px)}to{transform:none}}}
+</style>
+</head>
+<body>
+
+<main>
+  <header class="hero">
+    <div class="tag">Pro 5. třídu · Bezpečně na internetu</div>
+    <h1>Pošli to 10 kamarádům? <span>Nepošli!</span></h1>
+    <p class="lead">Na WhatsAppu a Messengeru kolují zprávy, které tě nutí poslat je dál. Slibují odměnu nebo straší smůlou. Říká se jim <b>řetězovky</b> a skoro vždycky jsou to <b>fejky</b>. Tady se naučíš je poznat.</p>
+  </header>
+
+  <section>
+    <div class="tag">Rozbor jedné zprávy</div>
+    <h2>Tahle zpráva přišla do skupiny</h2>
+    <div class="annot">
+      <div class="chat" aria-label="Ukázka řetězové zprávy">
+        <div class="who">~ Viky K.</div>
+        <div class="fw">↪ Přeposláno <span class="mark" style="width:20px;height:20px;font-size:.75rem">1</span></div>
+        <div>Pokud tohle pošleš svým deseti kamarádům tak si můžeš poslechnout tohle <span class="mark" style="width:20px;height:20px;font-size:.75rem">2</span></div>
+        <div class="fake-voice">▶ •ıı|ı|ıı|||ıı○○○○○ı|• 0:10 <span class="mark" style="width:20px;height:20px;font-size:.75rem">3</span></div>
+        <div style="border-top:1px solid #6b7471;width:60%;margin:8px 0"></div>
+        <div>funguje to <span class="mark" style="width:20px;height:20px;font-size:.75rem">4</span></div>
+        <div class="time">12:08</div>
+      </div>
+      <ol class="reasons">
+        <li><span class="mark">1</span><div><b>„Přeposláno“</b>Zprávu nenapsal tvůj kamarád. Jen ji poslal dál, protože ji dostal od někoho jiného.</div></li>
+        <li><span class="mark">2</span><div><b>„Pošli 10 kamarádům“</b>WhatsApp vůbec neví, komu jsi co poslal. Nic ti za to odemknout nemůže.</div></li>
+        <li><span class="mark">3</span><div><b>Hlasovka, která není hlasovka</b>Tohle je jen text z čárek a koleček. Zkus to označit a zkopírovat. Půjde to, protože to nejsou zvuky, jen písmenka.</div></li>
+        <li><span class="mark">4</span><div><b>„Funguje to“</b>To připsal někdo, abys uvěřil. Kdo to opravdu zkusil, zjistil, že nic.</div></li>
+      </ol>
+    </div>
+    <div class="rule">Pravidlo: Když zpráva chce, abys ji poslal dalším lidem, a slibuje odměnu nebo straší, je to fejk.</div>
+  </section>
+
+  <section>
+    <div class="tag">Jak fejk poznat</div>
+    <h2>Pět varovných znamení</h2>
+    <div class="signs">
+      <div class="sign"><h3>Pošli to dál</h3><p>Chce, abys zprávu poslal 5, 10 nebo 20 lidem.</p></div>
+      <div class="sign"><h3>Odměna za nic</h3><p>Slibuje dárek, peníze, tajné video nebo hlasovku.</p></div>
+      <div class="sign"><h3>Strašení</h3><p>Smůla na 10 let, smazání účtu, něco zlého se stane.</p></div>
+      <div class="sign"><h3>Spěchej!</h3><p>„Do 5 minut“, „jen dnes“. Chce, abys nepřemýšlel.</p></div>
+      <div class="sign"><h3>Divný odkaz</h3><p>Adresa jako <i>lidl-darek.xyz</i> místo opravdové stránky.</p></div>
+    </div>
+  </section>
+
+  <section>
+    <div class="tag">Další fejky, které kolují</div>
+    <h2>Znáš je?</h2>
+    <div class="examples">
+      <div class="ex">
+        <div class="chat"><div class="fw">↪ Často přeposláno</div>WhatsApp bude od zítřka placený!!! Pošli tuhle zprávu 20 kontaktům a tvůj účet zůstane zdarma.</div>
+        <p class="why"><b>Fejk.</b> Tahle zpráva koluje už přes 10 let a WhatsApp je pořád zdarma. Důležité změny oznamuje aplikace sama, ne přeposílané zprávy.</p>
+      </div>
+      <div class="ex">
+        <div class="chat"><div class="fw">↪ Přeposláno</div>Pokud tohle do 5 minut nepošleš 15 lidem, budeš mít 7 let smůlu. Jedna holka to nepřeposlala a druhý den...</div>
+        <p class="why"><b>Fejk.</b> Zpráva v mobilu ti smůlu přinést nemůže. Strašidelný příběh je tam jen proto, abys dostal strach.</p>
+      </div>
+      <div class="ex">
+        <div class="chat"><div class="fw">↪ Přeposláno</div>Vyhrála jsem dárkovou kartu 500 Kč!! Klikni a vyplň údaje: lidl-darek-cz.xyz</div>
+        <p class="why"><b>Podvod.</b> Tohle je nejnebezpečnější druh. Stránka chce tvoje údaje nebo číslo karty rodičů. Nikdy neklikej a řekni to dospělému.</p>
+      </div>
+      <div class="ex">
+        <div class="chat"><div class="fw">↪ Často přeposláno</div>POZOR! Dnes ve 3 ráno bude nebezpečné záření z vesmíru. Vypněte mobily a pošlete to rodině!</div>
+        <p class="why"><b>Hoax.</b> Kdyby opravdu hrozilo nebezpečí, psaly by o tom zprávy a varoval by stát. Stačí to vyhledat na internetu.</p>
+      </div>
+      <div class="ex">
+        <div class="chat"><div class="fw">↪ Přeposláno</div>Ahoj, tady Tom, ztratil jsem mobil, píšu z nového čísla. Pošli mi prosím kód, co ti teď přijde v SMS.</div>
+        <p class="why"><b>Podvod.</b> Někdo se vydává za kamaráda a chce ukrást tvůj účet. Kód z SMS nikdy nikomu neposílej. Ověř si to, třeba zavolej Tomovi na staré číslo.</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="tag">Co dělat</div>
+    <h2>Když ti přijde řetězovka</h2>
+    <ul class="todo">
+      <li>Neposílej ji dál. Tím řetěz zastavíš.</li>
+      <li>Neklikej na odkazy a nikomu neposílej kódy ani hesla.</li>
+      <li>Když si nejsi jistý, ukaž to rodičům nebo učiteli.</li>
+      <li>Klidně kamarádovi napiš: „To je fejk, nic se nestane.“</li>
+    </ul>
+  </section>
+
+  <section id="test">
+    <div class="tag">Test</div>
+    <h2>Poznáš fejk?</h2>
+    <p class="lead">10 otázek. U každé klikni na odpověď, hned uvidíš, jestli máš pravdu.</p>
+    <div class="score" id="score">Body: 0 / 10</div>
+    <div class="test" id="quiz"></div>
+    <div class="result" id="result" hidden>
+      <div class="big" id="resultScore"></div>
+      <p id="resultText"></p>
+      <button class="btn" id="again" type="button">Zkusit znovu</button>
+    </div>
+  </section>
+
+  <footer>Řetězovky zastavíš tím, že je nepošleš dál.</footer>
+</main>
+
+<script>
+const Q=[
+ {p:"Co se stane, když přepošleš tuhle zprávu 10 kamarádům?",quote:"Pošli tohle 10 kamarádům a pak si můžeš poslechnout tohle ➜ ▶ •ıı|ı|ıı|||○○○○ı|• 0:10",o:["Hlasovka se odemkne","Nic. Ta „hlasovka“ je jen text a nikdy nepůjde přehrát","Odemkne se za 10 minut"],a:1,e:"Ta hlasovka je složená z obyčejných znaků. Není to zvuk, takže se nikdy nepřehraje."},
+ {p:"Ví WhatsApp, kolika lidem jsi zprávu poslal, a může ti za to něco odemknout?",o:["Ano, počítá to","Ne, nic takového neumí","Jen když máš iPhone"],a:1,e:"Žádná zpráva nemůže kontrolovat, komu ji pošleš, a nic za to odemknout neumí."},
+ {p:"Proč je pod zprávou napsáno „funguje to“?",o:["Protože to opravdu funguje","Aby ses nechal přesvědčit a poslal ji dál","Píše to tam WhatsApp sám"],a:1,e:"Je to trik. Když vidíš, že to „funguje“, spíš uvěříš a pošleš to dál."},
+ {p:"Co znamená nápis „Často přeposláno“ nad zprávou?",o:["Že je zpráva důležitá a pravdivá","Že ji poslalo dál hodně lidí a nenapsal ji tvůj kamarád","Že je od WhatsAppu"],a:1,e:"Hodně přeposílání neznamená pravdu. Řetězovky se přeposílají nejvíc ze všech zpráv."},
+ {p:"Je tahle zpráva pravdivá?",quote:"WhatsApp bude od zítřka placený! Pošli to 20 kontaktům a zůstane ti zdarma.",o:["Ano","Ne, je to starý fejk"],a:1,e:"Tahle řetězovka koluje už přes 10 let. WhatsApp je pořád zdarma."},
+ {p:"Co je na této zprávě nejvíc podezřelé?",quote:"Pokud do 5 minut nepošleš 15 lidem, budeš mít 7 let smůlu.",o:["Že je krátká","Strašení a spěch, abys nepřemýšlel","Číslo 15"],a:1,e:"Řetězovky straší a tlačí na čas. Zpráva ti smůlu přinést nemůže."},
+ {p:"Kamarádka ti pošle: „Vyhrála jsem 500 Kč! Klikni: lidl-darek-cz.xyz“. Co uděláš?",o:["Kliknu, když to poslala kamarádka","Neklikám a ukážu to rodičům","Vyplním jen jméno a adresu"],a:1,e:"Divná adresa = podvodná stránka. I kamarádka mohla naletět. Neklikej a řekni to dospělému."},
+ {p:"Někdo ti napíše z neznámého čísla: „Jsem Tom, nový mobil. Pošli mi kód z SMS.“ Co uděláš?",o:["Pošlu kód, je to přece Tom","Kód nepošlu a ověřím si, jestli je to opravdu Tom","Pošlu jen půlku kódu"],a:1,e:"Kód z SMS nikdy nikomu neposílej. Podvodníci s ním můžou ukrást tvůj účet."},
+ {p:"Přijde zpráva o nebezpečném záření v noci. Jak zjistíš, jestli je to pravda?",o:["Když to sdílí hodně lidí, je to pravda","Podívám se na zprávy nebo se zeptám dospělého","Pošlu to všem pro jistotu"],a:1,e:"Opravdové nebezpečí by bylo ve zprávách. To, že něco sdílí hodně lidí, z toho pravdu nedělá."},
+ {p:"Co je nejlepší udělat, když ti přijde řetězovka?",o:["Poslat ji dál, kdyby náhodou","Neposlat ji dál a klidně kamarádům napsat, že je to fejk","Smazat si WhatsApp"],a:1,e:"Když ji nepošleš dál, řetěz se zastaví. Správně!"}
+];
+let score=0,done=0;
+const quiz=document.getElementById('quiz'),scoreEl=document.getElementById('score'),res=document.getElementById('result');
+function shuffle(a){return a.map(v=>[Math.random(),v]).sort((x,y)=>x[0]-y[0]).map(x=>x[1])}
+function build(){
+  score=0;done=0;quiz.innerHTML='';res.hidden=true;scoreEl.textContent='Body: 0 / '+Q.length;
+  Q.forEach((q,i)=>{
+    const c=document.createElement('div');c.className='q';
+    c.innerHTML='<div class="num">Otázka '+(i+1)+'</div><div class="prompt"></div>'+(q.quote?'<div class="quote"></div>':'')+'<div class="opts"></div>';
+    c.querySelector('.prompt').textContent=q.p;
+    if(q.quote)c.querySelector('.quote').textContent=q.quote;
+    const opts=c.querySelector('.opts');
+    shuffle(q.o.map((t,k)=>({t,k}))).forEach(({t,k})=>{
+      const b=document.createElement('button');b.type='button';b.className='opt';b.id='q'+i+'o'+k;b.textContent=t;
+      b.onclick=()=>{
+        const all=opts.querySelectorAll('button');all.forEach(x=>x.disabled=true);
+        const ok=k===q.a;
+        b.classList.add(ok?'right':'wrong');
+        if(!ok)all.forEach(x=>{if(x.id==='q'+i+'o'+q.a)x.classList.add('right')});
+        const fb=document.createElement('div');fb.className='fb '+(ok?'good':'bad');
+        fb.innerHTML='<b>'+(ok?'Správně! ':'Tohle ne. ')+'</b>';fb.append(q.e);c.append(fb);
+        if(ok)score++;done++;scoreEl.textContent='Body: '+score+' / '+Q.length;
+        if(done===Q.length)finish();
+      };
+      opts.append(b);
+    });
+    quiz.append(c);
+  });
+}
+function finish(){
+  res.hidden=false;
+  document.getElementById('resultScore').textContent=score+' / '+Q.length;
+  document.getElementById('resultText').textContent=score>=9?'Výborně! Jsi expert na fejky. Žádná řetězovka tě nenachytá.':score>=6?'Dobrá práce! Ještě si projdi otázky, kde jsi chyboval.':'Nevadí, přečti si znovu varovná znamení nahoře a zkus to ještě jednou.';
+  res.scrollIntoView({behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth',block:'center'});
+}
+document.getElementById('again').onclick=()=>{build();document.getElementById('test').scrollIntoView()};
+build();
+</script>
+</body>
+</html>
