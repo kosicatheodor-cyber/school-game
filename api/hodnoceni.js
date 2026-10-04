@@ -10,8 +10,16 @@
 
 const crypto = require('node:crypto');
 
-const URL = process.env.KV_REST_API_URL || process.env.UPSTASH_REDIS_REST_URL;
-const TOKEN = process.env.KV_REST_API_TOKEN || process.env.UPSTASH_REDIS_REST_TOKEN;
+// Vercel může před názvy proměnných přidat předponu (např. STORAGE_KV_REST_API_URL),
+// proto se hledá jakákoli proměnná, která takhle končí.
+function env(...suffixes) {
+  for (const suffix of suffixes) {
+    const key = Object.keys(process.env).find(k => k === suffix || k.endsWith('_' + suffix));
+    if (key && process.env[key]) return process.env[key];
+  }
+}
+const URL = env('KV_REST_API_URL', 'UPSTASH_REDIS_REST_URL');
+const TOKEN = env('KV_REST_API_TOKEN', 'UPSTASH_REDIS_REST_TOKEN');
 const HASH = 'hodnoceni';
 const MAX_GAMES = 300;
 const VOTE_TTL = 60 * 60 * 24 * 365;
