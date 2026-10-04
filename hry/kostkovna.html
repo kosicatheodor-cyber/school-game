@@ -1,0 +1,689 @@
+<!doctype html>
+<html lang="cs">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Kostkovna</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=IBM+Plex+Mono:wght@500&display=swap">
+<style>
+/* Layout: celoobrazovková 3D dílna. Vlevo lišta nástrojů, nahoře štítek a nastavení, dole "krabice dílků" (typ, velikost, barva). Jeden záměrný vzhled hraček: bílé panely s inkoustovým obrysem. */
+:root{
+  --ink:#16212B; --panel:#FFFFFF; --soft:#EEF3F7; --line:#C9D4DE;
+  --accent:#E3241B; --sun:#FFD43B; --muted:#5B6B78; --sky:#BFD9EE;
+  --display:"Bricolage Grotesque",ui-rounded,"Segoe UI",system-ui,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+  color-scheme:light;
+}
+html,body{height:100%;}
+body{margin:0;background:var(--sky);color:var(--ink);font-family:var(--display);overflow:hidden;-webkit-user-select:none;user-select:none;-webkit-tap-highlight-color:transparent;}
+#stage{position:fixed;inset:0;touch-action:none;background:linear-gradient(#6FAEE3,#BFD9EE 55%,#E9F1F6);transition:background .5s;}
+body.night #stage{background:linear-gradient(#050B1C,#152544 55%,#2B3B5A);}
+#stage canvas{display:block;width:100%;height:100%;outline:none;}
+.panel{background:var(--panel);border:2px solid var(--ink);border-radius:12px;box-shadow:0 3px 0 var(--ink);}
+button{font-family:inherit;color:var(--ink);}
+button:focus-visible{outline:3px solid #0055BF;outline-offset:2px;}
+
+/* horní lišta */
+.top{position:fixed;left:16px;right:16px;top:calc(env(safe-area-inset-top,0px) + 12px);display:flex;justify-content:space-between;align-items:flex-start;gap:10px;pointer-events:none;z-index:3;}
+.top > *{pointer-events:auto;}
+.brand{display:flex;align-items:center;gap:10px;padding:8px 14px 8px 10px;}
+.logo{width:30px;height:18px;background:var(--accent);border-radius:3px;position:relative;margin-top:5px;}
+.logo::before,.logo::after{content:"";position:absolute;top:-6px;width:9px;height:6px;background:var(--accent);border-radius:2px 2px 0 0;}
+.logo::before{left:4px}.logo::after{right:4px}
+.brand h1{margin:0;font-size:1.35rem;font-weight:800;letter-spacing:-.02em;line-height:1;}
+.count{font-family:var(--mono);font-size:.74rem;color:var(--muted);font-variant-numeric:tabular-nums;margin-top:3px;}
+.tright{display:flex;gap:8px;}
+.ibtn{width:42px;height:42px;display:grid;place-items:center;border:2px solid var(--ink);background:var(--panel);border-radius:10px;box-shadow:0 3px 0 var(--ink);cursor:pointer;padding:0;}
+.ibtn:active{transform:translateY(2px);box-shadow:0 1px 0 var(--ink);}
+.ibtn[aria-pressed="true"]{background:var(--ink);color:#fff;}
+.ibtn svg{width:22px;height:22px;}
+
+/* levá lišta */
+.rail{position:fixed;left:16px;top:50%;transform:translateY(-58%);display:flex;flex-direction:column;gap:4px;padding:6px;z-index:2;}
+.tool{width:52px;padding:6px 0 5px;display:flex;flex-direction:column;align-items:center;gap:2px;border:0;background:transparent;border-radius:8px;cursor:pointer;font-size:.66rem;font-weight:700;}
+.tool svg{width:22px;height:22px;}
+.tool:hover{background:var(--soft);}
+.tool[aria-pressed="true"]{background:var(--ink);color:#fff;}
+.tool:disabled{opacity:.35;cursor:default;background:transparent;}
+.sep{height:2px;background:var(--line);margin:3px 6px;border-radius:2px;}
+
+/* krabice dílků */
+.dock{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(env(safe-area-inset-bottom,0px) + 12px);width:min(1120px,calc(100% - 32px));padding:8px 10px 10px;display:flex;flex-direction:column;gap:8px;z-index:2;}
+.row{display:flex;gap:6px;align-items:center;overflow-x:auto;scrollbar-width:thin;padding-bottom:2px;}
+.row.split{gap:14px;align-items:flex-start;}
+.label{font-size:.64rem;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);font-weight:800;flex:none;}
+.types{display:flex;gap:6px;}
+.type{display:flex;align-items:center;gap:7px;border:2px solid var(--line);background:var(--soft);border-radius:9px;padding:5px 10px 5px 7px;cursor:pointer;font-weight:700;font-size:.86rem;flex:none;}
+.type svg{width:26px;height:20px;flex:none;}
+.type[aria-pressed="true"]{border-color:var(--ink);background:var(--sun);}
+.sizes{display:flex;gap:5px;flex:none;}
+.size{display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:3px;border:2px solid var(--line);background:var(--soft);border-radius:8px;padding:5px 6px 3px;cursor:pointer;min-width:40px;height:52px;flex:none;}
+.size .dots{display:grid;gap:2px;}
+.size .dots i{border-radius:50%;background:var(--ink);opacity:.7;display:block;}
+.size span{font-family:var(--mono);font-size:.62rem;color:var(--muted);}
+.size[aria-pressed="true"]{border-color:var(--ink);background:var(--sun);}
+.size[aria-pressed="true"] span{color:var(--ink);}
+.colors{display:grid;grid-template-columns:repeat(13,26px);gap:5px;flex:none;}
+.sw{width:26px;height:26px;border-radius:6px;border:2px solid rgba(0,0,0,.22);cursor:pointer;padding:0;position:relative;overflow:hidden;}
+.sw.trans{background-image:linear-gradient(45deg,rgba(255,255,255,.55) 25%,transparent 25%,transparent 50%,rgba(255,255,255,.55) 50%,rgba(255,255,255,.55) 75%,transparent 75%);background-size:10px 10px;}
+.sw.metal::after{content:"";position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,.7),transparent 45%,rgba(0,0,0,.25));}
+.sw[aria-pressed="true"]{outline:3px solid var(--ink);outline-offset:2px;}
+.vsep{width:2px;align-self:stretch;background:var(--line);border-radius:2px;flex:none;}
+
+/* vyskakovací okna */
+.pop{position:fixed;right:16px;top:calc(env(safe-area-inset-top,0px) + 66px);width:min(320px,calc(100% - 32px));padding:14px 16px;z-index:4;}
+.pop h2{margin:0 0 10px;font-size:1.05rem;font-weight:800;}
+.pop h3{margin:12px 0 6px;font-size:.66rem;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);}
+.pop dl{display:grid;grid-template-columns:auto 1fr;gap:5px 12px;margin:0;font-size:.85rem;}
+.pop dt{font-weight:800;white-space:nowrap;}
+.pop dd{margin:0;color:var(--muted);}
+.chips{display:flex;flex-wrap:wrap;gap:6px;}
+.chip{border:2px solid var(--line);background:var(--soft);border-radius:8px;padding:6px 10px;font-weight:700;cursor:pointer;font-size:.85rem;display:flex;align-items:center;gap:6px;}
+.chip[aria-pressed="true"]{border-color:var(--ink);background:var(--sun);}
+.chip b{width:14px;height:14px;border-radius:4px;display:inline-block;border:1px solid rgba(0,0,0,.25);}
+.danger{margin-top:14px;width:100%;border:2px solid var(--accent);color:var(--accent);background:#fff;border-radius:8px;padding:9px;font-weight:800;cursor:pointer;font-size:.9rem;}
+.danger.armed{background:var(--accent);color:#fff;}
+
+.toast{position:fixed;left:50%;top:calc(env(safe-area-inset-top,0px) + 74px);transform:translateX(-50%);background:var(--ink);color:#fff;font-weight:700;padding:8px 14px;border-radius:8px;font-size:.9rem;opacity:0;transition:opacity .2s;pointer-events:none;z-index:5;white-space:nowrap;}
+.toast.show{opacity:1;}
+.empty{position:fixed;left:50%;top:38%;transform:translate(-50%,-50%);text-align:center;pointer-events:none;color:var(--ink);transition:opacity .4s;z-index:1;}
+.empty p{margin:0;font-size:1.4rem;font-weight:800;text-wrap:balance;text-shadow:0 2px 0 rgba(255,255,255,.7);}
+.empty small{display:block;margin-top:6px;font-size:.9rem;font-weight:500;color:var(--muted);}
+.empty.gone{opacity:0;}
+
+@media (max-width:760px){
+  .colors{grid-template-columns:repeat(25,26px);}
+  .row.split{flex-wrap:wrap;gap:8px;}
+  .row.split .vsep{display:none;}
+  .type span{display:none;}
+  .type{padding:5px 7px;}
+  .rail{top:auto;bottom:calc(env(safe-area-inset-bottom,0px) + 190px);transform:none;padding:4px;}
+  .tool{width:44px;font-size:0;gap:0;padding:7px 0;}
+  .brand h1{font-size:1.1rem;}
+}
+@media (prefers-reduced-motion:reduce){.toast,.empty{transition:none}}
+</style>
+</head>
+<body>
+<div id="stage"></div>
+
+<div class="empty" id="empty"><p>Prázdná podložka čeká na první kostku</p><small>Vyber dílek a barvu dole a klikni na podložku</small></div>
+
+<div class="top">
+  <div class="brand panel">
+    <div class="logo" aria-hidden="true"></div>
+    <div><h1>Kostkovna</h1><div class="count" id="count">0 dílků</div></div>
+  </div>
+  <div class="tright">
+    <button class="ibtn" id="nightBtn" aria-pressed="false" title="Den / noc (N)" aria-label="Den nebo noc">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/></svg></button>
+    <button class="ibtn" id="soundBtn" aria-pressed="true" title="Zvuk" aria-label="Zvuk">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9h4l5-4v14l-5-4H4z"/><path id="waves" d="M16 9a4 4 0 0 1 0 6M18.5 6.5a8 8 0 0 1 0 11"/></svg></button>
+    <button class="ibtn" id="setBtn" aria-pressed="false" title="Podložka" aria-label="Nastavení podložky">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M3 15l9 5 9-5-9-5z"/><circle cx="9" cy="14" r="1" fill="currentColor"/><circle cx="12" cy="12.5" r="1" fill="currentColor"/><circle cx="15" cy="14" r="1" fill="currentColor"/><circle cx="12" cy="15.6" r="1" fill="currentColor"/></svg></button>
+    <button class="ibtn" id="helpBtn" aria-pressed="false" title="Ovládání (H)" aria-label="Ovládání">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M9.2 9a3 3 0 1 1 4.3 2.7c-1 .5-1.5 1.2-1.5 2.3"/><circle cx="12" cy="18" r=".6" fill="currentColor"/></svg></button>
+  </div>
+</div>
+
+<div class="rail panel" role="toolbar" aria-label="Nástroje">
+  <button class="tool" id="t-build" title="Stavět (B)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><rect x="3" y="11" width="18" height="9" rx="1.5"/><path d="M6 11V9h4v2M14 11V9h4v2"/></svg>Stavět</button>
+  <button class="tool" id="t-smash" title="Bourat (X)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 4l7 7-3 3-7-7z"/><path d="M11.5 9.5L4 17l3 3 7.5-7.5"/></svg>Bourat</button>
+  <button class="tool" id="t-paint" title="Barvit (C)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 3l3 3-9 9-3-3z"/><path d="M9 12c-3 0-4 2-4 4s-1 3-2 4c3 0 7-1 8-4"/></svg>Barvit</button>
+  <button class="tool" id="t-pick" title="Pipeta – vezme dílek i barvu (I)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 6l4 4M16.5 3.5a2.1 2.1 0 0 1 3 3L17 9l-3-3z"/><path d="M15 7L6 16l-1 3 3-1 9-9"/></svg>Pipeta</button>
+  <div class="sep"></div>
+  <button class="tool" id="t-rot" title="Otočit dílek (R)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12a8 8 0 1 1-2.3-5.6"/><path d="M20 4v5h-5"/></svg>Otočit</button>
+  <button class="tool" id="t-undo" title="Zpět (Ctrl+Z)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 14L4 9l5-5"/><path d="M4 9h10a6 6 0 0 1 0 12h-3"/></svg>Zpět</button>
+  <button class="tool" id="t-redo" title="Znovu (Ctrl+Y)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 14l5-5-5-5"/><path d="M20 9H10a6 6 0 0 0 0 12h3"/></svg>Znovu</button>
+  <button class="tool" id="t-view" title="Výchozí pohled (V)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7V4h3M21 7V4h-3M3 17v3h3M21 17v3h-3"/><circle cx="12" cy="12" r="3.5"/></svg>Pohled</button>
+</div>
+
+<div class="dock panel" aria-label="Dílky">
+  <div class="row"><span class="label">Dílek</span><div class="types" id="types"></div></div>
+  <div class="row split">
+    <div class="sizes" id="sizes"></div>
+    <div class="vsep"></div>
+    <div class="colors" id="colors"></div>
+  </div>
+</div>
+
+<div class="pop panel" id="helpPop" hidden>
+  <h2>Ovládání</h2>
+  <dl>
+    <dt>Klik / ťuk</dt><dd>položí dílek</dd>
+    <dt>Tažení</dt><dd>otáčí kamerou dokola i nahoru a dolů</dd>
+    <dt>Pravé tlačítko</dt><dd>posouvá pohled</dd>
+    <dt>Kolečko</dt><dd>přiblíží a oddálí</dd>
+    <dt>Dva prsty</dt><dd>posun, zoom a otáčení</dd>
+    <dt>W A S D, šipky</dt><dd>posun po podložce</dd>
+    <dt>Q / E</dt><dd>otočí kamerou</dd>
+    <dt>R</dt><dd>otočí dílek</dd>
+    <dt>Shift + klik</dt><dd>zboří dílek</dd>
+    <dt>Alt + klik</dt><dd>pipeta</dd>
+    <dt>1 – 9</dt><dd>velikost dílku</dd>
+    <dt>Ctrl+Z / Ctrl+Y</dt><dd>zpět / znovu</dd>
+  </dl>
+</div>
+
+<div class="pop panel" id="setPop" hidden>
+  <h2>Podložka</h2>
+  <h3>Velikost</h3>
+  <div class="chips" id="nChips"></div>
+  <h3>Barva</h3>
+  <div class="chips" id="pChips"></div>
+  <button class="danger" id="clearBtn">Smazat všechny dílky</button>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+(function(){
+"use strict";
+/* ================= nastavení ================= */
+const U=0.4, GAP=0.025, BEV=0.035, SR=0.3, SH=0.17, MAXY=150;
+const TYPES=[
+  {id:'brick',name:'Kostka',h:3,sizes:[[1,1],[1,2],[1,3],[1,4],[1,6],[1,8],[2,2],[2,3],[2,4],[2,6],[2,8]],
+   icon:'<rect x="2" y="7" width="22" height="11" rx="1.5"/><path d="M5 7V4.5h5V7M16 7V4.5h5V7"/>'},
+  {id:'plate',name:'Placka',h:1,sizes:[[1,1],[1,2],[1,4],[1,6],[2,2],[2,4],[2,6],[4,4],[4,6],[6,6],[8,8],[8,16]],
+   icon:'<rect x="2" y="11" width="22" height="5" rx="1"/><path d="M5 11V8.5h5V11M16 11V8.5h5V11"/>'},
+  {id:'tile',name:'Dlaždice',h:1,studs:false,sizes:[[1,1],[1,2],[1,4],[2,2],[2,4],[4,4]],
+   icon:'<rect x="2" y="10" width="22" height="5" rx="1"/>'},
+  {id:'slope',name:'Střecha',h:3,sizes:[[1,2],[2,2],[3,2],[4,2],[1,3],[2,3],[4,3]],
+   icon:'<path d="M2 18V7h6l16 8.5V18z"/><path d="M3 7V4.5h4V7"/>'},
+  {id:'round',name:'Kulatá',h:3,sizes:[[1,1],[2,2],[4,4]],
+   icon:'<path d="M5 8h16v9a8 2.5 0 0 1-16 0z"/><ellipse cx="13" cy="8" rx="8" ry="2.5"/>'},
+  {id:'cone',name:'Kužel',h:3,sizes:[[1,1],[2,2]],
+   icon:'<path d="M9 5h8l4 13H5z"/>'},
+  {id:'window',name:'Okno',sizes:[[2,1,3],[3,1,3],[2,1,6],[4,1,6]],
+   icon:'<rect x="4" y="3" width="18" height="16" rx="1"/><rect x="7.5" y="6.5" width="11" height="9" fill="currentColor" fill-opacity=".25"/>'},
+  {id:'dome',name:'Kopule',h:3,sizes:[[2,2],[4,4],[6,6]],
+   icon:'<path d="M3 17a10 10 0 0 1 20 0z"/>'}
+];
+const TBY=Object.fromEntries(TYPES.map(t=>[t.id,t]));
+const COLORS=[
+ ['Bílá','#F4F4F4'],['Světle šedá','#A0A5A9'],['Tmavě šedá','#6C6E68'],['Černá','#1B2A34'],
+ ['Červená','#C91A09'],['Vínová','#720E0F'],['Oranžová','#FE8A18'],['Žlutá','#F2CD37'],
+ ['Béžová','#E4CD9E'],['Hnědá','#6B3A1E'],['Limetková','#A5CA18'],['Zelená','#237841'],['Tmavě zelená','#184632'],
+ ['Tyrkysová','#36AEBF'],['Modrá','#0055BF'],['Tmavě modrá','#0A3463'],['Levandulová','#A07BC8'],['Fialová','#5F2D91'],
+ ['Růžová','#F2A6C6'],['Magenta','#C4306E'],
+ ['Sklo','#E8F4FA','trans'],['Modré sklo','#2B6FE0','trans'],['Červené sklo','#E02B2B','trans'],
+ ['Zlatá','#D9A93A','metal'],['Stříbrná','#C4C9CE','metal']];
+const PLATES=[['Tráva','#3F8F3E'],['Šedá','#A0A5A9'],['Voda','#3E8DD6'],['Písek','#E4CD9E'],['Sníh','#F2F3F2'],['Noc','#2A2F38']];
+const NS=[32,48,64];
+
+let N=48, plateColor=0;
+let typeIdx=0, sizeIdx={}, colorIdx=4, rot=0, mode='build', soundOn=true, night=false;
+TYPES.forEach(t=>sizeIdx[t.id]=Math.min(t.sizes.length-1, t.id==='brick'?8:t.id==='plate'?5:1));
+
+/* ================= renderer a scéna ================= */
+const stage=document.getElementById('stage');
+const renderer=new THREE.WebGLRenderer({antialias:true,alpha:true,powerPreference:'high-performance'});
+renderer.setPixelRatio(Math.min(2,window.devicePixelRatio||1));
+renderer.shadowMap.enabled=true; renderer.shadowMap.type=THREE.PCFSoftShadowMap;
+renderer.outputEncoding=THREE.sRGBEncoding;
+renderer.setClearColor(0x000000,0);
+stage.appendChild(renderer.domElement);
+const scene=new THREE.Scene();
+const camera=new THREE.PerspectiveCamera(38,1,0.1,800);
+const lin=hex=>new THREE.Color(hex).convertSRGBToLinear();
+
+// prostředí pro odlesky
+(function(){
+  const es=new THREE.Scene();
+  const g=new THREE.SphereGeometry(50,32,16); const cols=[]; const p=g.attributes.position;
+  for(let i=0;i<p.count;i++){const t=(p.getY(i)/50+1)/2; const c=new THREE.Color('#5d6a76').lerp(new THREE.Color('#e8f2fb'),Math.pow(t,0.8)); cols.push(c.r,c.g,c.b);}
+  g.setAttribute('color',new THREE.Float32BufferAttribute(cols,3));
+  es.add(new THREE.Mesh(g,new THREE.MeshBasicMaterial({vertexColors:true,side:THREE.BackSide})));
+  const pm=new THREE.MeshBasicMaterial({color:new THREE.Color(4,4,4)});
+  [[20,30,10],[-25,20,-15],[5,25,-30]].forEach(([x,y,z])=>{const m=new THREE.Mesh(new THREE.PlaneGeometry(14,10),pm);m.position.set(x,y,z);m.lookAt(0,0,0);es.add(m);});
+  const pmrem=new THREE.PMREMGenerator(renderer);
+  scene.environment=pmrem.fromScene(es,0.03).texture;
+})();
+
+function skyTex(top,mid,bot){
+  const c=document.createElement('canvas');c.width=4;c.height=256;const x=c.getContext('2d');
+  const gr=x.createLinearGradient(0,0,0,256);gr.addColorStop(0,top);gr.addColorStop(.62,mid);gr.addColorStop(1,bot);
+  x.fillStyle=gr;x.fillRect(0,0,4,256);const t=new THREE.CanvasTexture(c);t.encoding=THREE.sRGBEncoding;return t;
+}
+const SKY={day:skyTex('#6FAEE3','#BFD9EE','#E9F1F6'),night:skyTex('#050B1C','#152544','#2B3B5A')};
+scene.fog=new THREE.Fog('#E9F1F6',160,400);
+
+const hemi=new THREE.HemisphereLight(0xffffff,0x8a9aa8,0.6); scene.add(hemi);
+const sun=new THREE.DirectionalLight(0xfff3e2,0.95); sun.castShadow=true;
+sun.shadow.mapSize.set(4096,4096); sun.shadow.bias=-0.0004; sun.shadow.normalBias=0.02;
+scene.add(sun); scene.add(sun.target);
+const ground=new THREE.Mesh(new THREE.CircleGeometry(400,64),new THREE.MeshStandardMaterial({color:lin('#C4D8E8'),roughness:1}));
+ground.rotation.x=-Math.PI/2; ground.position.y=-0.42; ground.receiveShadow=true; scene.add(ground);
+
+// hvězdy na noc
+const stars=(function(){const g=new THREE.BufferGeometry();const a=[];for(let i=0;i<900;i++){const th=Math.random()*Math.PI*2,ph=Math.random()*1.3;const r=380;a.push(r*Math.sin(ph)*Math.cos(th),r*Math.cos(ph)+20,r*Math.sin(ph)*Math.sin(th));}
+  g.setAttribute('position',new THREE.Float32BufferAttribute(a,3));const s=new THREE.Points(g,new THREE.PointsMaterial({color:0xffffff,size:1.6,sizeAttenuation:false,fog:false}));s.visible=false;scene.add(s);return s;})();
+
+/* ================= materiály ================= */
+const mats=[];
+function colorMat(i){
+  if(mats[i]) return mats[i];
+  const [,hex,kind]=COLORS[i]; let m;
+  if(kind==='trans') m=new THREE.MeshPhysicalMaterial({color:lin(hex),transparent:true,opacity:hex==='#E8F4FA'?0.32:0.55,roughness:0.05,metalness:0,envMapIntensity:1.4,depthWrite:false,emissive:lin(hex),emissiveIntensity:0});
+  else if(kind==='metal') m=new THREE.MeshStandardMaterial({color:lin(hex),metalness:1,roughness:0.26,envMapIntensity:1.3});
+  else m=new THREE.MeshStandardMaterial({color:lin(hex),roughness:0.3,metalness:0,envMapIntensity:0.75});
+  m.userData.kind=kind||'solid'; mats[i]=m; return m;
+}
+const glassMat=()=>colorMat(20);
+
+/* ================= geometrie dílků ================= */
+function merge(list){
+  const gs=list.map(g=>g.index?g.toNonIndexed():g); let n=0; gs.forEach(g=>n+=g.attributes.position.count);
+  const pos=new Float32Array(n*3), nor=new Float32Array(n*3); let o=0;
+  gs.forEach(g=>{pos.set(g.attributes.position.array,o*3);nor.set(g.attributes.normal.array,o*3);o+=g.attributes.position.count;});
+  const out=new THREE.BufferGeometry(); out.setAttribute('position',new THREE.BufferAttribute(pos,3)); out.setAttribute('normal',new THREE.BufferAttribute(nor,3));
+  out.computeBoundingSphere(); out.computeBoundingBox(); return out;
+}
+function rectShape(x0,y0,x1,y1){const s=new THREE.Shape();s.moveTo(x0,y0);s.lineTo(x1,y0);s.lineTo(x1,y1);s.lineTo(x0,y1);s.lineTo(x0,y0);return s;}
+function boxGeo(W,D,Hh,b){ // střed v x,z, spodek na y=0
+  b=b||BEV; const g=new THREE.ExtrudeGeometry(rectShape(-W/2+b,-D/2+b,W/2-b,D/2-b),{depth:Hh-2*b,bevelEnabled:true,bevelThickness:b,bevelSize:b,bevelSegments:2,steps:1,curveSegments:1});
+  g.rotateX(-Math.PI/2); g.translate(0,b,0); return g;
+}
+function stud(x,y,z,r){const g=new THREE.CylinderGeometry(r||SR,r||SR,SH,20);g.translate(x,y+SH/2,z);return g;}
+const geoCache={};
+function pieceGeo(t,w,d,h){
+  const k=t+'|'+w+'|'+d+'|'+h; if(geoCache[k]) return geoCache[k];
+  const W=w-2*GAP, D=d-2*GAP, Hh=h*U-0.01, parts=[]; let glass=null;
+  const studsAll=()=>{for(let i=0;i<w;i++)for(let j=0;j<d;j++)parts.push(stud(i-w/2+.5,Hh,j-d/2+.5));};
+  if(t==='brick'||t==='plate'){parts.push(boxGeo(W,D,Hh));studsAll();}
+  else if(t==='tile'){parts.push(boxGeo(W,D,Hh,0.05));}
+  else if(t==='slope'){
+    const b=0.015, s=new THREE.Shape(), lip=0.3;
+    s.moveTo(-D/2,0);s.lineTo(D/2,0);s.lineTo(D/2,lip);s.lineTo(-D/2+1-GAP,Hh);s.lineTo(-D/2,Hh);s.lineTo(-D/2,0);
+    const g=new THREE.ExtrudeGeometry(s,{depth:W-2*b,bevelEnabled:true,bevelThickness:b,bevelSize:b,bevelSegments:1,steps:1});
+    g.translate(0,0,-(W/2-b)); g.rotateY(-Math.PI/2); parts.push(g);
+    for(let i=0;i<w;i++)parts.push(stud(i-w/2+.5,Hh,-d/2+.5));
+  }
+  else if(t==='round'){const g=new THREE.CylinderGeometry(W/2,W/2,Hh,40);g.translate(0,Hh/2,0);parts.push(g);
+    if(w===1)parts.push(stud(0,Hh,0)); else studsAll();}
+  else if(t==='cone'){const g=new THREE.CylinderGeometry(w*0.2,W/2,Hh,40);g.translate(0,Hh/2,0);parts.push(g);parts.push(stud(0,Hh,0,w*0.2));}
+  else if(t==='dome'){const g=new THREE.SphereGeometry(1,40,20,0,Math.PI*2,0,Math.PI/2);g.scale(W/2,Math.min(Hh*1.4,W/2),D/2);parts.push(g);
+    const c=new THREE.CylinderGeometry(W/2,W/2,0.12,40);c.translate(0,0.06,0);parts.push(c);parts.push(stud(0,Math.min(Hh*1.4,W/2)-0.04,0,0.25));}
+  else if(t==='window'){
+    const b=0.02, f=0.16, s=rectShape(-W/2+b,b,W/2-b,Hh-b);
+    const hole=new THREE.Path();hole.moveTo(-W/2+f,f+0.1);hole.lineTo(-W/2+f,Hh-f);hole.lineTo(W/2-f,Hh-f);hole.lineTo(W/2-f,f+0.1);hole.lineTo(-W/2+f,f+0.1);s.holes.push(hole);
+    const g=new THREE.ExtrudeGeometry(s,{depth:D-2*b,bevelEnabled:true,bevelThickness:b,bevelSize:b,bevelSegments:1,steps:1});
+    g.translate(0,0,-(D/2-b)); parts.push(g);
+    const bar=new THREE.BoxGeometry(0.08,Hh-2*f-0.1,0.12);bar.translate(0,(Hh+0.1)/2,0);parts.push(bar);
+    const bar2=new THREE.BoxGeometry(W-2*f,0.08,0.12);bar2.translate(0,(Hh+0.1)/2,0);parts.push(bar2);
+    for(let i=0;i<w;i++)parts.push(stud(i-w/2+.5,Hh,0));
+    glass=new THREE.BoxGeometry(W-2*f+0.02,Hh-2*f-0.08,0.05);glass.translate(0,(Hh+0.1)/2,0.03);
+  }
+  return geoCache[k]={main:merge(parts),glass};
+}
+const fw=p=>p.r%2?p.d:p.w, fd=p=>p.r%2?p.w:p.d;
+function buildObj(p,mat,gmat){
+  const G=pieceGeo(p.t,p.w,p.d,p.h); const g=new THREE.Group();
+  const m=new THREE.Mesh(G.main,mat); m.castShadow=true; m.receiveShadow=true; g.add(m);
+  if(G.glass){const gm=new THREE.Mesh(G.glass,gmat||glassMat()); g.add(gm);}
+  placeObj(g,p); return g;
+}
+function placeObj(g,p){g.position.set(p.x+fw(p)/2-N/2,p.y*U,p.z+fd(p)/2-N/2);g.rotation.y=p.r*Math.PI/2;}
+
+/* ================= podložka ================= */
+let plateObj=null, plateStuds=null; const plateMat=new THREE.MeshStandardMaterial({roughness:0.38,envMapIntensity:0.6});
+function buildPlate(){
+  if(plateObj){scene.remove(plateObj);scene.remove(plateStuds);plateObj.geometry.dispose();plateStuds.dispose();}
+  plateMat.color.copy(lin(PLATES[plateColor][1]));
+  plateObj=new THREE.Mesh(boxGeo(N,N,0.4,0.06),plateMat); plateObj.position.y=-0.4; plateObj.receiveShadow=true; plateObj.userData.isPlate=true; scene.add(plateObj);
+  plateStuds=new THREE.InstancedMesh(new THREE.CylinderGeometry(SR,SR,0.15,14),plateMat,N*N);
+  const m4=new THREE.Matrix4(); let i=0;
+  for(let x=0;x<N;x++)for(let z=0;z<N;z++){m4.makeTranslation(x-N/2+.5,0.075,z-N/2+.5);plateStuds.setMatrixAt(i++,m4);}
+  plateStuds.receiveShadow=true; plateStuds.castShadow=false; scene.add(plateStuds);
+  const s=N/2+6; Object.assign(sun.shadow.camera,{left:-s,right:s,top:s,bottom:-s,near:1,far:N*3+60}); sun.shadow.camera.updateProjectionMatrix();
+  sun.position.set(N*0.45,N*0.9+20,N*0.3);
+}
+
+/* ================= data ================= */
+const pieces=new Map(); const occ=new Map(); const pickables=[]; let nextId=1;
+const key=(x,y,z)=>x+','+y+','+z;
+function cellsOf(p){const r=[],W=fw(p),D=fd(p);for(let i=0;i<W;i++)for(let j=0;j<D;j++)for(let k=0;k<p.h;k++)r.push(key(p.x+i,p.y+k,p.z+j));return r;}
+function fits(p){
+  if(p.y<0||p.y+p.h>MAXY||p.x<0||p.z<0||p.x+fw(p)>N||p.z+fd(p)>N) return false;
+  return cellsOf(p).every(k=>!occ.has(k));
+}
+const plain=p=>({t:p.t,w:p.w,d:p.d,h:p.h,r:p.r,x:p.x,y:p.y,z:p.z,c:p.c});
+function addPiece(p,anim){
+  p=plain(p); if(!TBY[p.t]||!COLORS[p.c]||!fits(p)) return null;
+  const id=nextId++; const obj=buildObj(p,colorMat(p.c)); obj.userData.id=id;
+  scene.add(obj); pickables.push(obj); cellsOf(p).forEach(k=>occ.set(k,id)); pieces.set(id,{p,obj});
+  if(anim) dropIn(obj); return id;
+}
+function removeId(id){
+  const e=pieces.get(id); if(!e) return null;
+  scene.remove(e.obj); pickables.splice(pickables.indexOf(e.obj),1); cellsOf(e.p).forEach(k=>occ.delete(k)); pieces.delete(id); return e.p;
+}
+const idAt=p=>occ.get(key(p.x,p.y,p.z));
+function recolor(id,c){const e=pieces.get(id); if(!e) return; e.p.c=c; e.obj.children[0].material=colorMat(c);}
+const anims=[]; const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+function dropIn(g){ if(reduce) return; anims.push({g,y:g.position.y,t:0,s:0}); g.position.y+=0.7; }
+function popOut(g){ if(reduce) return; const c=g.clone(); scene.add(c); anims.push({g:c,y:c.position.y,t:0,s:1}); }
+
+/* ================= ukládání ================= */
+const SKEY='kostkovna-v2'; let saveT;
+function save(){clearTimeout(saveT);saveT=setTimeout(()=>{try{localStorage.setItem(SKEY,JSON.stringify({N,plate:plateColor,night,list:[...pieces.values()].map(e=>e.p)}));}catch(e){}},300);updateCount();}
+function updateCount(){
+  const n=pieces.size; let lay=0; pieces.forEach(e=>lay=Math.max(lay,e.p.y+e.p.h));
+  const word=n===1?'dílek':(n>=2&&n<=4?'dílky':'dílků');
+  document.getElementById('count').textContent=`${n} ${word} · výška ${(lay/3).toFixed(lay%3?1:0).replace('.',',')} kostek`;
+  document.getElementById('empty').classList.toggle('gone',n>0);
+}
+
+/* ================= kamera ================= */
+const cam={tx:0,ty:1,tz:0,r:70,th:0.7,ph:0.95, vth:0,vph:0};
+const camGoal={...cam}; let camAnim=false;
+function defaultView(){return {tx:0,ty:1,tz:0,r:N*1.35+(innerWidth<640?N*0.5:0),th:0.7,ph:0.95};}
+function clampCam(){
+  cam.ph=Math.max(0.03,Math.min(1.68,cam.ph)); cam.r=Math.max(4,Math.min(N*4,cam.r));
+  const L=N/2+12; cam.tx=Math.max(-L,Math.min(L,cam.tx)); cam.tz=Math.max(-L,Math.min(L,cam.tz)); cam.ty=Math.max(-2,Math.min(MAXY*U,cam.ty));
+}
+function placeCam(){
+  clampCam();
+  camera.position.set(cam.tx+cam.r*Math.sin(cam.ph)*Math.sin(cam.th),cam.ty+cam.r*Math.cos(cam.ph),cam.tz+cam.r*Math.sin(cam.ph)*Math.cos(cam.th));
+  camera.lookAt(cam.tx,cam.ty,cam.tz);
+}
+function pan(dx,dy){ // v pixelech obrazovky
+  const s=cam.r*0.0013;
+  cam.tx-=(Math.cos(cam.th)*dx - Math.sin(cam.th)*Math.cos(cam.ph)*0)*s;
+  cam.tz-=(-Math.sin(cam.th)*dx)*s;
+  // svislý pohyb myši posouvá dopředu/dozadu po podložce
+  cam.tx-=Math.sin(cam.th)*dy*s; cam.tz-=Math.cos(cam.th)*dy*s;
+}
+function resize(){const w=stage.clientWidth,h=stage.clientHeight;renderer.setSize(w,h,false);camera.aspect=w/h;camera.updateProjectionMatrix();placeCam();}
+window.addEventListener('resize',resize);
+
+/* ================= míření ================= */
+const ray=new THREE.Raycaster(), ndc=new THREE.Vector2();
+function pick(cx,cy){
+  const r=renderer.domElement.getBoundingClientRect();
+  ndc.set(((cx-r.left)/r.width)*2-1,-((cy-r.top)/r.height)*2+1);
+  ray.setFromCamera(ndc,camera);
+  const h=ray.intersectObjects([plateObj,...pickables],true)[0]; if(!h) return null;
+  let o=h.object; while(o&&o.userData.id===undefined&&!o.userData.isPlate) o=o.parent;
+  return {h,o};
+}
+function curType(){return TYPES[typeIdx];}
+function curDims(){const t=curType(),s=t.sizes[sizeIdx[t.id]];return {t:t.id,w:s[0],d:s[1],h:s[2]||t.h,r:rot};}
+let target=null, hoverId=null;
+function effMode(e){ if(e&&e.shiftKey) return 'smash'; if(e&&e.altKey) return 'pick'; return mode; }
+function computeTarget(hit,m){
+  target=null; hoverId=null; if(!hit) return;
+  const {h,o}=hit;
+  if(m!=='build'){ if(o.userData.id!==undefined) hoverId=o.userData.id; return; }
+  const n=h.face.normal.clone().transformDirection(h.object.matrixWorld);
+  const q=curDims(); let y;
+  if(o.userData.isPlate){ if(n.y<0.5) return; y=0; }
+  else { const p=pieces.get(o.userData.id).p; if(n.y>0.5) y=p.y+p.h; else if(n.y<-0.5) y=p.y-q.h; else y=p.y; }
+  const pt=h.point.clone().addScaledVector(n,0.06);
+  const cx=Math.floor(pt.x+N/2), cz=Math.floor(pt.z+N/2);
+  const W=fw(q),D=fd(q);
+  q.x=Math.max(0,Math.min(N-W,cx-Math.floor((W-1)/2)));
+  q.z=Math.max(0,Math.min(N-D,cz-Math.floor((D-1)/2)));
+  q.y=y; q.c=colorIdx; q.ok=fits(q); target=q;
+}
+
+/* ghost a obrys */
+const ghostMat=new THREE.MeshStandardMaterial({transparent:true,opacity:0.5,roughness:0.4,depthWrite:false,emissive:0x000000});
+let ghost=null, ghostKey='';
+function rebuildGhost(){
+  const q=curDims(); const k=q.t+q.w+'x'+q.d+'x'+q.h+'r'+q.r;
+  if(ghost&&ghostKey===k) return;
+  if(ghost) scene.remove(ghost);
+  ghost=buildObj({...q,x:0,y:0,z:0},ghostMat,ghostMat); ghost.traverse(o=>{o.castShadow=false;o.receiveShadow=false;o.renderOrder=2;});
+  ghost.visible=false; ghostKey=k; scene.add(ghost);
+}
+const outline=new THREE.LineSegments(new THREE.EdgesGeometry(new THREE.BoxGeometry(1,1,1)),new THREE.LineBasicMaterial({color:0xffffff,depthTest:false,transparent:true}));
+outline.renderOrder=3; outline.visible=false; scene.add(outline);
+const footprint=new THREE.Mesh(new THREE.PlaneGeometry(1,1),new THREE.MeshBasicMaterial({color:0x000000,transparent:true,opacity:0.18,depthWrite:false}));
+footprint.rotation.x=-Math.PI/2; footprint.visible=false; scene.add(footprint);
+function boxOutline(p,color){
+  outline.visible=true; outline.material.color.set(color);
+  outline.scale.set(fw(p)+0.08,p.h*U+0.08,fd(p)+0.08);
+  outline.position.set(p.x+fw(p)/2-N/2,p.y*U+p.h*U/2,p.z+fd(p)/2-N/2);
+}
+let curMode='build';
+function refreshVisuals(){
+  outline.visible=false; footprint.visible=false;
+  if(target&&curMode==='build'){
+    ghost.visible=true; placeObj(ghost,target);
+    const c=COLORS[colorIdx][1];
+    ghostMat.color.copy(lin(target.ok?c:'#ff3b30')); ghostMat.opacity=target.ok?0.55:0.3;
+    boxOutline(target,target.ok?'#ffffff':'#ff3b30');
+    if(target.ok&&target.y>0){footprint.visible=true;footprint.scale.set(fw(target),fd(target),1);footprint.position.set(outline.position.x,0.16,outline.position.z);}
+  } else ghost.visible=false;
+  if(hoverId&&pieces.has(hoverId)){
+    const p=pieces.get(hoverId).p;
+    boxOutline(p,curMode==='smash'?'#ff3b30':curMode==='paint'?COLORS[colorIdx][1]:'#FFD43B');
+  }
+}
+
+/* ================= akce, zpět/znovu ================= */
+const undoS=[], redoS=[];
+function push(a){undoS.push(a);redoS.length=0;syncHist();}
+function apply(a,dir){ // dir 1 = udělat, -1 = vrátit
+  if(a.t==='add'){ if(dir>0) addPiece(a.p,true); else removeId(idAt(a.p)); }
+  else if(a.t==='del'){ if(dir>0) removeId(idAt(a.p)); else addPiece(a.p,true); }
+  else if(a.t==='paint'){ recolor(idAt(a.p),dir>0?a.to:a.from); }
+  else if(a.t==='clear'){ if(dir>0) [...pieces.keys()].forEach(removeId); else a.list.forEach(p=>addPiece(p)); }
+}
+function undo(){const a=undoS.pop(); if(!a){toast('Není co vracet');return;} apply(a,-1); redoS.push(a); save(); syncHist(); snd('undo');}
+function redo(){const a=redoS.pop(); if(!a) return; apply(a,1); undoS.push(a); save(); syncHist(); snd('place');}
+function syncHist(){document.getElementById('t-undo').disabled=!undoS.length;document.getElementById('t-redo').disabled=!redoS.length;}
+function act(m){
+  if(m==='build'){
+    if(!target) return;
+    if(!target.ok){snd('bad');return;}
+    const p=plain(target); if(addPiece(p,true)){push({t:'add',p});snd('place');save();}
+  } else if(m==='smash'){
+    if(!hoverId) return; const e=pieces.get(hoverId); popOut(e.obj); const p=removeId(hoverId); hoverId=null;
+    push({t:'del',p}); snd('smash'); save();
+  } else if(m==='paint'){
+    if(!hoverId) return; const e=pieces.get(hoverId); if(e.p.c===colorIdx) return;
+    push({t:'paint',p:plain(e.p),from:e.p.c,to:colorIdx}); recolor(hoverId,colorIdx); snd('paint'); save();
+  } else if(m==='pick'){
+    if(!hoverId) return; const p=pieces.get(hoverId).p;
+    typeIdx=TYPES.findIndex(t=>t.id===p.t); const t=TYPES[typeIdx];
+    sizeIdx[t.id]=Math.max(0,t.sizes.findIndex(s=>s[0]===p.w&&s[1]===p.d&&(s[2]||t.h)===p.h));
+    colorIdx=p.c; rot=p.r; setMode('build'); buildSizes(); syncUI(); toast(`${t.name} ${p.w}×${p.d} · ${COLORS[p.c][0]}`); snd('paint');
+  }
+}
+
+/* ================= zvuk ================= */
+let actx=null;
+function ac(){ if(!actx){try{actx=new (window.AudioContext||window.webkitAudioContext)();}catch(e){}} if(actx&&actx.state==='suspended')actx.resume(); return actx; }
+function tone(f1,f2,dur,type,vol,delay){const a=actx,t=a.currentTime+(delay||0),o=a.createOscillator(),g=a.createGain();o.type=type;o.frequency.setValueAtTime(f1,t);o.frequency.exponentialRampToValueAtTime(f2,t+dur);g.gain.setValueAtTime(vol,t);g.gain.exponentialRampToValueAtTime(0.001,t+dur);o.connect(g).connect(a.destination);o.start(t);o.stop(t+dur+0.02);}
+function noise(dur,vol,freq){const a=actx,n=Math.floor(a.sampleRate*dur),b=a.createBuffer(1,n,a.sampleRate),d=b.getChannelData(0);for(let i=0;i<n;i++)d[i]=(Math.random()*2-1)*Math.pow(1-i/n,3);const s=a.createBufferSource();s.buffer=b;const f=a.createBiquadFilter();f.type='bandpass';f.frequency.value=freq;const g=a.createGain();g.gain.value=vol;s.connect(f).connect(g).connect(a.destination);s.start();}
+function snd(k){
+  if(!soundOn||!ac()) return;
+  if(k==='place'){noise(0.04,0.9,2800);tone(1300,700,0.05,'triangle',0.12);}
+  else if(k==='smash'){noise(0.12,0.7,1200);tone(500,140,0.12,'square',0.05);}
+  else if(k==='paint'){tone(700,1100,0.08,'sine',0.12);tone(1100,1500,0.08,'sine',0.08,0.06);}
+  else if(k==='undo'){tone(800,400,0.07,'triangle',0.1);}
+  else if(k==='bad'){tone(160,120,0.09,'square',0.05);}
+  else if(k==='ui'){tone(1600,1600,0.02,'sine',0.05);}
+}
+
+/* ================= ukazatel ================= */
+const el=renderer.domElement; const ptrs=new Map(); let drag=null, gest=null;
+function gestInfo(){const [a,b]=[...ptrs.values()];return {cx:(a.x+b.x)/2,cy:(a.y+b.y)/2,d:Math.hypot(a.x-b.x,a.y-b.y),ang:Math.atan2(b.y-a.y,b.x-a.x)};}
+el.addEventListener('pointerdown',e=>{
+  el.setPointerCapture(e.pointerId); ptrs.set(e.pointerId,{x:e.clientX,y:e.clientY}); camAnim=false; closePops();
+  if(ptrs.size===1){drag={sx:e.clientX,sy:e.clientY,lx:e.clientX,ly:e.clientY,t:performance.now(),moved:false,btn:e.button,shift:e.shiftKey,alt:e.altKey}; cam.vth=cam.vph=0;}
+  else if(ptrs.size===2){gest=gestInfo(); if(drag) drag.moved=true; ghost.visible=false;}
+});
+el.addEventListener('pointermove',e=>{
+  if(ptrs.has(e.pointerId)) ptrs.set(e.pointerId,{x:e.clientX,y:e.clientY});
+  if(gest&&ptrs.size===2){
+    const g=gestInfo(); cam.r*=gest.d/Math.max(20,g.d); pan(g.cx-gest.cx,g.cy-gest.cy);
+    let da=g.ang-gest.ang; if(da>Math.PI)da-=2*Math.PI; if(da<-Math.PI)da+=2*Math.PI; cam.th+=da;
+    gest=g; placeCam(); return;
+  }
+  if(drag&&ptrs.size===1){
+    if(Math.hypot(e.clientX-drag.sx,e.clientY-drag.sy)>6) drag.moved=true;
+    if(drag.moved){
+      const dx=e.clientX-drag.lx, dy=e.clientY-drag.ly;
+      if(drag.btn===2||drag.btn===1) pan(dx,dy);
+      else { cam.vth=-dx*0.0065; cam.vph=-dy*0.0065; cam.th+=cam.vth; cam.ph+=cam.vph; }
+      placeCam(); ghost.visible=false; outline.visible=false; footprint.visible=false;
+    }
+    drag.lx=e.clientX; drag.ly=e.clientY;
+    if(drag.moved) return;
+  }
+  if(e.pointerType==='mouse'&&!drag){ curMode=effMode(e); computeTarget(pick(e.clientX,e.clientY),curMode); refreshVisuals(); }
+});
+function endPtr(e){
+  ptrs.delete(e.pointerId);
+  if(ptrs.size<2) gest=null;
+  if(drag&&ptrs.size===0){
+    if(!drag.moved&&drag.btn===0){
+      curMode=drag.shift?'smash':drag.alt?'pick':mode;
+      computeTarget(pick(e.clientX,e.clientY),curMode); act(curMode);
+      if(e.pointerType==='mouse') computeTarget(pick(e.clientX,e.clientY),curMode); else {target=null;hoverId=null;}
+      refreshVisuals();
+    } else if(drag.moved&&performance.now()-drag.t<80){cam.vth=cam.vph=0;}
+    drag=null;
+  }
+}
+el.addEventListener('pointerup',endPtr); el.addEventListener('pointercancel',endPtr);
+el.addEventListener('pointerleave',e=>{if(e.pointerType==='mouse'&&!drag){target=null;hoverId=null;refreshVisuals();}});
+el.addEventListener('contextmenu',e=>e.preventDefault());
+el.addEventListener('wheel',e=>{e.preventDefault();camAnim=false;cam.r*=Math.exp(e.deltaY*0.0012);placeCam();},{passive:false});
+
+/* ================= panel ================= */
+const $=id=>document.getElementById(id);
+const typesEl=$('types'), sizesEl=$('sizes'), colorsEl=$('colors');
+TYPES.forEach((t,i)=>{
+  const b=document.createElement('button'); b.className='type'; b.id='type-'+t.id; b.title=t.name;
+  b.innerHTML=`<svg viewBox="0 0 26 22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round">${t.icon}</svg><span>${t.name}</span>`;
+  b.onclick=()=>{typeIdx=i;rot=0;setMode('build');buildSizes();syncUI();snd('ui');}; typesEl.appendChild(b);
+});
+function buildSizes(){
+  sizesEl.innerHTML=''; const t=curType();
+  t.sizes.forEach((s,i)=>{
+    const [w,d]=s, hh=s[2]||t.h; const b=document.createElement('button'); b.className='size'; b.id='size-'+i;
+    b.title=`${t.name} ${w}×${d}`+(hh===6?' (dvojitá výška)':'')+(i<9?` · klávesa ${i+1}`:'');
+    const mx=Math.max(w,d), dot=Math.max(2,Math.min(6,Math.floor(26/mx)-2));
+    const dots=document.createElement('div'); dots.className='dots'; dots.style.gridTemplateColumns=`repeat(${w},${dot}px)`;
+    for(let k=0;k<w*d;k++){const ii=document.createElement('i');ii.style.width=ii.style.height=dot+'px';dots.appendChild(ii);}
+    b.appendChild(dots); const sp=document.createElement('span'); sp.textContent=`${w}×${d}`+(hh===6?'↑':''); b.appendChild(sp);
+    b.onclick=()=>{sizeIdx[t.id]=i;setMode('build');syncUI();snd('ui');}; sizesEl.appendChild(b);
+  });
+}
+COLORS.forEach(([name,hex,kind],i)=>{
+  const b=document.createElement('button'); b.className='sw'+(kind?' '+kind:''); b.id='color-'+i; b.style.backgroundColor=hex; b.title=name; b.setAttribute('aria-label',name);
+  b.onclick=()=>{colorIdx=i;if(mode!=='paint')setMode('build');syncUI();snd('ui');}; colorsEl.appendChild(b);
+});
+NS.forEach(n=>{const b=document.createElement('button');b.className='chip';b.dataset.n=n;b.textContent=`${n} × ${n}`;b.onclick=()=>setN(n);$('nChips').appendChild(b);});
+PLATES.forEach(([name,hex],i)=>{const b=document.createElement('button');b.className='chip';b.dataset.i=i;b.innerHTML=`<b style="background:${hex}"></b>${name}`;b.onclick=()=>{plateColor=i;plateMat.color.copy(lin(hex));syncUI();save();};$('pChips').appendChild(b);});
+
+function setMode(m){mode=m;curMode=m;target=null;hoverId=null;refreshVisuals();syncUI();}
+function syncUI(){
+  TYPES.forEach((t,i)=>$('type-'+t.id).setAttribute('aria-pressed',i===typeIdx));
+  sizesEl.querySelectorAll('.size').forEach((b,i)=>b.setAttribute('aria-pressed',i===sizeIdx[curType().id]));
+  COLORS.forEach((c,i)=>$('color-'+i).setAttribute('aria-pressed',i===colorIdx));
+  ['build','smash','paint','pick'].forEach(m=>$('t-'+m).setAttribute('aria-pressed',mode===m));
+  $('soundBtn').setAttribute('aria-pressed',soundOn); $('waves').style.display=soundOn?'':'none';
+  $('nightBtn').setAttribute('aria-pressed',night);
+  $('nChips').querySelectorAll('.chip').forEach(b=>b.setAttribute('aria-pressed',+b.dataset.n===N));
+  $('pChips').querySelectorAll('.chip').forEach(b=>b.setAttribute('aria-pressed',+b.dataset.i===plateColor));
+  rebuildGhost();
+}
+function rotate(){rot=(rot+1)%4;rebuildGhost();if(target){const l=lastMouse;computeTarget(pick(l.x,l.y),curMode);}refreshVisuals();snd('ui');}
+const lastMouse={x:0,y:0}; window.addEventListener('pointermove',e=>{lastMouse.x=e.clientX;lastMouse.y=e.clientY;});
+$('t-build').onclick=()=>setMode('build'); $('t-smash').onclick=()=>setMode('smash');
+$('t-paint').onclick=()=>setMode('paint'); $('t-pick').onclick=()=>setMode('pick');
+$('t-rot').onclick=rotate; $('t-undo').onclick=undo; $('t-redo').onclick=redo;
+$('t-view').onclick=()=>{Object.assign(camGoal,defaultView());camAnim=true;};
+$('soundBtn').onclick=()=>{soundOn=!soundOn;syncUI();};
+$('nightBtn').onclick=()=>setNight(!night);
+function togglePop(id,btn){const p=$(id),open=p.hidden;closePops();p.hidden=!open;$(btn).setAttribute('aria-pressed',open);}
+function closePops(){['helpPop','setPop'].forEach(i=>$(i).hidden=true);$('helpBtn').setAttribute('aria-pressed',false);$('setBtn').setAttribute('aria-pressed',false);disarm();}
+$('helpBtn').onclick=()=>togglePop('helpPop','helpBtn');
+$('setBtn').onclick=()=>togglePop('setPop','setBtn');
+const clearBtn=$('clearBtn'); let armT;
+function disarm(){clearTimeout(armT);clearBtn.classList.remove('armed');clearBtn.textContent='Smazat všechny dílky';}
+clearBtn.onclick=()=>{
+  if(!pieces.size){toast('Podložka už je prázdná');return;}
+  if(!clearBtn.classList.contains('armed')){clearBtn.classList.add('armed');clearBtn.textContent='Opravdu smazat? Klikni znovu';armT=setTimeout(disarm,3000);return;}
+  disarm(); const list=[...pieces.values()].map(e=>e.p); apply({t:'clear'},1); push({t:'clear',list}); save(); closePops(); toast('Smazáno · Zpět to vrátí'); snd('smash');
+};
+function setN(n){
+  if(n===N) return;
+  const off=Math.floor((n-N)/2), list=[...pieces.values()].map(e=>({...e.p,x:e.p.x+off,z:e.p.z+off}));
+  [...pieces.keys()].forEach(removeId); N=n; buildPlate();
+  let lost=0; list.forEach(p=>{if(!addPiece(p))lost++;});
+  undoS.length=redoS.length=0; syncHist(); Object.assign(cam,defaultView()); placeCam(); syncUI(); save();
+  toast(lost?`Podložka ${n}×${n} · ${lost} dílků se nevešlo`:`Podložka ${n}×${n}`);
+}
+function setNight(v){
+  night=v; document.body.classList.toggle('night',v);
+  scene.fog.color.set(v?'#1d2b47':'#E9F1F6');
+  hemi.intensity=v?0.25:0.6; hemi.color.set(v?'#8fa8ff':'#ffffff'); hemi.groundColor.set(v?'#1a2030':'#8a9aa8');
+  sun.intensity=v?0.45:0.95; sun.color.set(v?'#a9c1ff':'#fff3e2');
+  ground.material.color.copy(lin(v?'#1F2A3D':'#C4D8E8'));
+  stars.visible=v;
+  mats.forEach(m=>{if(m&&m.userData.kind==='trans')m.emissiveIntensity=v?0.9:0;});
+  syncUI(); save();
+}
+window.addEventListener('keydown',e=>{
+  if(e.target.closest&&e.target.closest('input,textarea')) return;
+  const k=e.key.toLowerCase();
+  if((e.ctrlKey||e.metaKey)&&k==='z'){e.preventDefault();e.shiftKey?redo():undo();return;}
+  if((e.ctrlKey||e.metaKey)&&k==='y'){e.preventDefault();redo();return;}
+  if(e.ctrlKey||e.metaKey) return;
+  if(k==='r') rotate(); else if(k==='b') setMode('build'); else if(k==='x') setMode('smash');
+  else if(k==='c') setMode('paint'); else if(k==='i') setMode('pick'); else if(k==='v') $('t-view').click();
+  else if(k==='n') setNight(!night); else if(k==='h') togglePop('helpPop','helpBtn');
+  else if(k==='escape') closePops();
+  else if(k>='1'&&k<='9'){const t=curType();const i=+k-1;if(i<t.sizes.length){sizeIdx[t.id]=i;syncUI();}}
+  else keys.add(k);
+  if(e.key==='Shift'||e.key==='Alt'){curMode=effMode(e);computeTarget(pick(lastMouse.x,lastMouse.y),curMode);refreshVisuals();}
+});
+window.addEventListener('keyup',e=>{keys.delete(e.key.toLowerCase());if(e.key==='Shift'||e.key==='Alt'){curMode=mode;computeTarget(pick(lastMouse.x,lastMouse.y),curMode);refreshVisuals();}});
+window.addEventListener('blur',()=>keys.clear());
+const keys=new Set();
+let toastT; function toast(t){const x=$('toast');x.textContent=t;x.classList.add('show');clearTimeout(toastT);toastT=setTimeout(()=>x.classList.remove('show'),1600);}
+
+/* ================= start ================= */
+try{const s=JSON.parse(localStorage.getItem(SKEY)||'null');
+  if(s&&NS.includes(s.N)){N=s.N;plateColor=PLATES[s.plate]?s.plate:0;night=!!s.night;}
+  buildPlate(); if(s&&Array.isArray(s.list)) s.list.forEach(p=>addPiece(p));
+}catch(e){ if(!plateObj) buildPlate(); }
+Object.assign(cam,defaultView());
+buildSizes(); setNight(night); syncUI(); syncHist(); updateCount(); resize();
+
+/* ================= smyčka ================= */
+let last=performance.now();
+function loop(now){
+  const dt=Math.min(0.05,(now-last)/1000); last=now; let moved=false;
+  // setrvačnost otáčení
+  if(!drag&&!gest&&(Math.abs(cam.vth)>1e-4||Math.abs(cam.vph)>1e-4)){cam.th+=cam.vth;cam.ph+=cam.vph;const f=Math.pow(0.0025,dt);cam.vth*=f;cam.vph*=f;moved=true;}
+  // klávesnice
+  if(keys.size){const sp=(8+cam.r*0.45)*dt; let fx=0,fz=0;
+    if(keys.has('w')||keys.has('arrowup'))fz-=1; if(keys.has('s')||keys.has('arrowdown'))fz+=1;
+    if(keys.has('a')||keys.has('arrowleft'))fx-=1; if(keys.has('d')||keys.has('arrowright'))fx+=1;
+    if(fx||fz){cam.tx+=(Math.cos(cam.th)*fx+Math.sin(cam.th)*fz)*sp;cam.tz+=(-Math.sin(cam.th)*fx+Math.cos(cam.th)*fz)*sp;moved=true;}
+    if(keys.has('q')){cam.th-=1.6*dt;moved=true;} if(keys.has('e')){cam.th+=1.6*dt;moved=true;}
+    if(keys.has('+')||keys.has('=')){cam.r*=1-1.5*dt;moved=true;} if(keys.has('-')){cam.r*=1+1.5*dt;moved=true;}
+  }
+  if(camAnim){const k=1-Math.pow(0.002,dt);let dth=camGoal.th-cam.th;dth=Math.atan2(Math.sin(dth),Math.cos(dth));cam.th+=dth*k;
+    ['tx','ty','tz','r','ph'].forEach(p=>cam[p]+=(camGoal[p]-cam[p])*k); if(Math.abs(camGoal.r-cam.r)<0.05&&Math.abs(dth)<0.002)camAnim=false; moved=true;}
+  if(moved){placeCam(); if(ghost.visible||outline.visible){computeTarget(pick(lastMouse.x,lastMouse.y),curMode);refreshVisuals();}}
+  for(let i=anims.length-1;i>=0;i--){const a=anims[i];
+    if(a.s===0){a.t+=dt/0.16;const k=Math.min(1,a.t);a.g.position.y=a.y+0.7*(1-k)*(1-k);if(k>=1)anims.splice(i,1);}
+    else {a.t+=dt/0.18;const k=Math.min(1,a.t);a.g.scale.setScalar(1-k*0.6);a.g.position.y=a.y+k*0.8;if(k>=1){scene.remove(a.g);anims.splice(i,1);}}
+  }
+  renderer.render(scene,camera); requestAnimationFrame(loop);
+}
+requestAnimationFrame(loop);
+})();
+</script>
+</body>
+</html>
