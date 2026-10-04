@@ -1,0 +1,248 @@
+<!doctype html>
+<html lang="cs">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>body{margin:0}</style>
+<title>Numbers 1–20</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;800&family=Nunito:wght@500;700;800&display=swap">
+<style>
+/* Layout: a squared school exercise book; one centered working column, big tappable answer tiles, red-pencil marking. */
+:root{
+  --paper:#fbfcf7; --grid:#dfe7f1; --ink:#1d3a8a; --text:#22283a; --muted:#5d6680;
+  --pencil:#d6372b; --good:#1f8a4c; --sun:#f6b822; --tile:#ffffff; --tile-edge:#c9d3e6;
+  --shadow:0 3px 0 var(--tile-edge);
+  --display:"Baloo 2","Comic Sans MS",system-ui,sans-serif;
+  --body:"Nunito",system-ui,-apple-system,"Segoe UI",sans-serif;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --paper:#141b2e; --grid:#22304d; --ink:#9db8ff; --text:#e8ecf7; --muted:#a3adc6;
+  --pencil:#ff7a6b; --good:#4fd18a; --sun:#ffcc4d; --tile:#1c2540; --tile-edge:#2f3d63; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --paper:#141b2e; --grid:#22304d; --ink:#9db8ff; --text:#e8ecf7; --muted:#a3adc6;
+  --pencil:#ff7a6b; --good:#4fd18a; --sun:#ffcc4d; --tile:#1c2540; --tile-edge:#2f3d63; color-scheme:dark}
+
+body{
+  background-color:var(--paper);
+  background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);
+  background-size:24px 24px;
+  color:var(--text); font-family:var(--body); font-size:17px; line-height:1.5;
+}
+.wrap{max-width:720px;margin:0 auto;padding-inline:16px;padding-block:20px 48px}
+h1,h2,.big{font-family:var(--display);color:var(--ink);text-wrap:balance;margin:0}
+h1{font-size:clamp(2.2rem,7vw,3.4rem);line-height:1.05}
+h1 span{color:var(--pencil)}
+.lead{color:var(--muted);margin:.4rem 0 0;max-width:60ch}
+.top{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:22px}
+button{font:inherit;cursor:pointer;color:inherit}
+button:focus-visible,input:focus-visible{outline:3px solid var(--sun);outline-offset:2px}
+
+/* Mode menu */
+.modes{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px}
+.mode{background:var(--tile);border:2px solid var(--tile-edge);border-radius:14px;box-shadow:var(--shadow);
+  padding:16px;text-align:left;display:flex;flex-direction:column;gap:4px;transition:transform .12s}
+.mode:hover{transform:translateY(-2px)}
+.mode .tag{font-family:var(--display);font-size:1.5rem;color:var(--ink);line-height:1.1}
+.mode .cz{font-weight:800}
+.mode .hint{color:var(--muted);font-size:.92rem}
+.section-label{font-size:.78rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:800;margin:26px 0 10px}
+
+/* Number table */
+.table{display:grid;grid-template-columns:repeat(auto-fill,minmax(118px,1fr));gap:10px}
+.card{background:var(--tile);border:2px solid var(--tile-edge);border-radius:12px;padding:8px 10px;text-align:left;
+  display:flex;align-items:baseline;gap:8px;box-shadow:var(--shadow)}
+.card b{font-family:var(--display);font-size:1.6rem;color:var(--pencil);min-width:1.6em;font-variant-numeric:tabular-nums}
+.card span{font-weight:800;color:var(--ink)}
+
+/* Game */
+.bar{display:flex;align-items:center;gap:12px;margin-bottom:16px;flex-wrap:wrap}
+.ghost{background:transparent;border:2px solid var(--tile-edge);border-radius:999px;padding:4px 14px;font-weight:800;color:var(--muted)}
+.dots{display:flex;gap:6px;flex-wrap:wrap}
+.dots i{width:14px;height:14px;border-radius:50%;border:2px solid var(--tile-edge);display:block}
+.dots i.ok{background:var(--good);border-color:var(--good)}
+.dots i.no{background:var(--pencil);border-color:var(--pencil)}
+.dots i.now{border-color:var(--ink)}
+.score{margin-left:auto;font-family:var(--display);font-size:1.3rem;color:var(--ink)}
+
+.q{background:var(--tile);border:2px solid var(--tile-edge);border-radius:18px;box-shadow:var(--shadow);
+  padding:22px 16px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:12px;min-height:220px;justify-content:center}
+.q .prompt{color:var(--muted);font-weight:800}
+.q .big{font-size:clamp(4rem,18vw,7rem);line-height:1}
+.q .word{font-size:clamp(2.4rem,10vw,4rem);line-height:1.1}
+.speak{background:var(--ink);color:var(--paper);border:0;border-radius:999px;padding:12px 22px;font-weight:800;font-size:1.05rem;
+  display:inline-flex;align-items:center;gap:8px}
+.speak svg{width:22px;height:22px}
+.speak.small{padding:6px 14px;font-size:.9rem;background:transparent;color:var(--ink);border:2px solid var(--ink)}
+
+.frames{display:flex;gap:14px;flex-wrap:wrap;justify-content:center}
+.frame{display:grid;grid-template-columns:repeat(5,34px);grid-template-rows:repeat(2,34px);gap:4px;
+  border:3px solid var(--ink);border-radius:8px;padding:4px;background:var(--paper)}
+.frame i{border-radius:50%;display:block;margin:3px}
+.frame i.on{background:var(--pencil)}
+.frame i.on.b{background:var(--sun)}
+
+.answers{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:16px}
+.ans{background:var(--tile);border:2px solid var(--tile-edge);border-radius:14px;box-shadow:var(--shadow);
+  padding:14px 8px;font-family:var(--display);font-size:clamp(1.4rem,5vw,2rem);color:var(--ink);min-height:72px;transition:transform .1s}
+.ans:hover:not(:disabled){transform:translateY(-2px)}
+.ans:disabled{cursor:default}
+.ans.right{background:var(--good);border-color:var(--good);color:#fff;box-shadow:none}
+.ans.wrong{border-color:var(--pencil);color:var(--pencil);text-decoration:line-through;text-decoration-thickness:3px}
+.type{display:flex;gap:10px;margin-top:16px;flex-wrap:wrap}
+.type input{flex:1 1 200px;min-width:0;font:inherit;font-family:var(--display);font-size:1.6rem;padding:8px 14px;border-radius:12px;
+  border:2px solid var(--tile-edge);background:var(--tile);color:var(--ink)}
+.go{background:var(--pencil);color:#fff;border:0;border-radius:12px;padding:10px 22px;font-weight:800;font-size:1.1rem}
+.feedback{min-height:2.4em;margin-top:14px;text-align:center;font-weight:800;font-size:1.1rem}
+.feedback.good{color:var(--good)} .feedback.bad{color:var(--pencil)}
+.next{display:block;margin:6px auto 0}
+
+/* Result */
+.result{text-align:center;display:flex;flex-direction:column;align-items:center;gap:12px;padding-block:20px}
+.stars{display:flex;gap:10px}
+.stars svg{width:64px;height:64px}
+.result .row{display:flex;gap:12px;flex-wrap:wrap;justify-content:center}
+.note{color:var(--muted);font-size:.9rem;margin-top:28px}
+@keyframes pop{0%{transform:scale(.6)}70%{transform:scale(1.12)}100%{transform:scale(1)}}
+.pop{animation:pop .35s ease-out}
+@keyframes shake{25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+.shake{animation:shake .3s}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+@media (max-width:420px){.frame{grid-template-columns:repeat(5,28px);grid-template-rows:repeat(2,28px)}}
+</style>
+</head>
+<body>
+
+<div class="wrap" id="app"></div>
+
+<script>
+const WORDS=["zero","one","two","three","four","five","six","seven","eight","nine","ten","eleven","twelve","thirteen","fourteen","fifteen","sixteen","seventeen","eighteen","nineteen","twenty"];
+const MODES={
+  listen:{tag:"Listen!",cz:"Poslouchej",hint:"Uslyšíš číslo anglicky. Klikni na správné číslo."},
+  read:{tag:"Read!",cz:"Přečti slovo",hint:"Vidíš anglické slovo. Které je to číslo?"},
+  match:{tag:"Find the word",cz:"Najdi slovo",hint:"Vidíš číslo. Vyber správné anglické slovo."},
+  count:{tag:"Count!",cz:"Spočítej",hint:"Spočítej kuličky a vyber, jak se to řekne anglicky."},
+  spell:{tag:"Write it!",cz:"Napiš slovo",hint:"Těžší: napiš číslo anglicky na klávesnici."}
+};
+const ROUND=10;
+const app=document.getElementById("app");
+const SPK='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9v6h4l5 4V5L8 9H4z" fill="currentColor"/><path d="M16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12"/></svg>';
+const STAR=(on)=>`<svg viewBox="0 0 24 24"><path d="M12 2.5l2.9 6 6.6.9-4.8 4.6 1.2 6.5L12 17.4l-5.9 3.1 1.2-6.5-4.8-4.6 6.6-.9z" fill="${on?'var(--sun)':'none'}" stroke="${on?'var(--sun)':'var(--tile-edge)'}" stroke-width="1.6" stroke-linejoin="round"/></svg>`;
+const PRAISE=["Great!","Super!","Well done!","Excellent!","Yes!","Perfect!"];
+
+let voice=null;
+function pickVoice(){try{const v=speechSynthesis.getVoices();voice=v.find(x=>/en-GB/i.test(x.lang))||v.find(x=>/^en/i.test(x.lang))||null;}catch(e){}}
+try{pickVoice();speechSynthesis.onvoiceschanged=pickVoice;}catch(e){}
+function say(t){try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);u.lang=voice?voice.lang:"en-GB";if(voice)u.voice=voice;u.rate=.85;speechSynthesis.speak(u);}catch(e){}}
+const canSpeak=typeof window.speechSynthesis!=="undefined";
+
+const rnd=n=>Math.floor(Math.random()*n);
+const shuffle=a=>{for(let i=a.length-1;i>0;i--){const j=rnd(i+1);[a[i],a[j]]=[a[j],a[i]]}return a};
+function options(n){
+  const near=[n-1,n+1,n-10,n+10,n+2,n-2,n%10===n?n+10:n-10].filter(x=>x>=1&&x<=20&&x!==n);
+  const set=new Set([n]);
+  for(const x of shuffle(near)){if(set.size<3)set.add(x)}
+  while(set.size<4)set.add(1+rnd(20));
+  return shuffle([...set]);
+}
+function questions(){ // 10 different numbers, more weight on teens
+  const pool=shuffle([...Array(20)].map((_,i)=>i+1));
+  return pool.slice(0,ROUND);
+}
+
+let state={};
+function home(){
+  app.innerHTML=`
+  <div class="top"><div>
+    <h1>Numbers <span>1–20</span></h1>
+    <p class="lead">Anglické číslovky pro třetí třídu. Vyber si hru, každé kolo má ${ROUND} otázek.</p>
+  </div></div>
+  <div class="modes">${Object.entries(MODES).map(([k,m])=>`
+    <button class="mode" data-mode="${k}"><span class="tag">${m.tag}</span><span class="cz">${m.cz}</span><span class="hint">${m.hint}</span></button>`).join("")}
+  </div>
+  <div class="section-label">Tabulka: klikni a poslechni si</div>
+  <div class="table">${WORDS.slice(1).map((w,i)=>`<button class="card" data-say="${w}"><b>${i+1}</b><span>${w}</span></button>`).join("")}</div>
+  ${canSpeak?"":`<p class="note">Tento prohlížeč neumí přečíst slova nahlas, hra „Poslouchej“ proto nebude mít zvuk.</p>`}`;
+  app.querySelectorAll(".mode").forEach(b=>b.onclick=()=>start(b.dataset.mode));
+  app.querySelectorAll(".card").forEach(b=>b.onclick=()=>{say(b.dataset.say);b.classList.remove("pop");void b.offsetWidth;b.classList.add("pop")});
+}
+
+function start(mode){state={mode,qs:questions(),i:0,score:0,marks:[],locked:false};render();}
+
+function frames(n){
+  let html="";
+  for(let f=0;f<2;f++){
+    if(f===1&&n<=10)break;
+    html+='<div class="frame">';
+    for(let k=0;k<10;k++){const idx=f*10+k;html+=`<i class="${idx<n?'on'+(f?' b':''):''}"></i>`}
+    html+='</div>';
+  }
+  return `<div class="frames" aria-label="kuličky">${html}</div>`;
+}
+
+function render(){
+  const {mode,qs,i}=state; const n=qs[i]; state.locked=false;
+  let prompt="",body="",answers="";
+  const opts=options(n);
+  if(mode==="listen"){prompt="Poslouchej a klikni na číslo";body=`<button class="speak" id="replay">${SPK} Play again</button>`;
+    answers=opts.map(x=>`<button class="ans" data-v="${x}">${x}</button>`).join("");}
+  if(mode==="read"){prompt="Které číslo to je?";body=`<div class="word big">${WORDS[n]}</div>`;
+    answers=opts.map(x=>`<button class="ans" data-v="${x}">${x}</button>`).join("");}
+  if(mode==="match"){prompt="Jak se to řekne anglicky?";body=`<div class="big">${n}</div>`;
+    answers=opts.map(x=>`<button class="ans" data-v="${x}">${WORDS[x]}</button>`).join("");}
+  if(mode==="count"){prompt="Kolik je kuliček?";body=frames(n);
+    answers=opts.map(x=>`<button class="ans" data-v="${x}">${WORDS[x]}</button>`).join("");}
+  if(mode==="spell"){prompt="Napiš anglicky:";body=`<div class="big">${n}</div>`;}
+
+  app.innerHTML=`
+  <div class="bar">
+    <button class="ghost" id="back">← Menu</button>
+    <div class="dots">${qs.map((_,k)=>`<i class="${state.marks[k]||(k===i?'now':'')}"></i>`).join("")}</div>
+    <div class="score">${state.score} / ${ROUND}</div>
+  </div>
+  <div class="q"><div class="prompt">${MODES[mode].cz} · ${prompt}</div>${body}</div>
+  ${mode==="spell"
+    ?`<form class="type" id="f"><input id="spellInput" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="např. seven" aria-label="Napiš číslo anglicky"><button class="go">Check</button></form>`
+    :`<div class="answers">${answers}</div>`}
+  <div class="feedback" id="fb" aria-live="polite"></div>`;
+
+  document.getElementById("back").onclick=home;
+  if(mode==="listen"){document.getElementById("replay").onclick=()=>say(WORDS[n]);setTimeout(()=>say(WORDS[n]),250);}
+  if(mode==="spell"){const inp=document.getElementById("spellInput");inp.focus();
+    document.getElementById("f").onsubmit=e=>{e.preventDefault();if(state.locked)return;const v=inp.value.trim().toLowerCase();if(!v)return;answer(v===WORDS[n],null,inp);};}
+  else app.querySelectorAll(".ans").forEach(b=>b.onclick=()=>{if(state.locked)return;answer(+b.dataset.v===n,b);});
+}
+
+function answer(ok,btn,inp){
+  const n=state.qs[state.i]; state.locked=true;
+  const fb=document.getElementById("fb");
+  app.querySelectorAll(".ans").forEach(b=>{b.disabled=true;if(+b.dataset.v===n)b.classList.add("right","pop")});
+  if(ok){state.score++;state.marks[state.i]="ok";fb.className="feedback good";fb.textContent=PRAISE[rnd(PRAISE.length)]+"  "+n+" = "+WORDS[n];}
+  else{state.marks[state.i]="no";if(btn)btn.classList.add("wrong","shake");if(inp){inp.classList.add("shake");inp.disabled=true;}
+    fb.className="feedback bad";fb.textContent="Skoro! Správně je "+n+" = "+WORDS[n];}
+  say(WORDS[n]);
+  const last=state.i===ROUND-1;
+  const nx=document.createElement("button");nx.className="go next";nx.id="nextBtn";nx.textContent=last?"Výsledek →":"Další →";
+  nx.onclick=()=>{if(last)result();else{state.i++;render();}};
+  fb.after(nx);nx.focus();
+  document.querySelector(".score").textContent=state.score+" / "+ROUND;
+}
+
+function result(){
+  const s=state.score, stars=s>=10?3:s>=8?2:s>=5?1:0;
+  const msg=["Zkus to znovu, jde ti to!","Dobrý začátek!","Moc pěkné!","Výborně, všechno správně!"][stars];
+  app.innerHTML=`<div class="q result">
+    <div class="stars pop">${STAR(stars>=1)}${STAR(stars>=2)}${STAR(stars>=3)}</div>
+    <h2 class="big">${s} / ${ROUND}</h2>
+    <p style="font-weight:800;margin:0">${msg}</p>
+    <div class="row"><button class="go" id="again">Hrát znovu</button><button class="ghost" id="menu">Vybrat jinou hru</button></div>
+  </div>`;
+  if(stars===3)say("Well done!");
+  document.getElementById("again").onclick=()=>start(state.mode);
+  document.getElementById("menu").onclick=home;
+}
+home();
+</script>
+</body>
+</html>
