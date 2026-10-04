@@ -1,0 +1,1373 @@
+<!doctype html>
+<html lang="cs">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+</head>
+<body>
+<title>Výprava na Bílou horu</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Grenze+Gotisch:wght@500;700&family=Alegreya:ital,wght@0,400;0,600;0,800;1,400&family=Alegreya+Sans:wght@500;700;800&display=swap">
+<style>
+/* Layout: noční „stroj času" (mosazný přístroj nahoře) + pergamenová kronika uprostřed, jedna scéna = jedna kapitola. Záměrně jeden vzhled pro světlý i tmavý režim. */
+:root{
+  --night:#191a2f; --night-2:#262844; --brass:#c79a3b; --brass-hi:#f0cf7a;
+  --parch:#f1e4c3; --parch-2:#e4d1a3; --edge:#b9955a; --ink:#2b1d12; --ink-soft:#5b4630;
+  --blood:#9b2a22; --royal:#24427a; --ok:#2f6b3a; --glow:#7fe3d6;
+  --display:"Grenze Gotisch","UnifrakturMaguntia",Georgia,serif;
+  --body:"Alegreya",Georgia,"Times New Roman",serif;
+  --ui:"Alegreya Sans","Trebuchet MS",system-ui,sans-serif;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{min-height:100%}
+body{background:var(--night);background-image:radial-gradient(1200px 600px at 50% -10%,#34366a 0%,transparent 60%),radial-gradient(2px 2px at 20% 30%,#fff8 50%,transparent 51%),radial-gradient(1.5px 1.5px at 70% 12%,#fff6 50%,transparent 51%),radial-gradient(1.5px 1.5px at 85% 40%,#fff5 50%,transparent 51%),radial-gradient(2px 2px at 40% 8%,#fff7 50%,transparent 51%);color:var(--parch);font-family:var(--body);font-size:18px;line-height:1.55;padding:0 16px;padding-block:0 48px}
+button{font:inherit;cursor:pointer}
+:focus-visible{outline:3px solid var(--glow);outline-offset:3px}
+
+/* ---------- přístroj nahoře ---------- */
+.machine{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;max-width:980px;margin:0 auto;padding:10px 0;display:flex;flex-wrap:wrap;align-items:center;gap:10px 16px;background:linear-gradient(var(--night) 70%,transparent)}
+.dial{display:flex;align-items:center;gap:10px;background:linear-gradient(#3a2a12,#20170a);border:2px solid var(--brass);border-radius:10px;padding:6px 12px;box-shadow:inset 0 0 12px #000a,0 0 18px #c79a3b33}
+.dial small{font-family:var(--ui);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--brass-hi)}
+.year{font-family:var(--ui);font-weight:800;font-size:26px;letter-spacing:.08em;color:var(--glow);text-shadow:0 0 10px #7fe3d688;font-variant-numeric:tabular-nums;min-width:4ch}
+.seals{display:flex;gap:6px;flex-wrap:wrap;flex:1;min-width:0}
+.seal{width:32px;height:32px;border-radius:50%;display:grid;place-items:center;color:#ffffff30;border:2px dashed #ffffff30;background:none;padding:0}.seal svg{width:16px;height:16px}.sealcount{font-family:var(--ui);font-weight:800;font-size:13px;color:var(--brass-hi);align-self:center;margin-right:4px}
+.seal.got{background:radial-gradient(circle at 35% 30%,#d4473c,var(--blood) 60%,#5e1611);color:#f6d7a8;border:2px solid #6e1a14;box-shadow:0 2px 6px #0008;cursor:pointer}
+.seal.got:hover{transform:scale(1.1)}
+.sound{background:none;border:2px solid var(--brass);color:var(--brass-hi);border-radius:8px;padding:5px 10px;font-family:var(--ui);font-weight:700;font-size:14px}
+
+/* ---------- kronika ---------- */
+.book{max-width:980px;margin:8px auto 0;background:var(--parch);color:var(--ink);border-radius:6px;padding:28px clamp(16px,4vw,44px) 32px;box-shadow:0 0 0 2px var(--edge),0 0 0 8px #3b2b17,0 20px 60px #000c;background-image:radial-gradient(ellipse at 10% 0%,#fff6 0%,transparent 40%),radial-gradient(ellipse at 100% 100%,#c9a86655 0%,transparent 50%);position:relative}
+.eyebrow{font-family:var(--ui);font-weight:800;font-size:13px;letter-spacing:.16em;text-transform:uppercase;color:var(--blood)}
+h1,h2{font-family:var(--display);font-weight:700;line-height:1.05;text-wrap:balance;margin:.15em 0 .35em;color:var(--ink)}
+h1{font-size:clamp(40px,7vw,72px)}
+h2{font-size:clamp(32px,5vw,50px)}
+h3{font-family:var(--ui);font-weight:800;font-size:19px;margin:0 0 4px}
+p{margin:0 0 .8em;max-width:68ch}
+.lead{font-size:20px}
+.drop::first-letter{font-family:var(--display);float:left;font-size:3.4em;line-height:.8;padding:6px 8px 0 0;color:var(--blood)}
+
+.guide{display:flex;gap:14px;align-items:flex-start;background:var(--parch-2);border:1px solid var(--edge);border-radius:10px;padding:12px 14px;margin:14px 0}
+.guide .face{flex:0 0 52px;height:52px}
+.guide .say{min-width:0}
+.guide .who{font-family:var(--ui);font-size:14px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-soft);display:block}
+.guide p{margin:0}
+
+.btn{display:inline-flex;align-items:center;gap:8px;background:var(--blood);color:#fbeacb;border:none;border-radius:8px;padding:12px 20px;font-family:var(--ui);font-weight:800;font-size:17px;box-shadow:0 3px 0 #5e1611;transition:transform .1s}
+.btn:hover{transform:translateY(-1px)}
+.btn:active{transform:translateY(2px);box-shadow:0 1px 0 #5e1611}
+.btn.ghost{background:transparent;color:var(--ink);border:2px solid var(--ink-soft);box-shadow:none}
+.btn.brass{background:linear-gradient(#e2b958,#a67a24);color:#22170a;box-shadow:0 3px 0 #6b4d14}
+.row{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-top:14px}
+
+.fact{background:#fff8e6;border-left:5px solid var(--royal);border-radius:4px;padding:10px 14px;margin:10px 0;animation:pop .35s ease}
+.fact.red{border-color:var(--blood)}
+.fact.green{border-color:var(--ok)}
+@keyframes pop{from{transform:scale(.97);opacity:.4}to{transform:none;opacity:1}}
+
+.choices{display:grid;gap:10px;margin:12px 0}
+.choice{text-align:left;background:#fffaf0;border:2px solid var(--edge);border-radius:10px;padding:12px 14px;color:var(--ink);font-family:var(--body);font-size:17px;transition:border-color .15s,background .15s}
+.choice:hover:not(:disabled){border-color:var(--blood);background:#fff}
+.choice:disabled{cursor:default;opacity:.65}
+.choice.right{border-color:var(--ok);background:#e3f1df;opacity:1}
+.choice.wrong{border-color:var(--blood);background:#f6dcd6;opacity:1}
+.choice b{font-family:var(--ui)}
+
+.grid-items{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin:14px 0}
+.item{background:#fffaf0;border:2px solid var(--edge);border-radius:12px;padding:12px 8px;display:flex;flex-direction:column;align-items:center;gap:6px;color:var(--ink);font-family:var(--ui);font-weight:700;font-size:15px;text-align:center}
+.item svg{width:64px;height:64px}
+.item.seen{border-color:var(--ok);background:#eef6e9}
+.item:hover{border-color:var(--blood)}
+
+.timeline{display:grid;gap:8px;margin:12px 0}
+.ev{display:flex;gap:12px;align-items:center;text-align:left;background:#fffaf0;border:2px solid var(--edge);border-radius:10px;padding:10px 14px;color:var(--ink);font-family:var(--body);font-size:17px}
+.ev .n{flex:0 0 34px;height:34px;border-radius:50%;display:grid;place-items:center;font-family:var(--ui);font-weight:800;background:var(--parch-2);color:var(--ink-soft)}
+.ev.done{border-color:var(--ok);background:#eef6e9}
+.ev.done .n{background:var(--ok);color:#fff}
+.ev.shake{animation:shake .35s}
+@keyframes shake{25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+
+.scene-wrap{border:3px solid #3b2b17;border-radius:8px;overflow:hidden;background:#222;margin:12px 0;position:relative}
+.scene-wrap svg{display:block;width:100%;height:auto}
+.hint{font-family:var(--ui);font-weight:700;font-size:15px;color:var(--ink-soft)}
+
+/* defenestrace */
+.fig{cursor:pointer;transform-box:fill-box;transform-origin:center}
+.fig:hover .hl{opacity:1}
+.fig .hl{opacity:0;transition:opacity .2s}
+.fig.out{animation:fall 1.6s cubic-bezier(.45,0,.9,.6) forwards;cursor:default}
+@keyframes fall{0%{transform:translate(0,0) rotate(0)}18%{transform:translate(calc(var(--dx)*.25),-30px) rotate(70deg)}100%{transform:translate(var(--dx),var(--dy)) rotate(var(--rot))}}
+.glass{opacity:0}
+.glass.on{animation:glass .8s forwards}
+@keyframes glass{0%{opacity:1;transform:translate(0,0)}100%{opacity:0;transform:translate(var(--gx),120px)}}
+
+/* volba */
+.cands{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin:14px 0}
+.cand{background:#fffaf0;border:2px solid var(--edge);border-radius:12px;padding:14px;text-align:left;color:var(--ink);font-family:var(--body);font-size:16px;display:flex;flex-direction:column;gap:6px}
+.cand .crest{width:56px;height:56px}
+.cand:hover:not(:disabled){border-color:var(--blood)}
+.cand.pick{border-color:var(--ok);background:#eef6e9}
+.cand.nope{opacity:.6}
+.tag{display:inline-block;font-family:var(--ui);font-weight:800;font-size:12px;letter-spacing:.08em;text-transform:uppercase;padding:2px 8px;border-radius:20px;background:var(--parch-2);color:var(--ink-soft)}
+
+/* bitva */
+.bars{display:grid;grid-template-columns:1fr 1fr;gap:10px 18px;margin:10px 0}
+.bar label{font-family:var(--ui);font-weight:800;font-size:14px;display:flex;justify-content:space-between}
+.bar .track{height:14px;background:#d8c59b;border-radius:8px;overflow:hidden;border:1px solid var(--edge)}
+.bar .fill{height:100%;transition:width .9s ease}
+.bar.st .fill{background:linear-gradient(90deg,#c0392b,#e8d7b0)}
+.bar.ci .fill{background:linear-gradient(90deg,#1f1f1f,#e0b62e)}
+.unit{transition:transform 1.6s ease-in-out}
+.puff{animation:puff 1.4s ease-out forwards;transform-box:fill-box;transform-origin:center}
+@keyframes puff{0%{opacity:.95;transform:scale(.3)}100%{opacity:0;transform:scale(2.6) translateY(-8px)}}
+.flash{animation:flash .25s forwards}
+@keyframes flash{0%{opacity:1}100%{opacity:0}}
+.banner{position:absolute;inset:0;display:grid;place-items:center;pointer-events:none}
+.banner span{font-family:var(--display);font-size:clamp(34px,7vw,64px);color:#f5e6c4;background:#5e1611dd;padding:6px 24px;border:3px solid var(--brass);border-radius:6px;animation:pop .5s}
+.log{font-size:16px;background:#fff8e6;border:1px solid var(--edge);border-radius:8px;padding:10px 14px;margin:10px 0}
+.log p{margin:0 0 .4em}
+.cannon-game{background:#2b2015;color:var(--parch);border-radius:10px;padding:14px;margin:10px 0}
+.meter{position:relative;height:28px;background:linear-gradient(90deg,#7a2a22 0%,#a5762a 30%,#3f8b49 42%,#3f8b49 58%,#a5762a 70%,#7a2a22 100%);border-radius:6px;margin:10px 0;border:2px solid var(--brass)}
+.needle{position:absolute;top:-6px;width:6px;height:36px;background:#fff;border-radius:3px;box-shadow:0 0 8px #fff;left:0}
+.shots{font-family:var(--ui);font-weight:800}
+
+/* po bitvě */
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:12px;margin:14px 0}
+.flip{perspective:900px;background:none;border:none;padding:0;min-height:190px;text-align:left}
+.flip .in{position:relative;width:100%;height:100%;min-height:190px;transition:transform .6s;transform-style:preserve-3d}
+.flip.open .in{transform:rotateY(180deg)}
+.flip .f,.flip .b{position:absolute;inset:0;backface-visibility:hidden;border-radius:12px;padding:14px;display:flex;flex-direction:column;gap:6px}
+.flip .f{background:linear-gradient(160deg,#3b2b17,#5a4220);color:#f3e2bd;border:2px solid var(--brass);justify-content:center;align-items:center;text-align:center}
+.flip .f .big{font-family:var(--display);font-size:34px;color:var(--brass-hi);line-height:1}
+.flip .f .hint2{font-family:var(--ui);font-size:13px;opacity:.75}
+.flip .b{background:#fffaf0;color:var(--ink);border:2px solid var(--edge);transform:rotateY(180deg);font-size:15.5px;line-height:1.45;overflow:auto}
+
+/* certifikát */
+.cert{border:6px double var(--blood);padding:24px;text-align:center;background:#fffaf0;border-radius:4px;margin:16px 0}
+.cert h2{margin:.2em 0}
+.cert .name{font-family:var(--display);font-size:clamp(30px,6vw,46px);color:var(--royal)}
+input[type=text]{font:inherit;font-size:18px;padding:10px 12px;border:2px solid var(--edge);border-radius:8px;background:#fffaf0;color:var(--ink);width:min(320px,100%)}
+
+/* přechod časem */
+.warp{position:fixed;inset:0;z-index:50;display:grid;place-items:center;background:radial-gradient(circle,#0b0c1a 0%,#05060d 70%);opacity:0;pointer-events:none;transition:opacity .35s}
+.warp.on{opacity:1;pointer-events:auto}
+.warp .rings{position:absolute;width:min(90vmin,640px);aspect-ratio:1;border-radius:50%;background:repeating-conic-gradient(from 0deg,#7fe3d633 0 6deg,transparent 6deg 18deg),repeating-radial-gradient(circle,#c79a3b44 0 2px,transparent 2px 28px);animation:spin 2.2s linear infinite;max-width:100%}
+@keyframes spin{to{transform:rotate(360deg)}}
+.warp .ctr{position:relative;text-align:center;color:var(--parch)}
+.warp .yy{font-family:var(--ui);font-weight:800;font-size:clamp(56px,14vw,120px);color:var(--glow);text-shadow:0 0 30px #7fe3d6;font-variant-numeric:tabular-nums}
+.warp .lbl{font-family:var(--ui);letter-spacing:.2em;text-transform:uppercase;font-size:14px;color:var(--brass-hi)}
+.warp .dest{font-family:var(--display);font-size:clamp(24px,5vw,36px)}
+
+/* postavy – mluvící hlavy */
+.cast{display:flex;flex-wrap:wrap;gap:10px;align-items:flex-end;margin:12px 0;padding:10px 12px;border:1px dashed var(--edge);border-radius:12px;background:#fff8e6}
+.cast .lbl{flex:1 1 100%;font-family:var(--ui);font-weight:800;font-size:13px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-soft);display:flex;gap:8px;align-items:center}
+.cast .lock{display:none;color:var(--blood)}
+.locked .cast .lock{display:inline}
+.head{background:none;border:none;padding:0;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;align-self:flex-start;gap:2px;width:84px;color:var(--ink);font-family:var(--ui);font-weight:700;font-size:12.5px;line-height:1.15;text-align:center;transition:transform .15s,filter .2s}
+.head svg{width:72px;height:80px;filter:drop-shadow(0 3px 3px #0004)}
+.head:hover{transform:translateY(-3px) rotate(-2deg)}
+.locked .head{filter:grayscale(1) opacity(.45);cursor:not-allowed}
+.locked .head:hover{transform:none}
+.blink{animation:blink 4s infinite;transform-box:fill-box;transform-origin:center}
+@keyframes blink{0%,94%,100%{transform:scaleY(1)}96%{transform:scaleY(.1)}}
+.mouth-open{transform-box:fill-box;transform-origin:center top;transform:scaleY(.15)}
+.talk .mouth-open{animation:talk .22s infinite alternate}
+@keyframes talk{from{transform:scaleY(.15)}to{transform:scaleY(1)}}
+.talk .bob{animation:bob .9s ease-in-out infinite;transform-box:fill-box;transform-origin:center bottom}
+@keyframes bob{50%{transform:rotate(2deg) translateY(-1px)}}
+.speaker{position:fixed;inset:0;z-index:40;display:grid;place-items:center;background:#0b0c1acc;padding:16px}
+.speaker .box{max-width:640px;width:100%;display:flex;gap:16px;align-items:flex-end;flex-wrap:wrap;justify-content:center}
+.speaker .big svg{width:min(190px,44vw);height:auto;filter:drop-shadow(0 8px 16px #000a)}
+.speaker .bubble{position:relative;flex:1 1 280px;min-width:0;background:var(--parch);color:var(--ink);border:3px solid var(--edge);border-radius:18px;padding:16px 18px;font-size:18px;box-shadow:0 10px 30px #000a}
+.speaker .bubble::before{content:"";position:absolute;left:-16px;bottom:30px;border:14px solid transparent;border-right-color:var(--edge)}
+.speaker .bubble h3{font-family:var(--display);font-size:30px;font-weight:700;margin:0}
+.speaker .bubble .role{font-family:var(--ui);font-size:13px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--blood);margin-bottom:6px}
+.speaker .typed{min-height:5em}
+@media (max-width:560px){.speaker .bubble::before{display:none}}
+.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);z-index:60;background:var(--blood);color:#fbeacb;font-family:var(--ui);font-weight:800;padding:10px 18px;border-radius:30px;box-shadow:0 6px 20px #0008;animation:pop .25s}
+
+/* rady */
+.hintbtn{background:#fff3d1;border:2px dashed var(--brass);color:var(--ink);border-radius:8px;padding:6px 12px;font-family:var(--ui);font-weight:800;font-size:14px}
+.hinttxt{background:#fff3d1;border-left:5px solid var(--brass);border-radius:4px;padding:8px 12px;margin:8px 0;font-size:16px;animation:pop .3s}
+
+/* obrázky k otázkám */
+.ill{border:3px solid #3b2b17;border-radius:10px;overflow:hidden;margin:10px 0;max-width:520px;background:#222}
+.ill svg{display:block;width:100%;height:auto}
+.ill figcaption{background:#3b2b17;color:var(--parch);font-family:var(--ui);font-weight:700;font-size:13px;padding:4px 10px}
+.fb{transform-box:fill-box}
+.tw{animation:tw 2s ease-in-out infinite}
+@keyframes tw{50%{opacity:.2}}
+.stamp{animation:stamp 2.4s ease-in infinite;transform-origin:center}
+@keyframes stamp{0%{transform:translateY(-60px) scale(1.6);opacity:0}30%{opacity:1}45%,100%{transform:none;opacity:1}}
+.tug{animation:tug 1.6s ease-in-out infinite alternate}
+@keyframes tug{from{transform:translateX(-26px)}to{transform:translateX(26px)}}
+.leanL{animation:leanL 1.6s ease-in-out infinite alternate;transform-origin:center bottom}
+@keyframes leanL{from{transform:rotate(-8deg)}to{transform:rotate(4deg)}}
+.leanR{animation:leanR 1.6s ease-in-out infinite alternate;transform-origin:center bottom}
+@keyframes leanR{from{transform:rotate(-4deg)}to{transform:rotate(8deg)}}
+.dropfig{animation:dropfig 2.8s cubic-bezier(.5,0,.9,.6) infinite;transform-origin:center}
+@keyframes dropfig{0%,15%{transform:translate(0,0) rotate(0)}70%,100%{transform:translate(70px,92px) rotate(400deg)}}
+.paper{animation:paper 2.2s ease-in infinite}
+@keyframes paper{0%{transform:translate(0,-50px) rotate(-20deg);opacity:0}20%{opacity:1}80%{transform:translate(0,30px) rotate(10deg);opacity:1}100%{transform:translate(0,40px);opacity:0}}
+.bobc{animation:bobc 2s ease-in-out infinite}
+@keyframes bobc{50%{transform:translateY(-6px)}}
+.swL{animation:swL .7s ease-in-out infinite alternate;transform-origin:0 0}
+@keyframes swL{from{transform:rotate(-55deg)}to{transform:rotate(10deg)}}
+.swR{animation:swR .7s ease-in-out infinite alternate;transform-origin:0 0}
+@keyframes swR{from{transform:rotate(-10deg)}to{transform:rotate(55deg)}}
+.spark{animation:spark .7s infinite alternate}
+@keyframes spark{0%,60%{opacity:0;transform:scale(.3)}100%{opacity:1;transform:scale(1.2)}}
+.stepL{animation:stepL 1.4s ease-in-out infinite alternate}
+@keyframes stepL{to{transform:translateX(10px)}}
+.stepR{animation:stepR 1.4s ease-in-out infinite alternate}
+@keyframes stepR{to{transform:translateX(-10px)}}
+.fallen{animation:fallen 6s ease-in infinite;transform-origin:50% 100%}
+@keyframes fallen{0%,25%{transform:rotate(0)}38%,100%{transform:rotate(-88deg)}}
+.hitpuff{animation:hitpuff 6s infinite;transform-origin:center}
+@keyframes hitpuff{0%,20%{opacity:0;transform:scale(.3)}25%{opacity:1;transform:scale(1)}40%,100%{opacity:0;transform:scale(2)}}
+.helm{animation:helm 6s infinite}
+@keyframes helm{0%,30%{transform:translate(0,0) rotate(0)}48%,100%{transform:translate(-60px,38px) rotate(-300deg)}}
+.memorial{animation:memorial 6s infinite}
+@keyframes memorial{0%,60%{opacity:0}75%,100%{opacity:1}}
+.flame{animation:flame .35s ease-in-out infinite alternate;transform-origin:center bottom}
+@keyframes flame{from{transform:scaleY(.8) scaleX(1.05)}to{transform:scaleY(1.15) scaleX(.9)}}
+.sharpen{animation:sharpen .5s ease-in-out infinite alternate}
+@keyframes sharpen{to{transform:translateX(14px)}}
+.mistband{animation:mistband 9s linear infinite}
+@keyframes mistband{from{transform:translateX(-120px)}to{transform:translateX(120px)}}
+.recoil{animation:recoil 2.4s infinite}
+@keyframes recoil{0%,8%{transform:translateX(0)}12%{transform:translateX(-12px)}30%,100%{transform:translateX(0)}}
+.smk{animation:smk 2.4s infinite;transform-origin:center}
+@keyframes smk{0%,8%{opacity:0;transform:scale(.3)}12%{opacity:.9}60%,100%{opacity:0;transform:scale(2.4) translateY(-10px)}}
+.boomr{animation:boomr 2.4s infinite;transform-origin:center}
+@keyframes boomr{0%,54%{opacity:0;transform:scale(.3)}58%{opacity:1}90%,100%{opacity:0;transform:scale(2)}}
+.snow{animation:snow linear infinite}
+@keyframes snow{from{transform:translateY(-20px)}to{transform:translateY(190px)}}
+.ride{animation:ride 7s linear infinite}
+@keyframes ride{from{transform:translateX(-140px)}to{transform:translateX(340px)}}
+.wheel{animation:spin .6s linear infinite;transform-origin:center}
+.cross{animation:crossin 9s infinite;opacity:0}
+@keyframes crossin{0%{opacity:0}8%,90%{opacity:1}100%{opacity:0}}
+.sand{animation:sand 4s linear infinite}
+@keyframes sand{from{transform:scaleY(1)}to{transform:scaleY(.1)}}
+.walk{animation:walk 10s linear infinite}
+@keyframes walk{from{transform:translateX(0)}to{transform:translateX(230px)}}
+.legs{animation:legs .5s ease-in-out infinite alternate;transform-origin:center top}
+@keyframes legs{from{transform:skewX(14deg)}to{transform:skewX(-14deg)}}
+
+/* ---- verze 3: portréty, stroj času, animace ---- */
+.guide .face{flex:0 0 56px;height:auto}.guide .face svg{width:56px;height:65px;display:block}
+.head svg{width:74px;height:86px}
+.speaker .big svg{width:min(230px,50vw);height:auto}
+.lowlip{transform-box:fill-box;transform-origin:center top}
+.talk .lowlip{animation:lowlip .22s infinite alternate}
+@keyframes lowlip{to{transform:translateY(2.6px)}}
+.warp .ctr{display:flex;flex-direction:column;align-items:center;gap:6px;width:min(560px,100%)}
+.mwrap{width:min(440px,92vw)}.mwrap svg,.herom svg{display:block;width:100%;height:auto}
+.herom{width:min(360px,80%);margin:4px auto 10px}
+.herom .gearA{animation:spin 6s linear infinite}.herom .gearB{animation:spin 4s linear infinite reverse}
+.glowp{animation:glowp 1.6s ease-in-out infinite;transform-box:fill-box;transform-origin:center}
+@keyframes glowp{50%{opacity:.6;transform:scale(1.12)}}
+.flipyear{display:flex;gap:6px;justify-content:center;perspective:400px}
+.fd{display:block;width:.72em;font-family:var(--ui);font-weight:800;font-size:clamp(46px,10vw,84px);line-height:1.15;text-align:center;color:var(--glow);text-shadow:0 0 14px #7fe3d6aa;background:linear-gradient(#2a2c4a 50%,#1c1e36 50%);border-radius:8px;box-shadow:inset 0 0 0 2px #c79a3b88,0 6px 14px #0008;position:relative;font-variant-numeric:tabular-nums}
+.fd::after{content:"";position:absolute;left:0;right:0;top:50%;height:2px;background:#000a}
+.fd.fdflip{animation:flipd .16s ease-out}
+@keyframes flipd{from{transform:rotateX(85deg)}to{transform:none}}
+.detail{}
+.speaker .dbox{max-width:760px;width:100%;background:var(--parch);color:var(--ink);border:4px solid var(--edge);border-radius:14px;overflow:hidden;box-shadow:0 20px 60px #000c;display:grid;grid-template-columns:1.25fr 1fr;animation:pop .3s}
+.speaker .dpic{background:#111;display:flex;align-items:center}.speaker .dpic>svg{display:block;width:100%;height:auto}
+.speaker .dtext{padding:16px 18px;min-width:0}
+.speaker .dtext h3{font-family:var(--display);font-size:30px;margin:0 0 6px}
+.speaker .dtext .role{font-family:var(--ui);font-size:12px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--blood)}
+@media (max-width:640px){.speaker .dbox{grid-template-columns:1fr}.speaker .dpic svg{min-height:0;height:auto}}
+.evpic{flex:0 0 120px;margin-left:auto;border-radius:6px;overflow:hidden;border:2px solid #3b2b17;animation:pop .4s}
+.evpic svg{display:block;width:120px;height:68px}
+@media (max-width:560px){.evpic{flex-basis:84px}.evpic svg{width:84px;height:48px}}
+.logrow{display:grid;grid-template-columns:1fr minmax(0,300px);gap:12px;align-items:start}
+.logrow .ill{margin:0}
+@media (max-width:640px){.logrow{grid-template-columns:1fr}}
+.flip,.flip .in{min-height:340px}
+.flip .b{padding:0;gap:0}
+.flip .b>div:last-child{padding:10px 12px}
+.bpic svg{display:block;width:100%;height:auto}
+.certseal{display:flex;flex-direction:column;align-items:center;gap:3px;width:76px}
+.certseal small{font-family:var(--ui);font-size:11px;font-weight:700;line-height:1.1;color:var(--ink-soft)}
+.cert .seal{width:44px;height:44px}.cert .seal svg{width:22px;height:22px}.cert .seal:not(.got){color:#0003;border-color:#0002}
+.stampin{animation:stampin .5s cubic-bezier(.3,1.6,.6,1) both}
+@keyframes stampin{from{transform:scale(2.4) rotate(-20deg);opacity:0}to{transform:none;opacity:1}}
+/* animace ve scénách */
+.bubb{animation:bubb 2.2s ease-in infinite;opacity:0}
+@keyframes bubb{0%{transform:translateY(0);opacity:0}15%{opacity:1}100%{transform:translateY(-52px);opacity:0}}
+.drip{animation:drip 2.4s ease-in infinite}
+@keyframes drip{0%{transform:translateY(0);opacity:1}70%{transform:translateY(26px);opacity:1}100%{transform:translateY(28px);opacity:0}}
+.orb{animation:spin 6s linear infinite;transform-origin:0 0}
+.comet{animation:comet 7s linear infinite}
+@keyframes comet{0%{transform:translate(360px,10px)}40%,100%{transform:translate(-60px,120px)}}
+.sweep{animation:sweep 4s ease-in-out infinite}
+@keyframes sweep{0%{transform:translateX(0)}60%,100%{transform:translateX(480px)}}
+.rays{animation:spin 20s linear infinite;transform-origin:0 0}
+.shine{animation:shine 3s ease-in-out infinite}
+@keyframes shine{0%{transform:translateX(0)}50%,100%{transform:translateX(190px)}}
+.write{stroke-dasharray:160;stroke-dashoffset:160;animation:write 3.6s linear infinite}
+@keyframes write{0%{stroke-dashoffset:160}20%,100%{stroke-dashoffset:0}}
+.quill{animation:quill 1.2s ease-in-out infinite alternate;transform-box:fill-box;transform-origin:bottom left}
+@keyframes quill{from{transform:translate(-120px,30px) rotate(-6deg)}to{transform:translate(-40px,60px) rotate(6deg)}}
+.convoy{animation:convoy 9s linear infinite}
+@keyframes convoy{from{transform:translateX(-60px)}to{transform:translateX(300px)}}
+.climb{animation:climb 5s linear infinite}
+@keyframes climb{from{transform:translate(-40px,20px)}to{transform:translate(70px,-34px)}}
+.walkA{animation:walkA .45s ease-in-out infinite alternate;transform-origin:50% 0}
+.walkB{animation:walkA .45s ease-in-out infinite alternate-reverse;transform-origin:50% 0}
+@keyframes walkA{from{transform:rotate(-18deg)}to{transform:rotate(18deg)}}
+.raise{animation:raise .8s ease-in-out infinite alternate}
+@keyframes raise{from{transform:rotate(-30deg)}to{transform:rotate(-80deg)}}
+.flail{animation:flail .25s ease-in-out infinite alternate}
+@keyframes flail{from{transform:rotate(-60deg)}to{transform:rotate(40deg)}}
+.slash{animation:slash .6s ease-in-out infinite alternate}
+@keyframes slash{from{transform:rotate(-70deg)}to{transform:rotate(20deg)}}
+.slash2{animation:slash .6s ease-in-out infinite alternate-reverse}
+.thrust{animation:thrust .9s ease-in-out infinite alternate}
+@keyframes thrust{from{transform:rotate(-8deg) translateX(-3px)}to{transform:rotate(20deg) translateX(4px)}}
+.wave{animation:wave 1s ease-in-out infinite alternate;transform-origin:0 50%}
+@keyframes wave{to{transform:skewY(6deg) scaleX(.92)}}
+.drift{animation:drift 6s ease-in-out infinite alternate}
+@keyframes drift{from{transform:translate(-10px,4px) scale(1);opacity:.55}to{transform:translate(14px,-6px) scale(1.3);opacity:.85}}
+.flashq{animation:flashq 1.2s infinite;opacity:0}
+@keyframes flashq{0%,80%{opacity:0;transform:scale(.4)}85%{opacity:1;transform:scale(1.3)}100%{opacity:0}}
+.paperfly{animation:paperfly 2.8s ease-in infinite;opacity:0}
+@keyframes paperfly{0%,15%{opacity:0;transform:translate(0,0)}25%{opacity:1}100%{opacity:0;transform:translate(60px,100px) rotate(220deg)}}
+.landpuff{animation:landpuff 2.8s infinite;opacity:0}
+@keyframes landpuff{0%,66%{opacity:0;transform:scale(.3)}72%{opacity:.9}100%{opacity:0;transform:scale(2)}}
+.crowndown{animation:crowndown 3.5s ease-out infinite}
+@keyframes crowndown{0%{transform:translateY(-50px);opacity:0}15%{opacity:1}45%,100%{transform:translateY(12px);opacity:1}}
+.sparkle{animation:sparkle 1.4s ease-in-out infinite;transform-origin:center}
+@keyframes sparkle{0%,100%{transform:scale(.2);opacity:0}50%{transform:scale(1.2);opacity:1}}
+.vivat{animation:vivat 3.5s infinite}
+@keyframes vivat{0%,40%{opacity:0}55%,100%{opacity:1}}
+.gal1{animation:gal .32s ease-in-out infinite alternate;transform-origin:50% 0}
+.gal2{animation:gal .32s ease-in-out infinite alternate-reverse;transform-origin:50% 0}
+@keyframes gal{from{transform:rotate(-24deg)}to{transform:rotate(24deg)}}
+.wheel2{animation:none}
+.recoil .wheel2{animation:wheelback 2.4s infinite;transform-origin:center}
+@keyframes wheelback{0%,8%{transform:rotate(0)}12%{transform:rotate(-50deg)}30%,100%{transform:rotate(0)}}
+.spread{animation:spread 7.2s infinite;opacity:0}
+@keyframes spread{0%{opacity:0}6%,92%{opacity:1}100%{opacity:0}}
+.snow2{animation:snow2 linear infinite}
+@keyframes snow2{from{transform:translateY(-20px)}to{transform:translateY(380px)}}
+#wk .gal1,#wk .gal2,#wk .wheel,#wk .dust{animation:none}
+#wk .dust{opacity:0}
+#wk.carGo .gal1{animation:gal .2s ease-in-out infinite alternate}
+#wk.carGo .gal2{animation:gal .2s ease-in-out infinite alternate-reverse}
+#wk.carGo .wheel{animation:spin .35s linear infinite}
+#wk.carGo .carbody{animation:carb .18s ease-in-out infinite alternate}
+@keyframes carb{to{transform:translateY(-3px) rotate(.8deg)}}
+#wk.carGo .dust{animation:dust .75s ease-out infinite}
+@keyframes dust{0%{opacity:.9;transform:translate(0,0) scale(.4)}100%{opacity:0;transform:translate(-40px,-12px) scale(2)}}
+#wk .runA,#wk .runB{transform-origin:50% 0}
+#wk.msgRun .runA{animation:gal .18s infinite alternate}
+#wk.msgRun .runB{animation:gal .18s infinite alternate-reverse}
+#wk .wave2{transform-origin:5px -54px}
+#wk.msgRun .wave2{animation:raise .3s infinite alternate}
+#wk .lgA,#wk .lgB{transform-origin:50% 0}
+#wk.fRun .lgA{animation:runleg .12s linear infinite alternate}
+#wk.fRun .lgB{animation:runleg .12s linear infinite alternate-reverse}
+@keyframes runleg{from{transform:rotate(-55deg)}to{transform:rotate(55deg)}}
+#wk .cape{transform-origin:100% 0}
+#wk.fRun .cape{animation:cape .15s infinite alternate}
+@keyframes cape{from{transform:rotate(-8deg) scaleX(1.1)}to{transform:rotate(10deg) scaleX(1.35)}}
+#wk.fRun #wkFin{animation:hop .12s infinite alternate}
+@keyframes hop{to{transform:translateY(-6px) rotate(6deg)}}
+#wk .bub{opacity:0;transition:opacity .25s,transform .25s;transform:translateY(6px)}
+#wk .bub.on{opacity:1;transform:none}
+#wk .fb,#wk [class*=gal]{transform-box:fill-box}
+
+.foot{max-width:980px;margin:14px auto 0;font-family:var(--ui);font-size:13px;color:#cfc6e8aa;text-align:center}
+@media (max-width:560px){body{font-size:17px}.bars{grid-template-columns:1fr}.guide .face{flex-basis:42px;height:42px}}
+@media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+</style>
+
+<header class="machine" aria-label="Stroj času">
+  <div class="dial"><small>Stroj času<br>rok</small><span class="year" id="year">2026</span></div>
+  <div class="seals" id="seals" aria-label="Získané pečetě"></div>
+  <button class="sound" id="soundBtn" aria-pressed="false">Zvuky: vyp.</button>
+  <button class="sound" id="voiceBtn" aria-pressed="false">Hlas postav: vyp.</button>
+</header>
+
+<main class="book" id="stage" aria-live="polite"></main>
+<p class="foot">Výprava na Bílou horu · dějepis pro 5. třídu · hraj od začátku do konce a sbírej pečetě</p>
+
+<div class="warp" id="warp" aria-hidden="true"></div>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false"><defs>
+<linearGradient id="gSteel" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#eef2f5"/><stop offset=".45" stop-color="#9aa4ae"/><stop offset="1" stop-color="#4a525a"/></linearGradient>
+<linearGradient id="gBrass" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f6dc8e"/><stop offset=".5" stop-color="#c79a3b"/><stop offset="1" stop-color="#6b4d14"/></linearGradient>
+<linearGradient id="gGold" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff0b0"/><stop offset=".4" stop-color="#e2b958"/><stop offset="1" stop-color="#8a6418"/></linearGradient>
+<linearGradient id="gSkyDay" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#6f93bd"/><stop offset=".7" stop-color="#cdd8de"/><stop offset="1" stop-color="#ece3c8"/></linearGradient>
+<linearGradient id="gSkyGrey" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7e8896"/><stop offset="1" stop-color="#d8d3c4"/></linearGradient>
+<linearGradient id="gSkyNight" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0b0e2a"/><stop offset=".7" stop-color="#262c58"/><stop offset="1" stop-color="#46406c"/></linearGradient>
+<linearGradient id="gSkyDawn" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2c3358"/><stop offset=".55" stop-color="#8a6f86"/><stop offset="1" stop-color="#e9a86b"/></linearGradient>
+<linearGradient id="gSkyWinter" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#8ea4bc"/><stop offset="1" stop-color="#eef2f6"/></linearGradient>
+<linearGradient id="gGrass" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7d8f45"/><stop offset="1" stop-color="#3f4e1b"/></linearGradient>
+<linearGradient id="gGrassDark" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#4a5828"/><stop offset="1" stop-color="#242c10"/></linearGradient>
+<linearGradient id="gSnow" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffffff"/><stop offset="1" stop-color="#c9d5e2"/></linearGradient>
+<linearGradient id="gWood" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#8a5a2b"/><stop offset="1" stop-color="#42280f"/></linearGradient>
+<linearGradient id="gStone" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#e2d8c0"/><stop offset="1" stop-color="#ab9e80"/></linearGradient>
+<linearGradient id="gRoom" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#4a3a22"/><stop offset="1" stop-color="#140c06"/></linearGradient>
+<linearGradient id="gParch" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f8ecd2"/><stop offset="1" stop-color="#d8c294"/></linearGradient>
+<linearGradient id="gVelvet" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#a52a20"/><stop offset="1" stop-color="#4a0e0a"/></linearGradient>
+<radialGradient id="gFire"><stop offset="0" stop-color="#fff3b0"/><stop offset=".4" stop-color="#ffb340" stop-opacity=".8"/><stop offset="1" stop-color="#e2401a" stop-opacity="0"/></radialGradient>
+<radialGradient id="gGlow"><stop offset="0" stop-color="#ffe9a8"/><stop offset="1" stop-color="#ffe9a8" stop-opacity="0"/></radialGradient>
+<radialGradient id="gTeal"><stop offset="0" stop-color="#ffffff"/><stop offset=".4" stop-color="#7fe3d6"/><stop offset="1" stop-color="#7fe3d6" stop-opacity="0"/></radialGradient>
+<radialGradient id="gSmoke"><stop offset="0" stop-color="#f6f3ec"/><stop offset=".6" stop-color="#d8d2c4" stop-opacity=".8"/><stop offset="1" stop-color="#c8c0b0" stop-opacity="0"/></radialGradient>
+<radialGradient id="gMoon"><stop offset="0" stop-color="#fffbe6"/><stop offset="1" stop-color="#e2d398"/></radialGradient>
+<radialGradient id="gSun"><stop offset="0" stop-color="#fff6c8"/><stop offset=".5" stop-color="#ffc94a"/><stop offset="1" stop-color="#ff8a1a"/></radialGradient>
+<radialGradient id="gShade" cx="30%" cy="30%"><stop offset="0" stop-color="#fff" stop-opacity=".45"/><stop offset=".6" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".55"/></radialGradient>
+<radialGradient id="gLiquid" cx="40%" cy="30%"><stop offset="0" stop-color="#c8ff9a"/><stop offset="1" stop-color="#2f8a24"/></radialGradient>
+<radialGradient id="gVignette" cx=".5" cy=".5" r=".75"><stop offset=".62" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".5"/></radialGradient>
+<filter id="fBlur" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="4"/></filter>
+<filter id="fSoft" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="1.6"/></filter>
+<filter id="fShadow" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="3" stdDeviation="2.5" flood-opacity=".5"/></filter>
+</defs></svg>
+<script>
+/* ================= ZVUK ================= */
+let AC=null, soundOn=false, voiceOn=false;
+const sBtn=document.getElementById('soundBtn'), vBtn=document.getElementById('voiceBtn');
+function setSound(on){ soundOn=on; if(soundOn&&!AC){try{AC=new (window.AudioContext||window.webkitAudioContext)()}catch(e){soundOn=false}} if(AC&&AC.state==='suspended')AC.resume(); sBtn.textContent='Zvuky: '+(soundOn?'zap.':'vyp.'); sBtn.setAttribute('aria-pressed',soundOn); document.querySelectorAll('[data-sync=sound]').forEach(b=>{b.textContent=soundOn?'Zvuky jsou zapnuté':'Zapnout zvuky';b.setAttribute('aria-pressed',soundOn)}); if(soundOn) chime(); }
+function setVoice(on){ voiceOn=on && ('speechSynthesis' in window); if(on&&!voiceOn) toast('Tvůj prohlížeč neumí mluvit nahlas. Text si přečti.'); if(!voiceOn){try{speechSynthesis.cancel()}catch(e){}} vBtn.textContent='Hlas postav: '+(voiceOn?'zap.':'vyp.'); vBtn.setAttribute('aria-pressed',voiceOn); document.querySelectorAll('[data-sync=voice]').forEach(b=>{b.textContent=voiceOn?'Hlas postav je zapnutý':'Zapnout hlas postav';b.setAttribute('aria-pressed',voiceOn)}); }
+sBtn.onclick=()=>setSound(!soundOn);
+vBtn.onclick=()=>setVoice(!voiceOn);
+function toast(t){ const d=document.createElement('div'); d.className='toast'; d.textContent=t; document.body.appendChild(d); setTimeout(()=>d.remove(),2200); }
+let csVoice=null;
+function pickVoice(){ try{ const v=speechSynthesis.getVoices(); csVoice=v.find(x=>/^cs/i.test(x.lang))||null; }catch(e){} }
+if('speechSynthesis' in window){ pickVoice(); try{speechSynthesis.onvoiceschanged=pickVoice}catch(e){} }
+function speak(text,pitch=1,rate=1,onend){ if(!voiceOn){ return false; } try{ speechSynthesis.cancel(); const u=new SpeechSynthesisUtterance(text.replace(/<[^>]+>/g,'')); u.lang='cs-CZ'; if(csVoice)u.voice=csVoice; u.pitch=pitch; u.rate=rate; u.onend=onend; u.onerror=onend; speechSynthesis.speak(u); return true; }catch(e){ return false; } }
+function noise(dur,freq,vol,type='lowpass'){ if(!soundOn||!AC)return; const n=AC.sampleRate*dur, buf=AC.createBuffer(1,n,AC.sampleRate), d=buf.getChannelData(0); for(let i=0;i<n;i++) d[i]=(Math.random()*2-1)*Math.pow(1-i/n,2); const s=AC.createBufferSource(); s.buffer=buf; const f=AC.createBiquadFilter(); f.type=type; f.frequency.value=freq; const g=AC.createGain(); g.gain.value=vol; s.connect(f).connect(g).connect(AC.destination); s.start(); }
+function tone(fr,dur,vol=.15,type='sine',when=0){ if(!soundOn||!AC)return; const o=AC.createOscillator(),g=AC.createGain(); o.type=type;o.frequency.value=fr; const t=AC.currentTime+when; g.gain.setValueAtTime(vol,t); g.gain.exponentialRampToValueAtTime(.001,t+dur); o.connect(g).connect(AC.destination); o.start(t); o.stop(t+dur); }
+const boom=()=>{noise(1.1,180,1.2); tone(55,.6,.5,'sine')};
+const crash=()=>{noise(.5,3500,.5,'highpass')};
+const musket=()=>{noise(.25,900,.6)};
+const thud=()=>{noise(.35,120,.9)};
+const chime=()=>{tone(784,.5,.12,'triangle');tone(1046,.7,.1,'triangle',.12)};
+const buzz=()=>{tone(140,.25,.15,'sawtooth')};
+const drum=()=>{for(let i=0;i<6;i++){ if(soundOn&&AC) setTimeout(()=>noise(.12,250,.7),i*110)}};
+const whoosh=()=>{noise(1.4,600,.35,'bandpass')};
+
+/* ================= STAV ================= */
+const CH=[
+  {id:'rudolf', year:1609, name:'Dvůr Rudolfa II.', seal:'R'},
+  {id:'matyas', year:1611, name:'Bratrský spor', seal:'M'},
+  {id:'okno',   year:1618, name:'Pražská defenestrace', seal:'D'},
+  {id:'volba',  year:1619, name:'Volba krále', seal:'F'},
+  {id:'bitva',  year:1620, name:'Bitva na Bílé hoře', seal:'B'},
+  {id:'po',     year:1621, name:'Po bitvě', seal:'P'},
+];
+let S={scene:'intro', seals:[], name:'', quizScore:0};
+const $=s=>document.querySelector(s);
+const stage=$('#stage');
+function setYear(y){$('#year').textContent=y}
+const SEAL_ICON={
+ rudolf:'<path d="M3 15 L2 6 L6 9 L10 3 L14 9 L18 6 L17 15Z"/>',
+ matyas:'<path d="M4 17 L10 3 M16 17 L10 3" stroke="currentColor" stroke-width="2.2" fill="none"/><circle cx="10" cy="3" r="2.2"/>',
+ okno:'<path d="M5 2 H15 V12 H5Z M10 2 V12 M5 7 H15" stroke="currentColor" stroke-width="1.8" fill="none"/><path d="M12 13 l3 5 M9 14 l-1 4" stroke="currentColor" stroke-width="1.8"/>',
+ volba:'<path d="M4 9 H16 V17 H4Z"/><path d="M8 3 H13 V9 H8Z" fill="none" stroke="currentColor" stroke-width="1.6"/>',
+ bitva:'<path d="M3 3 L17 17 M17 3 L3 17" stroke="currentColor" stroke-width="2.4"/><path d="M2 14 l4 4 M18 14 l-4 4" stroke="currentColor" stroke-width="3"/>',
+ po:'<path d="M10 1 V19 M2 5.5 L18 14.5 M18 5.5 L2 14.5" stroke="currentColor" stroke-width="2"/>'};
+function renderSeals(){ const n=S.seals.length; $('#seals').innerHTML=`<span class="sealcount" title="Za každou kapitolu dostaneš jednu pečeť">Pečetě ${n}/6</span>`+CH.map(c=>{const got=S.seals.includes(c.id); const ic=`<svg viewBox="0 0 20 20" aria-hidden="true" fill="currentColor">${SEAL_ICON[c.id]}</svg>`; return got?`<button class="seal got" title="Pečeť: ${c.name} (${c.year}) · klikni a vrať se" aria-label="Pečeť ${c.name}, vrátit se" data-go="${c.id}">${ic}</button>`:`<button class="seal" title="Pečeť: ${c.name} (${c.year}) · zatím chybí" aria-label="Pečeť ${c.name}, zatím chybí" data-miss="${c.name}">${ic}</button>`}).join(''); document.querySelectorAll('[data-go]').forEach(b=>b.onclick=()=>{ if(LOCKS.size){ buzz(); toast('Nejdřív odpověz na otázku!'); return; } travel(b.dataset.go); }); document.querySelectorAll('[data-miss]').forEach(b=>b.onclick=()=>toast('Pečeť „'+b.dataset.miss+'“ dostaneš, až dokončíš tuhle kapitolu.')); }
+function giveSeal(id){ if(!S.seals.includes(id)){S.seals.push(id); renderSeals(); chime();} }
+
+const GUIDE_FACE=()=>`<span class="face">${headSVG(LOOKS.jakub)}</span>`;
+const guide=(t)=>`<div class="guide">${GUIDE_FACE()}<div class="say"><b class="who">Jakub, písař z Pražského hradu</b><p>${t}</p></div></div>`;
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+/* ================= ZÁMEK BĚHEM OTÁZEK ================= */
+const LOCKS=new Set();
+function updLock(){ document.body.classList.toggle('locked',LOCKS.size>0); }
+function lock(k){ LOCKS.add(k); updLock(); }
+function unlock(k){ LOCKS.delete(k); updLock(); }
+
+/* ================= MLUVÍCÍ HLAVY ================= */
+/* ================= BARVY – pomocníci ================= */
+const hx=h=>[1,3,5].map(i=>parseInt(h.slice(i,i+2),16));
+const toH=a=>'#'+a.map(v=>Math.max(0,Math.min(255,Math.round(v))).toString(16).padStart(2,'0')).join('');
+const dk=(h,f=.7)=>toH(hx(h).map(v=>v*f));
+const lt=(h,f=.3)=>toH(hx(h).map(v=>v+(255-v)*f));
+
+/* ================= PORTRÉTY (podle dobových obrazů) ================= */
+let HID=0;
+function headSVG(L,opt={}){
+  const u='h'+(++HID), frame=opt.frame!==false;
+  const cx=60, w=L.w||20, j=L.jaw||0, top=30, chin=95+j, n=L.nose||0;
+  const sk=L.skin||'#e6bf98', sh=L.shade||'#b98762', hc=L.hair||'#4a3020', bc=L.beardColor||hc, coat=L.coat||'#1c1a1a', eye=L.eye||'#4a3a28';
+  const my=80+n*.5+j*.4;
+  const mir=p=>`<path d="${p.d}" fill="${p.f}" ${p.x||''}/><path d="${p.d}" fill="${p.f}" ${p.x||''} transform="translate(${2*cx} 0) scale(-1 1)"/>`;
+  let s=`<svg viewBox="0 0 120 140" aria-hidden="true"><defs>
+  <radialGradient id="${u}s" cx="45%" cy="38%" r="70%"><stop offset="0" stop-color="${lt(sk,.35)}"/><stop offset=".55" stop-color="${sk}"/><stop offset="1" stop-color="${sh}"/></radialGradient>
+  <linearGradient id="${u}c" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="${lt(coat,.25)}"/><stop offset=".5" stop-color="${coat}"/><stop offset="1" stop-color="${dk(coat,.55)}"/></linearGradient>
+  <linearGradient id="${u}h" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${lt(hc,.22)}"/><stop offset="1" stop-color="${dk(hc,.7)}"/></linearGradient>
+  <linearGradient id="${u}b" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${dk(bc,.85)}"/><stop offset=".6" stop-color="${bc}"/><stop offset="1" stop-color="${lt(bc,.15)}"/></linearGradient>
+  <radialGradient id="${u}g" cx="40%" cy="30%" r="80%"><stop offset="0" stop-color="#6e5c3c"/><stop offset="1" stop-color="#1b140b"/></radialGradient>
+  <clipPath id="${u}k"><ellipse cx="60" cy="70" rx="56" ry="68"/></clipPath></defs>`;
+  if(frame) s+=`<g clip-path="url(#${u}k)"><rect width="120" height="140" fill="url(#${u}g)"/>`;
+  s+=`<g class="bob">`;
+  // dlouhé vlasy vzadu
+  if(L.hairStyle==='long') s+=`<path d="M${cx-w-6} 50 C${cx-w-11} 18 ${cx+w+11} 18 ${cx+w+6} 50 C${cx+w+11} 80 ${cx+w+13} 100 ${cx+w+5} 114 L${cx-w-5} 114 C${cx-w-13} 100 ${cx-w-11} 80 ${cx-w-6} 50Z" fill="url(#${u}h)"/>`;
+  // oděv
+  s+=`<path d="M3 142 C7 113 30 102 60 102 C90 102 113 113 117 142Z" fill="url(#${u}c)"/>`;
+  s+=`<path d="M60 104 V142" stroke="${dk(coat,.5)}" stroke-width="1"/>${[112,120,128,136].map(y=>`<circle cx="60" cy="${y}" r="1.3" fill="#c79a3b"/>`).join('')}`;
+  if(L.armor) s+=`<path d="M10 142 C14 117 34 107 60 107 C86 107 106 117 110 142Z" fill="url(#gSteel)" stroke="#3a3f45" stroke-width="1"/><path d="M14 124 Q24 110 40 108 M106 124 Q96 110 80 108" stroke="#3a3f45" stroke-width="1.2" fill="none"/><path d="M60 108 V142" stroke="#3a3f45" stroke-width="1.2"/><path d="M30 128 Q60 118 90 128" stroke="#3a3f45" fill="none"/>${[22,40,80,98].map(x=>`<circle cx="${x}" cy="${x<60?118+(40-x)/6:118+(x-80)/6}" r="1.4" fill="#e2b958"/>`).join('')}<path d="M40 112 Q50 108 56 110" stroke="#fff" stroke-width="2" opacity=".5" fill="none"/>`;
+  if(L.sash) s+=`<path d="M28 106 L94 142" stroke="#3a6ad0" stroke-width="8"/><path d="M28 106 L94 142" stroke="#7ea0f0" stroke-width="2" opacity=".5"/>`;
+  if(L.chain) s+=`<path d="M34 108 Q60 134 86 108" stroke="#e2b958" stroke-width="2.6" fill="none" stroke-dasharray="3.2 1.4"/><path d="M53 125 q7 -4 14 0 q-2 6 -7 6 q-5 0 -7 -6z" fill="url(#gGold)" stroke="#7a5a14" stroke-width=".6"/>`;
+  // krk
+  s+=`<path d="M${cx-9} 82 L${cx-9} 106 L${cx+9} 106 L${cx+9} 82Z" fill="${sh}"/>`;
+  // límec
+  if(L.collar==='ruff'){ s+=`<ellipse cx="60" cy="104" rx="31" ry="9.5" fill="#e9e3d4"/>`; for(let k=0;k<26;k++){const a=k/26*Math.PI*2; s+=`<circle cx="${(60+31*Math.cos(a)).toFixed(1)}" cy="${(104+9.5*Math.sin(a)).toFixed(1)}" r="3.6" fill="#f8f5ec" stroke="#bdb6a4" stroke-width=".6"/>`;} for(let k=0;k<16;k++){const a=k/16*Math.PI*2; s+=`<path d="M${(60+13*Math.cos(a)).toFixed(1)} ${(104+4*Math.sin(a)).toFixed(1)} L${(60+28*Math.cos(a)).toFixed(1)} ${(104+8.6*Math.sin(a)).toFixed(1)}" stroke="#cfc8b6" stroke-width=".8"/>`;} s+=`<ellipse cx="60" cy="102" rx="12" ry="4" fill="#9a8f78"/>`; }
+  if(L.collar==='lace'){ s+=`<path d="M45 101 L14 116 Q60 137 106 116 L75 101 Q60 108 45 101Z" fill="#f8f5ec" stroke="#cfc8b6" stroke-width=".8"/>`; for(let k=0;k<=20;k++){const t=k/20, x=(1-t)*(1-t)*14+2*(1-t)*t*60+t*t*106, y=(1-t)*(1-t)*116+2*(1-t)*t*137+t*t*116; s+=`<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="2.3" fill="#f8f5ec" stroke="#cfc8b6" stroke-width=".6"/>`;} s+=`<path d="M24 116 Q60 130 96 116" stroke="#d8d0bc" stroke-width="1" fill="none" stroke-dasharray="1.5 2"/><path d="M34 112 Q60 122 86 112" stroke="#d8d0bc" stroke-width="1" fill="none" stroke-dasharray="1 2.5"/>`; }
+  if(L.collar==='band') s+=`<path d="M52 101 h16 l3 4 -3 1 h-16 l-3 -1z" fill="#f8f5ec"/><path d="M54 104 h5 l1 16 h-6z M61 104 h5 l1 16 h-6z" fill="#f8f5ec" stroke="#cfc8b6" stroke-width=".5"/>`;
+  // uši
+  if(L.hairStyle!=='long') s+=`<ellipse cx="${cx-w+.5}" cy="64" rx="4" ry="6.6" fill="${sh}"/><ellipse cx="${cx+w-.5}" cy="64" rx="4" ry="6.6" fill="${sh}"/><path d="M${cx-w} 61 q-2 3 0 6 M${cx+w} 61 q2 3 0 6" stroke="${dk(sh,.7)}" stroke-width=".8" fill="none"/>`;
+  // obličej
+  s+=`<path d="M${cx-w} 56 C${cx-w} ${top-2} ${cx+w} ${top-2} ${cx+w} 56 C${cx+w} ${72+j} ${cx+10} ${chin-2} ${cx} ${chin} C${cx-10} ${chin-2} ${cx-w} ${72+j} ${cx-w} 56Z" fill="url(#${u}s)"/>`;
+  s+=`<path d="M${cx-w+3} 68 C${cx-w+4} ${82+j} ${cx-8} ${chin-2} ${cx} ${chin} C${cx+8} ${chin-2} ${cx+w-4} ${82+j} ${cx+w-3} 68" fill="none" stroke="${sh}" stroke-width="3" opacity=".35"/>`;
+  s+=`<ellipse cx="${cx-11}" cy="69" rx="5" ry="3" fill="#d98a74" opacity="${L.cheeks?.35:.18}"/><ellipse cx="${cx+11}" cy="69" rx="5" ry="3" fill="#d98a74" opacity="${L.cheeks?.35:.18}"/>`;
+  if(L.age) s+=`<path d="M${cx-9} 41 q9 -2.5 18 0 M${cx-7} 45 q7 -2 14 0" stroke="${sh}" stroke-width=".9" fill="none" opacity=".6"/><path d="M${cx-7} 73 q-3 5 -1 9 M${cx+7} 73 q3 5 1 9" stroke="${sh}" stroke-width="1" fill="none" opacity=".55"/>`;
+  // oči
+  let eyes='';
+  [-1,1].forEach(sd=>{ const ex=cx+sd*9;
+    eyes+=`<path d="M${ex-5} 58 Q${ex} 54.5 ${ex+5} 58 Q${ex} 60.8 ${ex-5} 58Z" fill="#f4ede2"/><circle cx="${ex}" cy="57.9" r="2.3" fill="${eye}"/><circle cx="${ex}" cy="57.9" r="1.1" fill="#111"/><circle cx="${ex+.8}" cy="57.1" r=".6" fill="#fff"/>`;
+    if(L.lids) eyes+=`<path d="M${ex-5.3} 58 Q${ex} 54 ${ex+5.3} 58 Q${ex} 56.6 ${ex-5.3} 58Z" fill="${sk}"/>`;
+    eyes+=`<path d="M${ex-5.4} 58 Q${ex} 53.8 ${ex+5.4} 58" stroke="${dk(sh,.5)}" stroke-width="1.3" fill="none"/>`;
+  });
+  s+=`<path d="M${cx-13.5} 55 Q${cx-9} 51.5 ${cx-4.5} 55 M${cx+4.5} 55 Q${cx+9} 51.5 ${cx+13.5} 55" stroke="${sh}" stroke-width=".8" fill="none" opacity=".7"/>`;
+  if(L.age) s+=`<path d="M${cx-13} 60.5 Q${cx-9} 63 ${cx-5} 60.8 M${cx+5} 60.8 Q${cx+9} 63 ${cx+13} 60.5" stroke="${sh}" stroke-width=".8" fill="none" opacity=".6"/>`;
+  s+=`<g class="blink">${eyes}</g>`;
+  const bw=L.browC||dk(hc,.85);
+  s+=`<path d="M${cx-15} 52.5 Q${cx-9} ${48.4-(L.arch||0)} ${cx-3.5} 51.6 Q${cx-9} 50.6 ${cx-15} 52.5Z" fill="${bw}"/><path d="M${cx+15} 52.5 Q${cx+9} ${48.4-(L.arch||0)} ${cx+3.5} 51.6 Q${cx+9} 50.6 ${cx+15} 52.5Z" fill="${bw}"/>`;
+  // nos
+  s+=`<path d="M${cx+2} 58 Q${cx+3.5} 66 ${cx+4.2} ${70+n}" stroke="${sh}" stroke-width="2.6" fill="none" opacity=".35"/><path d="M${cx-1.5} 57 C${cx-2} 64 ${cx-4.5} ${68+n} ${cx-4.6} ${71+n} C${cx-3} ${73.6+n} ${cx+3} ${73.6+n} ${cx+4.6} ${71+n}" stroke="${dk(sh,.85)}" stroke-width="1.3" fill="none"/><path d="M${cx-3.6} ${72.2+n} q1.6 1 3 0 M${cx+.6} ${72.2+n} q1.6 1 3 0" stroke="${dk(sh,.55)}" stroke-width="1" fill="none"/><ellipse cx="${cx+.4}" cy="${69+n}" rx="1.6" ry="2.4" fill="#fff" opacity=".28"/>`;
+  // ústa
+  const lp=L.lip?1.9:1;
+  s+=`<path d="M${cx-6.5} ${my} Q${cx-2} ${my-2.2} ${cx} ${my-1.1} Q${cx+2} ${my-2.2} ${cx+6.5} ${my} Q${cx} ${my+.9} ${cx-6.5} ${my}Z" fill="#a85a4c"/>`;
+  s+=`<ellipse class="mouth-open" cx="${cx}" cy="${my+1.6}" rx="4.6" ry="3.4" fill="#3a0f0c"/>`;
+  s+=`<g class="lowlip"><path d="M${cx-5.5} ${my+.5} Q${cx} ${my+3.6*lp+1} ${cx+5.5} ${my+.5} Q${cx} ${my+1.6} ${cx-5.5} ${my+.5}Z" fill="#b8665a"/>${L.lip?`<ellipse cx="${cx}" cy="${my+2.6}" rx="2.4" ry=".9" fill="#fff" opacity=".25"/>`:''}</g>`;
+  s+=`<path d="M${cx-6.5} ${my} Q${cx} ${my+1.1} ${cx+6.5} ${my}" stroke="#5a2a22" stroke-width="1" fill="none"/>`;
+  s+=`<path d="M${cx-4} ${chin-5} q4 2 8 0" stroke="${sh}" stroke-width="1" fill="none" opacity=".45"/>`;
+  // vousy
+  const strands=(x0,x1,y0,len,cnt)=>{ let r=''; for(let k=0;k<cnt;k++){ const x=x0+(x1-x0)*k/(cnt-1), dx=(x-cx)*.15; r+=`<path d="M${x.toFixed(1)} ${y0} q${dx.toFixed(1)} ${len*.5} ${(dx*1.8).toFixed(1)} ${len}" stroke="${dk(bc,.62)}" stroke-width=".8" fill="none" opacity=".55"/>`;} return r; };
+  if(L.beard==='full'||L.beard==='curly'){ s+=`<path d="M${cx-w+.5} 64 C${cx-w-1} ${chin-4} ${cx-13} ${chin+11} ${cx} ${chin+13} C${cx+13} ${chin+11} ${cx+w+1} ${chin-4} ${cx+w-.5} 64 C${cx+w-3} 74 ${cx+12} ${my+4} ${cx+6} ${my+4} Q${cx} ${my+6.5} ${cx-6} ${my+4} C${cx-12} ${my+4} ${cx-w+3} 74 ${cx-w+.5} 64Z" fill="url(#${u}b)"/>`+strands(cx-14,cx+14,my+6,chin+8-my-6,9);
+    if(L.beard==='curly') for(let k=0;k<16;k++){ const a=Math.PI*(.1+.8*k/15), x=cx-Math.cos(a)*(w-3), y=74+Math.sin(a)*(chin-70); s+=`<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="2.2" fill="none" stroke="${dk(bc,.6)}" stroke-width=".7" opacity=".6"/>`; } }
+  if(L.beard==='pointed') s+=`<path d="M${cx-12} ${my+3} C${cx-13} ${chin} ${cx-4} ${chin+14} ${cx} ${chin+20} C${cx+4} ${chin+14} ${cx+13} ${chin} ${cx+12} ${my+3} Q${cx} ${my+7} ${cx-12} ${my+3}Z" fill="url(#${u}b)"/>`+strands(cx-8,cx+8,my+6,chin+12-my-6,6);
+  if(L.beard==='spade') s+=`<path d="M${cx-13} ${my+2} C${cx-15} ${chin+4} ${cx-5} ${chin+24} ${cx} ${chin+34} C${cx+5} ${chin+24} ${cx+15} ${chin+4} ${cx+13} ${my+2} Q${cx} ${my+7} ${cx-13} ${my+2}Z" fill="url(#${u}b)"/>`+strands(cx-9,cx+9,my+6,chin+26-my-6,7);
+  if(L.beard==='goatee') s+=`<path d="M${cx-3.2} ${my+5} Q${cx} ${my+4} ${cx+3.2} ${my+5} L${cx+1.6} ${chin+7} Q${cx} ${chin+10} ${cx-1.6} ${chin+7}Z" fill="url(#${u}b)"/>`;
+  if(L.beard==='long') s+=`<path d="M${cx-w} 62 C${cx-w-3} ${chin+10} ${cx-14} ${chin+34} ${cx} ${chin+40} C${cx+14} ${chin+34} ${cx+w+3} ${chin+10} ${cx+w} 62 C${cx+w-3} 74 ${cx+12} ${my+4} ${cx+6} ${my+4} Q${cx} ${my+6.5} ${cx-6} ${my+4} C${cx-12} ${my+4} ${cx-w+3} 74 ${cx-w} 62Z" fill="url(#${u}b)"/>`+strands(cx-15,cx+15,my+6,chin+32-my-6,11);
+  // knír
+  if(L.mous==='up') s+=mir({d:`M${cx} ${my-2.4} C${cx-4} ${my-4.6} ${cx-9} ${my-3} ${cx-11} ${my-5.6} C${cx-12.6} ${my-8.4} ${cx-14.6} ${my-9.6} ${cx-13.6} ${my-10.8} C${cx-12.4} ${my-6} ${cx-8} ${my-1} ${cx} ${my-.8}Z`,f:dk(bc,.92)});
+  if(L.mous==='full') s+=mir({d:`M${cx} ${my-3.2} C${cx-6} ${my-5.4} ${cx-10} ${my-3.4} ${cx-11.5} ${my+3.4} C${cx-8} ${my+.2} ${cx-4} ${my-.8} ${cx} ${my-.8}Z`,f:dk(bc,.92)});
+  // vlasy navrchu
+  const hs=L.hairStyle||'short', hf=`url(#${u}h)`;
+  if(hs==='short'||hs==='curly') s+=`<path d="M${cx-w-1.5} 60 C${cx-w-3} ${top-12} ${cx+w+3} ${top-12} ${cx+w+1.5} 60 C${cx+w} 48 ${cx+w-2} 42 ${cx+w-6} 40 C${cx+8} ${top+(L.hl||8)} ${cx-8} ${top+(L.hl||8)} ${cx-w+6} 40 C${cx-w+2} 42 ${cx-w} 48 ${cx-w-1.5} 60Z" fill="${hf}"/>`;
+  if(hs==='curly') for(let k=0;k<11;k++){ const a=Math.PI*(1.05+.9*k/10); s+=`<circle cx="${(cx+Math.cos(a)*(w-1)).toFixed(1)}" cy="${(50+Math.sin(a)*19).toFixed(1)}" r="3.6" fill="${hf}" stroke="${dk(hc,.6)}" stroke-width=".5"/>`; }
+  if(hs==='receding') s+=mir({d:`M${cx-w-1.5} 63 C${cx-w-3} 44 ${cx-w+2} ${top+4} ${cx-w+10} ${top+.5} C${cx-w+5} ${top+11} ${cx-w+2.5} 48 ${cx-w+1.5} 63Z`,f:hf})+`<path d="M${cx-w+9} ${top+1} C${cx-6} ${top-5.5} ${cx+6} ${top-5.5} ${cx+w-9} ${top+1}" stroke="${hc}" stroke-width="2.6" fill="none"/><ellipse cx="${cx-3}" cy="${top+8}" rx="7" ry="3" fill="#fff" opacity=".18"/>`;
+  if(hs==='bald') s+=mir({d:`M${cx-w-1} 64 C${cx-w-3} 54 ${cx-w-1} 47 ${cx-w+3.5} 45 C${cx-w+2} 52 ${cx-w+2} 58 ${cx-w+1} 64Z`,f:hf})+`<ellipse cx="${cx-4}" cy="${top+5}" rx="8" ry="3.5" fill="#fff" opacity=".25"/>`;
+  if(hs==='long') s+=`<path d="M${cx-w-2} 64 C${cx-w-5} ${top-12} ${cx+w+5} ${top-12} ${cx+w+2} 64 C${cx+w} 52 ${cx+w-3} 41 ${cx+3} ${top+4} Q${cx} ${top+2} ${cx-3} ${top+4} C${cx-w+3} 41 ${cx-w} 52 ${cx-w-2} 64Z" fill="${hf}"/>`+mir({d:`M${cx-w-2} 54 C${cx-w-7} 76 ${cx-w-6} 96 ${cx-w-11} 110 L${cx-w-2} 110 C${cx-w+1} 92 ${cx-w+1.5} 74 ${cx-w+2} 60Z`,f:hf});
+  if(hs!=='bald') for(let k=0;k<6;k++){ const x=cx-w+6+k*(2*w-12)/5; s+=`<path d="M${x.toFixed(1)} ${top+1} q${(x-cx)*.2} 6 ${(x-cx)*.35} 12" stroke="${dk(hc,.6)}" stroke-width=".7" fill="none" opacity=".5"/>`; }
+  // pokrývky hlavy
+  if(L.hat==='skullcap') s+=`<path d="M${cx-w+2} 40 C${cx-w} ${top-11} ${cx+w} ${top-11} ${cx+w-2} 40 C${cx+8} ${top+3} ${cx-8} ${top+3} ${cx-w+2} 40Z" fill="#141414"/><path d="M${cx-9} ${top-2} Q${cx} ${top-6} ${cx+6} ${top-3}" stroke="#555" stroke-width="1.4" fill="none"/>`;
+  if(L.hat==='beret') s+=`<ellipse cx="${cx+3}" cy="${top+4}" rx="${w+8}" ry="7" fill="#1d2a4a" transform="rotate(-8 ${cx} ${top})"/><path d="M${cx+14} ${top-2} q10 -10 16 -4" stroke="#f2efe6" stroke-width="3" fill="none"/>`;
+  if(L.hat==='crown') s+=`<path d="M${cx-21} ${top+4} L${cx-19} ${top-16} L${cx-10} ${top-6} L${cx} ${top-22} L${cx+10} ${top-6} L${cx+19} ${top-16} L${cx+21} ${top+4}Z" fill="url(#gGold)" stroke="#7a5a14" stroke-width="1.2"/><rect x="${cx-21}" y="${top-1}" width="42" height="7" fill="url(#gGold)" stroke="#7a5a14" stroke-width="1"/><circle cx="${cx}" cy="${top+2.5}" r="2.4" fill="#b0202a"/><circle cx="${cx-11}" cy="${top+2.5}" r="1.8" fill="#2a50b0"/><circle cx="${cx+11}" cy="${top+2.5}" r="1.8" fill="#2a50b0"/>`;
+  s+=`</g>`;
+  if(frame) s+=`</g><ellipse cx="60" cy="70" rx="56" ry="68" fill="none" stroke="url(#gGold)" stroke-width="4"/><ellipse cx="60" cy="70" rx="52.5" ry="64.5" fill="none" stroke="#5a3e10" stroke-width="1"/>`;
+  return s+`</svg>`;
+}
+const nestHead=(L,x,y,w)=>headSVG(L,{frame:false}).replace('<svg ',`<svg class="nh" x="${x}" y="${y}" width="${w}" height="${w*140/120}" style="width:${w}px;height:${w*140/120}px;min-height:0;display:inline" `);
+const LOOKS={
+  rudolf:{w:20,jaw:3,hairStyle:'curly',hair:'#8a5a32',hl:4,beard:'curly',beardColor:'#9a6a3a',mous:'full',lip:1,lids:1,nose:2,age:1,collar:'ruff',armor:1,chain:1,eye:'#55697a'},
+  matyas:{w:19,jaw:3,hairStyle:'receding',hair:'#3a2a1c',beard:'pointed',mous:'full',lip:1,nose:2,age:1,collar:'ruff',chain:1,coat:'#1c1a1a',eye:'#3a2a1c'},
+  ferdinand:{w:22,jaw:2,hairStyle:'short',hair:'#5a3e26',hl:6,beard:'goatee',mous:'up',lip:1,nose:1,collar:'lace',chain:1,coat:'#1c1a1a',eye:'#5a4a3a',cheeks:1},
+  fridrich:{w:19,hairStyle:'long',hair:'#6a4426',beard:'goatee',mous:'up',collar:'lace',sash:1,coat:'#2c2a3a',eye:'#3a2a1c',arch:1.5},
+  thurn:{w:21,hairStyle:'bald',hair:'#8a8378',beard:'full',beardColor:'#9a948a',mous:'full',age:1,collar:'ruff',armor:1,eye:'#4a4a4a',coat:'#3a2a1a'},
+  martinic:{w:19,jaw:2,hairStyle:'short',hair:'#1f1a16',hl:3,beard:'pointed',mous:'up',collar:'ruff',coat:'#1c1a1a',age:1,eye:'#2a1e14'},
+  slavata:{w:18,jaw:4,hairStyle:'receding',hair:'#5b4030',beard:'pointed',beardColor:'#6b5a4a',mous:'full',collar:'ruff',coat:'#3a2340',age:1,nose:2},
+  fabricius:{w:20,hairStyle:'short',hair:'#8a5a2b',hl:10,mous:'up',hairShade:1,collar:'lace',coat:'#5a4a30',cheeks:1,eye:'#4a6a3a'},
+  anhalt:{w:21,hairStyle:'bald',hair:'#6a6058',beard:'full',beardColor:'#8a8078',mous:'full',armor:1,collar:'ruff',age:1,coat:'#5a1a14'},
+  tilly:{w:17,jaw:4,hairStyle:'bald',hair:'#7a7068',beard:'spade',beardColor:'#a8a098',mous:'up',armor:1,collar:'lace',age:1,nose:3,coat:'#24304a'},
+  buquoy:{w:20,hairStyle:'bald',hair:'#3a2a1c',beard:'pointed',mous:'up',armor:1,collar:'lace',age:1,coat:'#1c1a1a'},
+  komensky:{w:19,jaw:1,hairStyle:'long',hair:'#9a948c',beard:'long',beardColor:'#b8b2a8',mous:'full',hat:'skullcap',collar:'band',coat:'#141414',age:1,eye:'#3a3a3a'},
+  jakub:{w:20,hairStyle:'short',hair:'#6a4426',hl:9,hat:'beret',collar:'lace',coat:'#24427a',cheeks:1,eye:'#4a3a28'},
+};
+
+/* ================= SCÉNY – kreslicí pomocníci ================= */
+const VIG='<rect width="320" height="180" fill="url(#gVignette)" pointer-events="none"/>';
+const sv=(inner)=>`<svg viewBox="0 0 320 180" preserveAspectRatio="xMidYMid slice">${inner}${VIG}</svg>`;
+const smoke=(x,y,r,cls='smk',d=0)=>`<circle class="${cls} fb" style="animation-delay:${d}s" cx="${x}" cy="${y}" r="${r}" fill="url(#gSmoke)" filter="url(#fSoft)"/>`;
+function soldier(o){
+  const c=o.c||'#a8322a', d=dk(c,.6), f=o.f||1, s=o.s||1, skin='#e2b48f';
+  const hat= o.hat==='morion'?`<path d="M-8.5 -64 Q-8 -76 0 -77 Q8 -76 8.5 -64Z" fill="url(#gSteel)"/><path d="M-12.5 -64.5 Q0 -60 12.5 -64.5 Q13 -61 11 -60 Q0 -57.5 -11 -60 Q-13 -61 -12.5 -64.5Z" fill="url(#gSteel)" stroke="#4a525a" stroke-width=".5"/><path d="M-5 -76.5 Q0 -83 5 -76.5" fill="url(#gSteel)" stroke="#4a525a" stroke-width=".5"/>`
+   : o.hat==='hat'?`<ellipse cx="0" cy="-66" rx="11.5" ry="3" fill="#2a2018"/><path d="M-6 -66 Q-6 -76 0 -76 Q6 -76 6 -66Z" fill="#2a2018"/><path d="M3 -72 Q14 -82 19 -75 Q12 -75 5 -69Z" fill="${o.plume||'#f2efe6'}"/>`
+   : o.hat==='helm'?`<path d="M-7 -63 Q-7 -75 0 -75 Q7 -75 7 -63 L5 -61 L-5 -61Z" fill="url(#gSteel)" stroke="#4a525a" stroke-width=".5"/><path d="M0 -75 Q-6 -86 -14 -82 Q-6 -80 -2 -74Z" fill="${o.plume||'#c0392b'}"/>`:'';
+  const weap= o.w==='pike'?`<path d="M3 -46 L28 -104" stroke="#6b4a26" stroke-width="1.7"/><path d="M27.5 -103 L31.5 -112 L30 -102Z" fill="url(#gSteel)"/>`
+   : o.w==='sword'?`<path d="M8 -44 L33 -58" stroke="url(#gSteel)" stroke-width="2" stroke-linecap="round"/><path d="M6.5 -47 l3 6" stroke="#c79a3b" stroke-width="2.2"/>`
+   : o.w==='musket'?`<path d="M-3 -47 L34 -53" stroke="#2a1e14" stroke-width="2.4"/><path d="M-6 -44 L7 -49" stroke="#7a5230" stroke-width="4.5" stroke-linecap="round"/>`
+   : o.w==='flag'?`<path d="M4 -46 L4 -100" stroke="#6b4a26" stroke-width="1.6"/><path class="wave fb" d="M4 -100 Q14 -104 24 -99 Q34 -95 40 -98 L40 -82 Q32 -79 24 -83 Q14 -88 4 -84Z" fill="${o.fc||'#c0392b'}"/>`:'';
+  return `<g transform="translate(${o.x},${o.y}) scale(${f*s},${s})"><ellipse cx="0" cy="0" rx="13" ry="2.6" fill="#000" opacity=".25"/>
+  <g class="${o.la||''} fb"><path d="M-7.5 -33 L-8.5 -14 L-4.5 -14 L-2 -33Z" fill="${d}"/><path d="M-8.8 -14.5 L-9 -1.5 L-14 0 L-4 0 L-4.4 -14.5Z" fill="#3a2614"/></g>
+  <g class="${o.lb||''} fb"><path d="M1.5 -33 L3.5 -14 L7.5 -14 L7.5 -33Z" fill="${d}"/><path d="M3.3 -14.5 L3.4 0 L12 0 L9 -1.4 L8 -14.5Z" fill="#3a2614"/></g>
+  <path d="M-7 -54 Q-13 -46 -11 -38" stroke="${d}" stroke-width="4.6" fill="none" stroke-linecap="round"/>
+  <path d="M-9.5 -32 L-8.5 -55 Q0 -59.5 8.5 -55 L9.5 -32 Q0 -29 -9.5 -32Z" fill="${c}"/><path d="M1 -58.5 Q8.5 -56 8.5 -55 L9.5 -32 Q5 -30.5 1 -30.8Z" fill="#000" opacity=".22"/><path d="M-6 -54 Q-3 -48 -6 -36" stroke="#fff" stroke-width="1.6" opacity=".15" fill="none"/>
+  ${o.armor?`<path d="M-8.5 -55 Q0 -59.5 8.5 -55 L8 -40 Q0 -36 -8 -40Z" fill="url(#gSteel)" stroke="#4a525a" stroke-width=".5"/>`:''}
+  ${o.sash?`<path d="M-8 -53 L9 -36" stroke="${o.sash}" stroke-width="3.2"/>`:''}
+  <rect x="-9.5" y="-34.5" width="19" height="2.6" fill="#2a1a0e"/>
+  <path d="M-6.5 -56 L0 -52 L6.5 -56 L0 -58.6Z" fill="#f2ede0"/>
+  <rect x="-2.2" y="-60.5" width="4.4" height="4.5" fill="${dk(skin,.82)}"/><ellipse cx="0" cy="-65" rx="5.3" ry="6.1" fill="${skin}"/><path d="M1 -70.5 Q5.8 -66 4.6 -60 Q3 -59 2 -60" fill="#000" opacity=".15"/><circle cx="2.6" cy="-65.6" r=".75" fill="#222"/><path d="M3.6 -62 h2" stroke="#7a3a2a" stroke-width=".7"/>
+  ${o.beard?`<path d="M-3.8 -61.5 Q0 -55.5 4.6 -61.5 Q2.4 -59.6 0 -60.2 Q-2 -59.6 -3.8 -61.5Z" fill="${o.beard}"/>`:''}
+  ${hat}
+  <g class="${o.arm||''}" style="transform-origin:5px -54px"><path d="M5 -54 Q10 -50 9 -45" stroke="${c}" stroke-width="4.6" fill="none" stroke-linecap="round"/><circle cx="8.5" cy="-44.5" r="2.4" fill="${skin}"/>${weap}</g>
+  </g>`;
+}
+function horse(x,y,c='#5a3a20',run=true,f=1){
+  const d=dk(c,.7), a=run?'gal1':'', b=run?'gal2':'';
+  return `<g transform="translate(${x},${y}) scale(${f},1)"><ellipse cx="0" cy="0" rx="22" ry="2.6" fill="#000" opacity=".25"/>
+  <g class="${b} fb"><path d="M-14 -24 L-16 -2 L-13 -1 L-11 -24Z" fill="${d}"/></g><g class="${a} fb"><path d="M11 -24 L13 -2 L16 -1 L14 -24Z" fill="${d}"/></g>
+  <path d="M-19 -32 Q-30 -26 -26 -12 Q-24 -22 -18 -27Z" fill="${dk(c,.45)}"/>
+  <ellipse cx="0" cy="-30" rx="20" ry="9.5" fill="${c}"/><ellipse cx="-2" cy="-34" rx="14" ry="3.5" fill="#fff" opacity=".15"/>
+  <path d="M12 -34 Q16 -46 22 -52 L28 -49 Q24 -40 20 -28Z" fill="${c}"/><path d="M21 -53 Q30 -54 35 -45 Q34 -42 30 -43 L25 -46Z" fill="${c}"/><circle cx="27.5" cy="-49" r=".9" fill="#111"/>
+  <path d="M13 -36 Q15 -48 22 -54" stroke="${dk(c,.4)}" stroke-width="2.6" fill="none"/>
+  <g class="${a} fb"><path d="M-12 -24 L-11 -2 L-8 -1 L-8 -24Z" fill="${c}"/></g><g class="${b} fb"><path d="M14 -24 L17 -2 L20 -1 L17.5 -24Z" fill="${c}"/></g></g>`;
+}
+function wagon(x,y,load=''){
+  return `<g transform="translate(${x},${y})"><ellipse cx="0" cy="0" rx="34" ry="3" fill="#000" opacity=".25"/>${load}<path d="M-30 -28 H28 L24 -10 H-26Z" fill="url(#gWood)" stroke="#2a1a0e" stroke-width="1"/><path d="M-28 -20 H26" stroke="#2a1a0e" stroke-width=".8"/>
+  ${[-18,16].map(wx=>`<g transform="translate(${wx},-8)"><g class="wheel fb"><circle r="8" fill="none" stroke="#2a1a0e" stroke-width="2.4"/><path d="M-8 0 H8 M0 -8 V8 M-5.6 -5.6 L5.6 5.6 M-5.6 5.6 L5.6 -5.6" stroke="#4a2e14" stroke-width="1.2"/></g></g>`).join('')}<path d="M28 -18 L46 -22" stroke="#4a2e14" stroke-width="2"/></g>`;
+}
+const chest=(x,y,c='#7a4a20')=>`<g transform="translate(${x},${y})"><rect x="-9" y="-12" width="18" height="12" rx="1.5" fill="${c}" stroke="#2a1a0e" stroke-width=".8"/><path d="M-9 -8 H9" stroke="#c79a3b" stroke-width="1.4"/><rect x="-1.6" y="-9.5" width="3.2" height="3.4" fill="#c79a3b"/></g>`;
+const skyline=(x,y,c,sc=1)=>`<g transform="translate(${x},${y}) scale(${sc})" fill="${c}"><path d="M0 0 V-14 H10 V-20 H22 V-12 H34 V-30 l5 -14 5 14 V-18 H56 V-36 l4 -18 4 18 V-26 l6 -26 6 26 V-14 H96 V-22 H108 V-10 H130 V0Z"/></g>`;
+const flame=(x,y,s=1,d=0)=>`<g transform="translate(${x},${y}) scale(${s})"><circle r="16" cy="-8" fill="url(#gFire)" class="glowp fb" style="animation-delay:${d}s"/><g class="flame fb" style="animation-delay:${d}s"><path d="M-6 0 Q-8 -12 0 -22 Q8 -12 6 0Z" fill="#e8622b"/><path d="M-3 0 Q-4 -7 0 -14 Q4 -7 3 0Z" fill="#ffd34d"/></g></g>`;
+
+const ILL={
+ court:()=>sv(`<rect width="320" height="180" fill="#2a2018"/><path d="M0 0 H320 V180 H0Z" fill="url(#gStone)" opacity=".28"/>${[30,60,90,120].map(y=>`<path d="M0 ${y} H320" stroke="#000" opacity=".15"/>`).join('')}
+  <path d="M200 20 V100 H270 V20 Q235 -8 200 20Z" fill="url(#gSkyNight)" stroke="#5a4a32" stroke-width="5"/><path d="M235 6 V100 M200 55 H270" stroke="#5a4a32" stroke-width="3"/>${[[214,40],[252,30],[258,70],[220,80]].map((p,i)=>`<circle class="tw" style="animation-delay:${i*.5}s" cx="${p[0]}" cy="${p[1]}" r="1.5" fill="#fff"/>`).join('')}
+  <rect x="0" y="128" width="320" height="52" fill="url(#gWood)"/><path d="M0 128 H320" stroke="#c79a3b" opacity=".4"/>
+  <g transform="translate(70,128)"><circle cx="0" cy="-12" r="40" fill="url(#gGlow)" class="glowp fb" opacity=".6"/><path d="M-6 -60 h12 v18 l18 30 a8 8 0 0 1 -7 12 h-34 a8 8 0 0 1 -7 -12 l18 -30z" fill="#cfe8e4" opacity=".55" stroke="#e9f6f4" stroke-width="1.5"/><path d="M-20 -24 h40 l6 10 a7 7 0 0 1 -6 10 h-40 a7 7 0 0 1 -6 -10z" fill="url(#gLiquid)"/>${[0,1,2,3,4].map(i=>`<circle class="bubb" style="animation-delay:${i*.45}s" cx="${-8+i*4}" cy="-10" r="${1.6+(i%2)}" fill="#e8ffd8"/>`).join('')}<rect x="-14" y="2" width="28" height="4" fill="#3a2a1a"/></g>
+  ${flame(70,140,.8)}
+  <g transform="translate(150,128)"><path d="M0 -6 Q-2 -26 14 -30 Q34 -32 44 -46 L48 -44 Q38 -26 18 -22 Q8 -20 10 -6Z" fill="#b97a3a" stroke="#6b4a26"/><circle cx="6" cy="-14" r="13" fill="#c8884a" stroke="#6b4a26"/>${[0,1,2].map(i=>`<circle class="drip" style="animation-delay:${i*.8}s" cx="48" cy="-42" r="1.8" fill="#7fe3d6"/>`).join('')}<rect x="38" y="-14" width="16" height="14" fill="#8ab8c8" opacity=".6" stroke="#c9e2ea"/></g>
+  <g transform="translate(245,128)">${[0,1,2,3].map(i=>`<rect x="${i*13-26}" y="${-24+i%2*3}" width="11" height="${24-i%2*3}" fill="${['#7a1f1a','#24427a','#3f6b3a','#6b4a26'][i]}" stroke="#1a120a" stroke-width=".6"/>`).join('')}<path d="M-30 -30 h52" stroke="#c79a3b" stroke-width="1"/></g>
+  <text x="12" y="20" font-family="Alegreya Sans,sans-serif" font-weight="800" font-size="12" fill="#f1e4c3">Dílna alchymisty na Pražském hradě</text>`),
+ orbits:()=>sv(`<rect width="320" height="180" fill="url(#gSkyNight)"/>${Array.from({length:30},(_,i)=>`<circle class="tw" style="animation-delay:${(i*.37)%3}s" cx="${(i*97)%320}" cy="${(i*53)%180}" r="${.6+(i%3)*.4}" fill="#fff"/>`).join('')}
+  <g transform="translate(170,92)"><circle r="34" fill="url(#gGlow)" class="glowp fb"/><circle r="12" fill="url(#gSun)"/>
+  ${[[40,22,'#c9b28a',3,5],[64,34,'#4a8ad0',4.2,9],[92,48,'#d0603a',3.4,15]].map(([a,b,c,r,t])=>`<ellipse rx="${a}" ry="${b}" fill="none" stroke="#c9d4ff" stroke-width=".7" stroke-dasharray="2 3" opacity=".6"/><g transform="scale(1 ${b/a})"><g class="orb" style="animation-duration:${t}s"><g transform="translate(${a} 0) scale(1 ${a/b})"><circle r="${r}" fill="${c}"/><circle r="${r}" fill="url(#gShade)"/></g></g></g>`).join('')}</g>
+  <g transform="translate(26,160)"><path d="M0 0 L30 -34" stroke="url(#gBrass)" stroke-width="7" stroke-linecap="round"/><path d="M14 -16 L4 14 M14 -16 L26 14" stroke="#5a3e10" stroke-width="2"/></g>
+  <path class="comet" d="M0 0 L-40 -10" stroke="#fff" stroke-width="2" stroke-linecap="round" opacity=".8"/>
+  <text x="12" y="20" font-family="Alegreya Sans,sans-serif" font-weight="800" font-size="12" fill="#f1e4c3">Kepler: planety obíhají Slunce po elipsách</text>`),
+ gallery:()=>sv(`<rect width="320" height="180" fill="url(#gVelvet)"/>${Array.from({length:16},(_,i)=>`<path d="M${i*20} 0 V140" stroke="#000" opacity=".12" stroke-width="6"/>`).join('')}<rect y="140" width="320" height="40" fill="url(#gWood)"/>
+  ${[[30,30,70,90,'land'],[125,22,70,104,'fruit'],[220,30,70,90,'port']].map(([x,y,w,h,k])=>`<g><rect x="${x-6}" y="${y-6}" width="${w+12}" height="${h+12}" fill="url(#gGold)" stroke="#5a3e10"/><rect x="${x}" y="${y}" width="${w}" height="${h}" fill="${k==='land'?'#6a8aa8':k==='fruit'?'#1e2a20':'#2a2018'}"/>${k==='land'?`<path d="M${x} ${y+60} q20 -20 35 -6 q18 -18 35 0 V${y+h} H${x}Z" fill="#4d6a2c"/><circle cx="${x+50}" cy="${y+22}" r="7" fill="#f6e3a4"/>`:k==='fruit'?`<ellipse cx="${x+35}" cy="${y+84}" rx="28" ry="8" fill="#8a6a3a"/><circle cx="${x+24}" cy="${y+72}" r="10" fill="#c0392b"/><circle cx="${x+44}" cy="${y+70}" r="9" fill="#e2a032"/><circle cx="${x+34}" cy="${y+58}" r="8" fill="#6aa04a"/><circle cx="${x+50}" cy="${y+82}" r="6" fill="#6a2a6a"/>`:nestHead(LOOKS.rudolf,x+3,y+6,64)}</g>`).join('')}
+  <g class="sweep"><rect x="-80" y="0" width="40" height="140" fill="#fff" opacity=".12" transform="skewX(-20)"/></g>
+  <g transform="translate(300,140)"><rect x="-2" y="-40" width="4" height="40" fill="url(#gBrass)"/>${flame(0,-42,.6)}</g>
+  <text x="12" y="172" font-family="Alegreya Sans,sans-serif" font-weight="800" font-size="12" fill="#f1e4c3">Rudolfova sbírka: obrazy, hodiny, drahokamy</text>`),
+ crown:()=>sv(`<rect width="320" height="180" fill="#1e140c"/><g transform="translate(160,92)"><g class="rays">${Array.from({length:12},(_,i)=>`<path d="M0 0 L${Math.cos(i*Math.PI/6)*200} ${Math.sin(i*Math.PI/6)*200} L${Math.cos(i*Math.PI/6+.12)*200} ${Math.sin(i*Math.PI/6+.12)*200}Z" fill="#f6dc8e" opacity=".07"/>`).join('')}</g><circle r="70" fill="url(#gGlow)" opacity=".5"/>
+  <ellipse cx="0" cy="40" rx="70" ry="12" fill="#7a1f1a"/><path d="M-50 30 V-6 Q-50 -20 -36 -24 L-36 -6 Q-26 -40 0 -46 Q26 -40 36 -6 L36 -24 Q50 -20 50 -6 V30Z" fill="url(#gGold)" stroke="#6b4d14" stroke-width="1.5"/><path d="M-50 22 H50 V34 H-50Z" fill="url(#gGold)" stroke="#6b4d14"/>
+  <path d="M0 -46 V-62 M-7 -56 H7" stroke="url(#gGold)" stroke-width="4"/><circle cx="0" cy="-64" r="4" fill="#2a50b0"/>${[-40,-26,-12,2,16,30,44].map(x=>`<circle cx="${x-2}" cy="28" r="2.6" fill="#f8f4ea"/>`).join('')}<circle cx="0" cy="8" r="7" fill="#b0202a" stroke="#6b4d14"/><circle cx="-24" cy="6" r="5" fill="#2a50b0" stroke="#6b4d14"/><circle cx="24" cy="6" r="5" fill="#2a8a50" stroke="#6b4d14"/>
+  <g class="shine"><rect x="-90" y="-70" width="16" height="120" fill="#fff" opacity=".18" transform="skewX(-25)"/></g></g>
+  <text x="160" y="170" text-anchor="middle" font-family="Alegreya Sans,sans-serif" font-weight="800" font-size="12" fill="#f1e4c3">Rudolfova koruna (1602)</text>`),
+ majestat:()=>sv(`<rect width="320" height="180" fill="url(#gWood)"/><g filter="url(#fShadow)"><path d="M70 14 H250 V160 H70Z" fill="url(#gParch)"/></g><text x="160" y="40" text-anchor="middle" font-family="Grenze Gotisch,serif" font-size="22" fill="#2b1d12">Majestát</text>
+  ${[58,72,86,100,114].map((y,i)=>`<path class="write" style="animation-delay:${i*.6}s" d="M90 ${y} q10 -3 20 0 t20 0 t20 0 t20 0 t20 0 t20 0 t20 0" stroke="#3a2a1a" stroke-width="1.6" fill="none"/>`).join('')}
+  <text x="96" y="140" font-family="Grenze Gotisch,serif" font-size="16" fill="#2b1d12">L. P. 1609</text>
+  <path d="M206 132 Q200 150 196 172 M212 132 Q216 150 222 172" stroke="#c79a3b" stroke-width="2"/><g class="stamp fb"><circle cx="208" cy="132" r="17" fill="#9b2a22"/><circle cx="208" cy="132" r="13" fill="none" stroke="#6e1a14" stroke-width="1.5"/><text x="208" y="138" text-anchor="middle" font-family="Grenze Gotisch,serif" font-size="16" fill="#e8b8a0">R</text></g>
+  <g class="quill"><path d="M262 30 Q300 4 312 -6 Q300 18 266 40Z" fill="#f4f0e6" stroke="#bdb6a4"/><path d="M266 40 L258 50" stroke="#2a1a0e" stroke-width="2"/></g>`),
+ brothers:()=>sv(`<rect width="320" height="180" fill="url(#gVelvet)"/><path d="M0 0 Q40 60 20 180 H0Z M320 0 Q280 60 300 180 H320Z" fill="#4e0f0b"/><rect y="146" width="320" height="34" fill="url(#gWood)"/><rect x="134" y="60" width="52" height="86" rx="6" fill="url(#gGold)" opacity=".3"/>
+  <g class="leanL fb"><path d="M64 146 L70 96 Q90 88 110 96 L116 146Z" fill="#1c1a1a"/><path d="M72 146 L70 120 L56 146Z" fill="#7a1f1a"/>${nestHead(LOOKS.rudolf,62,42,56)}<path d="M108 106 L146 98" stroke="#1c1a1a" stroke-width="7" stroke-linecap="round"/></g>
+  <g class="leanR fb"><path d="M204 146 L210 96 Q230 88 250 96 L256 146Z" fill="#5a1a14"/>${nestHead(LOOKS.matyas,202,42,56)}<path d="M212 106 L174 98" stroke="#5a1a14" stroke-width="7" stroke-linecap="round"/></g>
+  <g class="tug fb"><path d="M146 96 l3 -18 8 9 4 -14 4 14 8 -9 3 18z" fill="url(#gGold)" stroke="#6b4d14" stroke-width="1.2"/><circle cx="160" cy="91" r="2.4" fill="#b0202a"/></g>
+  <text x="90" y="170" text-anchor="middle" font-family="Alegreya Sans,sans-serif" font-weight="800" font-size="12" fill="#f1e4c3">Rudolf II.</text><text x="230" y="170" text-anchor="middle" font-family="Alegreya Sans,sans-serif" font-weight="800" font-size="12" fill="#f1e4c3">Matyáš</text>`),
+ move:()=>sv(`<rect width="320" height="180" fill="url(#gSkyDay)"/><path d="M0 120 Q80 96 160 112 T320 104 V180 H0Z" fill="#8a9a5a"/>${skyline(4,118,'#6a7488',.55)}<g transform="translate(278,118)" fill="#6a7488"><path d="M-14 0 V-30 H-6 V-50 L0 -78 L6 -50 V-30 H14 V0Z"/></g>
+  <text x="34" y="134" font-family="Alegreya Sans,sans-serif" font-weight="800" font-size="12" fill="#2b1d12">PRAHA</text><text x="262" y="134" font-family="Alegreya Sans,sans-serif" font-weight="800" font-size="12" fill="#2b1d12">VÍDEŇ</text>
+  <path d="M0 158 Q160 140 320 152" stroke="#b59a62" stroke-width="16" fill="none"/>
+  <g class="convoy">${horse(150,156,'#5a3a20')}${wagon(100,156,chest(-16,-28)+chest(4,-28,'#5a3a20')+chest(-6,-40,'#8a5a2b'))}${horse(42,156,'#3a2a1a')}${wagon(-8,156,`<path d="M-26 -28 Q0 -52 24 -28Z" fill="#d9cfb7" stroke="#8a7350"/>`)}</g>
+  <text x="12" y="20" font-family="Alegreya Sans,sans-serif" font-weight="800" font-size="12" fill="#2b1d12">Matyáš stěhuje dvůr z Prahy do Vídně</text>`),
+ march:()=>sv(`<rect width="320" height="180" fill="url(#gSkyDay)"/><path d="M180 0 H320 V180 H180Z" fill="url(#gStone)"/>${[20,44,68,92].map(y=>`<path d="M180 ${y} H320" stroke="#b3a689"/>`).join('')}<path d="M230 80 V30 Q260 6 290 30 V80Z" fill="#2a1e14" stroke="#7a6a4a" stroke-width="5"/>
+  <path d="M0 180 L0 170 ${Array.from({length:9},(_,i)=>`L${i*24+24} ${170-i*10} L${i*24+24} ${160-i*10}`).join(' ')} L236 80 L320 80 V180Z" fill="#a69a7c" stroke="#7a6e54"/>
+  <g class="climb">${soldier({x:120,y:118,c:'#5a2e1a',hat:'hat',plume:'#c0392b',w:'sword',arm:'raise',la:'walkA',lb:'walkB',beard:'#3a3a3a',s:.9})}${soldier({x:92,y:132,c:'#24427a',hat:'hat',w:'sword',la:'walkB',lb:'walkA',s:.9})}${soldier({x:66,y:146,c:'#3f5a2a',hat:'hat',plume:'#e2b958',la:'walkA',lb:'walkB',s:.9})}${soldier({x:40,y:160,c:'#6a3a6a',hat:'hat',la:'walkB',lb:'walkA',s:.9})}</g>
+  <text x="12" y="20" font-family="Alegreya Sans,sans-serif" font-weight="800" font-size="12" fill="#2b1d12">23. 5. 1618: stavové stoupají na Pražský hrad</text>`),
+ window:()=>sv(`<rect width="320" height="180" fill="url(#gSkyDay)"/><rect width="210" height="150" fill="url(#gStone)"/>${[18,38,58,78,98,118,138].map((y,i)=>`<path d="M0 ${y} H210" stroke="#a8997a"/>${Array.from({length:6},(_,k)=>`<path d="M${k*40+(i%2)*20} ${y-20} V${y}" stroke="#a8997a"/>`).join('')}`).join('')}
+  <path d="M84 18 H144 V74 H84Z" fill="url(#gRoom)" stroke="#6a5a3a" stroke-width="5"/><path d="M114 18 V74 M84 46 H144" stroke="#6a5a3a" stroke-width="2"/><rect x="80" y="72" width="68" height="7" fill="#b3a689"/>
+  <path d="M0 150 H320 V180 H0Z" fill="url(#gGrass)"/><path d="M150 180 Q190 140 250 172 Q270 160 290 180Z" fill="#6b4a26"/><path d="M168 168 q20 -10 40 0 M220 172 q14 -8 30 0" stroke="#3a2614" stroke-width="2" fill="none"/>
+  <g class="dropfig fb">${soldier({x:110,y:76,c:'#1c1a1a',hat:'hat',beard:'#2a2a2a',arm:'flail'})}</g>${[0,1,2].map(i=>`<rect class="paperfly" style="animation-delay:${i*.5}s" x="${120+i*6}" y="50" width="8" height="10" fill="#f1e4c3" stroke="#b9955a" stroke-width=".5"/>`).join('')}
+  <circle class="landpuff fb" cx="214" cy="160" r="16" fill="url(#gSmoke)" filter="url(#fSoft)"/>`),
+ vote:()=>sv(`<rect width="320" height="180" fill="#3a3046"/>${[40,100,160,220,280].map(x=>`<path d="M${x} 0 Q${x+30} 50 ${x+60} 0 M${x} 0 Q${x-30} 50 ${x-60} 0" stroke="#8a7a9a" stroke-width="2" fill="none"/>`).join('')}<path d="M0 0 H320 V22 Q160 54 0 22Z" fill="url(#gVelvet)"/>
+  <rect x="40" y="132" width="240" height="48" fill="url(#gWood)"/><path d="M40 132 H280" stroke="#c79a3b" opacity=".5"/>
+  <g class="bobc fb"><circle cx="160" cy="56" r="34" fill="url(#gGlow)" opacity=".7"/><path d="M140 70 l4 -26 10 13 6 -20 6 20 10 -13 4 26z" fill="url(#gGold)" stroke="#6b4d14" stroke-width="1.5"/><rect x="140" y="68" width="40" height="6" fill="url(#gGold)"/></g>
+  <rect x="120" y="96" width="80" height="44" rx="3" fill="url(#gWood)" stroke="#2a1a0e" stroke-width="2"/><rect x="146" y="94" width="28" height="5" fill="#140c06"/>
+  ${[0,1,2].map(i=>`<rect class="paper fb" style="animation-delay:${i*.7}s" x="${152+i*4}" y="66" width="12" height="16" fill="#f1e4c3" stroke="#b9955a"/>`).join('')}
+  <text x="160" y="124" text-anchor="middle" font-family="Grenze Gotisch,serif" font-size="18" fill="#f1e4c3">1619</text>
+  ${[50,80,240,270].map((x,i)=>soldier({x,y:170,c:['#5a2e1a','#24427a','#3f5a2a','#6a3a6a'][i],hat:'hat',f:x<160?1:-1,s:.75,arm:i%2?'raise':''}))}`),
+ coronation:()=>sv(`<rect width="320" height="180" fill="#2a2236"/>${[30,90,230,290].map((x,i)=>`<path d="M${x-18} 150 V40 Q${x} 6 ${x+18} 40 V150Z" fill="${['#2a50b0','#b0202a','#2a8a50','#c79a3b'][i]}" opacity=".55"/><path d="M${x} 20 V150 M${x-18} 80 H${x+18}" stroke="#1a1420" stroke-width="2"/>`).join('')}
+  <rect y="150" width="320" height="30" fill="url(#gStone)" opacity=".6"/><path d="M132 160 L136 112 Q160 102 184 112 L188 160Z" fill="url(#gVelvet)"/><path d="M134 112 Q160 124 186 112 L184 120 Q160 132 136 120Z" fill="#f8f5ec"/>${nestHead(LOOKS.fridrich,128,52,64)}
+  <g class="crowndown fb"><path d="M146 50 l3 -18 7 9 4 -14 4 14 7 -9 3 18z" fill="url(#gGold)" stroke="#6b4d14"/><rect x="146" y="48" width="28" height="5" fill="url(#gGold)"/></g>
+  ${[[100,60],[220,50],[120,30],[200,80],[160,20]].map((p,i)=>`<path class="sparkle fb" style="animation-delay:${i*.3}s" d="M${p[0]} ${p[1]-6} L${p[0]+1.5} ${p[1]-1.5} L${p[0]+6} ${p[1]} L${p[0]+1.5} ${p[1]+1.5} L${p[0]} ${p[1]+6} L${p[0]-1.5} ${p[1]+1.5} L${p[0]-6} ${p[1]} L${p[0]-1.5} ${p[1]-1.5}Z" fill="#ffe9a8"/>`).join('')}
+  <text class="vivat" x="160" y="174" text-anchor="middle" font-family="Grenze Gotisch,serif" font-size="20" fill="#f6dc8e">Vivat rex Fridericus!</text>`),
+ camp:()=>sv(`<rect width="320" height="180" fill="url(#gSkyDawn)"/><path d="M0 110 Q90 90 180 104 T320 98 V180 H0Z" fill="#3d4a22"/><path d="M0 130 Q160 116 320 132 V180 H0Z" fill="url(#gGrassDark)"/>
+  <path d="M22 132 L58 76 L94 132Z" fill="#d9cfb7" stroke="#8a7350" stroke-width="1.5"/><path d="M58 76 L64 132 L94 132Z" fill="#b5a888"/><path d="M58 76 V132" stroke="#8a7350"/>
+  <path d="M236 134 L266 88 L296 134Z" fill="#cfc4a8" stroke="#8a7350" stroke-width="1.5"/><path d="M266 88 L272 134 L296 134Z" fill="#a89c80"/>
+  ${flame(160,150,1.1)}<path d="M146 152 L174 146 M146 146 L174 152" stroke="#3a2614" stroke-width="5" stroke-linecap="round"/>
+  <g transform="translate(120,152)"><path d="M-9 0 Q-10 -18 0 -22 Q10 -18 9 0Z" fill="#8d2a20"/><ellipse cx="0" cy="-27" rx="5.5" ry="6" fill="#e2b48f"/><path d="M-3 -18 l3 -7 3 7" stroke="#e2b48f" stroke-width="3" fill="none"/><path d="M-6 -31 Q0 -36 6 -31Z" fill="#2a2018"/></g>
+  <g transform="translate(206,152)"><path d="M-9 0 L-8 -22 Q0 -26 8 -22 L9 0Z" fill="#a8322a"/><ellipse cx="0" cy="-30" rx="5.5" ry="6" fill="#e2b48f"/><path d="M-6 -35 Q0 -42 6 -35Z" fill="url(#gSteel)"/><path d="M-30 -8 L10 -12" stroke="url(#gSteel)" stroke-width="2.6"/><g class="sharpen"><rect x="-24" y="-14" width="9" height="5" rx="1.5" fill="#7a7a7a"/></g></g>
+  ${soldier({x:290,y:166,c:'#a8322a',hat:'morion',w:'pike',f:-1,s:.8})}
+  <g class="mistband"><ellipse cx="160" cy="118" rx="200" ry="10" fill="#f2efe8" opacity=".35" filter="url(#fBlur)"/></g>
+  <text x="12" y="20" font-family="Alegreya Sans,sans-serif" font-weight="800" font-size="12" fill="#f1e4c3">Před bitvou: modlitba, oheň, broušení zbraní</text>`),
+ duel:()=>sv(`<rect width="320" height="180" fill="url(#gSkyGrey)"/><path d="M0 128 Q160 112 320 132 V180 H0Z" fill="url(#gGrass)"/>${smoke(40,110,26,'drift',0)}${smoke(280,100,30,'drift',1.5)}
+  <g class="stepL">${soldier({x:128,y:156,c:'#a8322a',hat:'morion',w:'sword',arm:'slash',armor:1,sash:'#f2ede0',beard:'#4a3020'})}</g>
+  <g class="stepR">${soldier({x:192,y:156,c:'#2a2a2a',hat:'morion',w:'sword',arm:'slash2',armor:1,sash:'#e2b62e',f:-1})}</g>
+  <g class="spark fb"><path d="M160 98 l4 -10 2 9 9 -4 -6 8 9 4 -10 1 2 9 -6 -7 -6 7 1 -9 -9 -1 8 -4z" fill="#ffe27a"/></g>`),
+ clash:()=>sv(`<rect width="320" height="180" fill="url(#gSkyGrey)"/><path d="M0 124 Q160 108 320 128 V180 H0Z" fill="url(#gGrass)"/>${smoke(160,100,40,'drift',0)}${smoke(110,110,26,'drift',1)}${smoke(220,96,30,'drift',2)}
+  <g class="stepL">${[0,1,2,3,4].map(i=>soldier({x:36+i*20,y:150+(i%2)*10,c:'#a8322a',hat:'morion',w:'pike',arm:'thrust',s:.85,la:i%2?'':'',beard:i%2?'#3a2614':''})).join('')}${soldier({x:20,y:148,c:'#a8322a',hat:'hat',w:'flag',fc:'#c0392b',s:.85})}</g>
+  <g class="stepR">${[0,1,2,3,4,5].map(i=>soldier({x:196+i*20,y:150+(i%2)*10,c:i%2?'#24427a':'#2a2a2a',hat:'morion',w:i%3===2?'musket':'pike',arm:'thrust',s:.85,f:-1})).join('')}${soldier({x:306,y:146,c:'#24427a',hat:'hat',w:'flag',fc:'#2a5db0',s:.85,f:-1})}</g>
+  ${[0,1,2].map(i=>`<circle class="flashq fb" style="animation-delay:${i*.4}s" cx="${180+i*24}" cy="${100+i*4}" r="5" fill="#ffd34d"/>`).join('')}`),
+ fallen:()=>sv(`<rect width="320" height="180" fill="url(#gSkyGrey)"/><path d="M0 134 Q160 118 320 136 V180 H0Z" fill="url(#gGrass)"/>${smoke(260,100,30,'drift',0)}
+  <circle class="hitpuff fb" cx="200" cy="104" r="14" fill="url(#gSmoke)"/>
+  <g class="fallen fb">${soldier({x:160,y:150,c:'#a8322a',hat:'none',w:'pike',beard:'#4a3020'})}</g>
+  <g class="helm fb"><path d="M151 78 Q160 66 169 78Z" fill="url(#gSteel)" stroke="#4a525a" stroke-width=".6"/><path d="M147 78 Q160 82 173 78" stroke="url(#gSteel)" stroke-width="2.5" fill="none"/></g>
+  <g class="memorial"><path d="M252 150 v-40 M240 122 h24" stroke="#5a3a20" stroke-width="5" stroke-linecap="round"/><circle cx="238" cy="150" r="4" fill="#d4473c"/><circle cx="246" cy="153" r="3.4" fill="#f2c45a"/><circle cx="262" cy="151" r="4" fill="#d4473c"/><path d="M238 150 v-8 M262 151 v-8" stroke="#3f8b49" stroke-width="2"/></g>`),
+ cannon:()=>sv(`<rect width="320" height="180" fill="url(#gSkyGrey)"/><path d="M0 128 Q160 116 320 132 V180 H0Z" fill="url(#gGrass)"/>
+  <g class="recoil"><g transform="translate(60,140)"><path d="M-6 -16 L44 -30 L46 -22 L-4 -6Z" fill="#2b2b2b"/><ellipse cx="45" cy="-26" rx="3" ry="5" fill="#111" transform="rotate(-16 45 -26)"/><path d="M-20 0 L20 -16 L22 -10 L-14 4Z" fill="url(#gWood)"/><g class="wheel2 fb"><circle cx="4" cy="-2" r="13" fill="none" stroke="#3a2614" stroke-width="3.5"/><path d="M-9 -2 H17 M4 -15 V11 M-5 -11 L13 7 M-5 7 L13 -11" stroke="#5a3a20" stroke-width="1.6"/></g></g></g>
+  ${soldier({x:30,y:150,c:'#a8322a',hat:'hat',s:.9})}
+  ${smoke(112,104,16,'smk',0)}<circle r="4.5" fill="#111"><animateMotion dur="2.4s" repeatCount="indefinite" keyPoints="0;0;1;1" keyTimes="0;0.09;0.55;1" calcMode="linear" path="M110 104 Q190 20 270 120"/></circle>
+  <circle class="boomr fb" cx="270" cy="124" r="18" fill="url(#gSmoke)"/>${[0,1,2].map(i=>soldier({x:252+i*16,y:148,c:'#2a2a2a',hat:'morion',w:'pike',f:-1,s:.75})).join('')}`),
+ winter:()=>sv(`<rect width="320" height="180" fill="url(#gSkyWinter)"/>${skyline(0,128,'#9aa8b8',.7)}<path d="M0 136 Q160 122 320 138 V180 H0Z" fill="url(#gSnow)"/>
+  <g class="ride">${horse(96,160,'#3a2a1a')}<g transform="translate(40,160)"><path d="M-32 -46 H22 V-12 H-32Z" fill="#24427a" stroke="#0f1f3a"/><rect x="-24" y="-40" width="14" height="12" fill="#cfe2f0"/>${nestHead(LOOKS.fridrich,-26,-43,14)}<path d="M-6 -52 l3 -8 4 5 3 -7 3 7 4 -5 3 8z" fill="url(#gGold)"/>${[-22,12].map(wx=>`<g transform="translate(${wx},-8)"><g class="wheel fb"><circle r="9" fill="none" stroke="#2a1a0e" stroke-width="2.6"/><path d="M-9 0 H9 M0 -9 V9" stroke="#2a1a0e" stroke-width="1.3"/></g></g>`).join('')}<path d="M22 -20 L60 -26" stroke="#2a1a0e" stroke-width="2"/></g></g>
+  ${Array.from({length:26},(_,i)=>`<circle class="snow" style="animation-duration:${3+(i%5)}s;animation-delay:-${i*.37}s" cx="${6+i*12}" cy="0" r="${1.2+(i%3)*.7}" fill="#fff"/>`).join('')}
+  <text x="12" y="20" font-family="Alegreya Sans,sans-serif" font-weight="800" font-size="12" fill="#24427a">Zimní král utíká z Prahy</text>`),
+ crosses:()=>sv(`<rect width="320" height="180" fill="url(#gSkyDay)"/><g fill="#8a7e6a"><path d="M200 70 V10 l12 -10 12 10 V70Z"/><rect x="150" y="40" width="110" height="34"/></g><circle cx="212" cy="30" r="7" fill="#2a50b0" stroke="url(#gGold)" stroke-width="2"/>
+  <path d="M0 74 H320 V180 H0Z" fill="#9a917e"/>${Array.from({length:7},(_,r)=>Array.from({length:18},(_,c)=>`<rect x="${c*19-(r%2)*9}" y="${76+r*15}" width="17" height="13" rx="2.5" fill="#aea591"/>`).join('')).join('')}
+  ${Array.from({length:27},(_,i)=>{const x=24+(i%9)*34, y=96+Math.floor(i/9)*26; return `<g class="cross" style="animation-delay:${i*.18}s"><path d="M${x} ${y-9} v18 M${x-6} ${y-3} h12" stroke="#f8f2e0" stroke-width="3.6"/></g>`}).join('')}
+  <text x="12" y="20" font-family="Alegreya Sans,sans-serif" font-weight="800" font-size="12" fill="#2b1d12">Staroměstské náměstí: 27 křížů v dlažbě</text>`),
+ war30:()=>sv(`<rect width="320" height="180" fill="url(#gParch)"/><path d="M40 40 Q80 20 130 34 Q170 20 210 40 Q260 30 290 60 Q280 110 240 130 Q200 160 140 150 Q90 160 60 130 Q30 100 40 40Z" fill="#cdb98a" stroke="#8a7350" stroke-width="1.5"/>
+  <path d="M120 40 Q130 30 150 32 Q170 22 186 38" stroke="#8a7350" fill="none" stroke-dasharray="3 3"/><text x="150" y="98" font-family="Alegreya Sans,sans-serif" font-weight="800" font-size="10" fill="#5a3e10">ČECHY</text><text x="96" y="70" font-family="Alegreya Sans,sans-serif" font-size="9" fill="#5a3e10">Svatá říše</text><text x="200" y="56" font-family="Alegreya Sans,sans-serif" font-size="9" fill="#5a3e10">Švédsko</text>
+  ${[[160,92,0],[110,84,1.2],[200,110,2.4],[130,120,3.6],[220,60,4.8],[90,110,6]].map(([x,y,d])=>`<g class="spread" style="animation-delay:${d}s">${flame(x,y,.55,d)}</g>`).join('')}
+  <g transform="translate(286,138)"><path d="M-14 -30 H14 M-14 30 H14" stroke="url(#gBrass)" stroke-width="4"/><path d="M-11 -28 Q-11 -4 0 0 Q11 -4 11 -28Z M-11 28 Q-11 4 0 0 Q11 4 11 28Z" fill="#cfe8e4" opacity=".4" stroke="#c79a3b"/><g class="sand fb"><path d="M-9 -24 Q-8 -6 0 -1 Q8 -6 9 -24Z" fill="#e2b958"/></g><path d="M-8 26 Q0 14 8 26Z" fill="#e2b958"/></g>
+  <text x="12" y="170" font-family="Grenze Gotisch,serif" font-size="18" fill="#5a1a14">Třicetiletá válka 1618–1648</text>`),
+ exile:()=>sv(`<rect width="320" height="180" fill="url(#gSkyDawn)"/><circle cx="270" cy="80" r="18" fill="url(#gSun)" opacity=".9"/><path d="M0 120 L50 70 L100 110 L160 56 L230 112 L320 74 V180 H0Z" fill="#5a6a4a"/><path d="M0 146 Q160 124 320 144 V180 H0Z" fill="#b59a62"/>
+  <g class="walk"><g transform="translate(36,158)"><g class="walkA fb"><path d="M-5 -26 L-6 0 L-2 0 L-1 -26Z" fill="#141414"/></g><g class="walkB fb"><path d="M1 -26 L3 0 L7 0 L5 -26Z" fill="#141414"/></g><path d="M-10 -24 L-9 -56 Q0 -61 9 -56 L10 -24Z" fill="#141414"/>${nestHead(LOOKS.komensky,-13,-82,26)}<path d="M12 -50 L16 0" stroke="#6b4a26" stroke-width="2.4"/><rect x="-16" y="-44" width="9" height="11" fill="#7a1f1a" stroke="#3a0f0c"/></g>
+  <g transform="translate(6,160) scale(.8)"><g class="walkB fb"><path d="M-5 -26 L-6 0 L-2 0 L-1 -26Z" fill="#3a2a40"/></g><g class="walkA fb"><path d="M1 -26 L3 0 L7 0 L5 -26Z" fill="#3a2a40"/></g><path d="M-10 -24 L-9 -56 Q0 -61 9 -56 L10 -24Z" fill="#5a3a5a"/><ellipse cx="0" cy="-64" rx="6" ry="7" fill="#e2b48f"/><path d="M-7 -66 Q0 -76 7 -66 L6 -60 L-6 -60Z" fill="#f2ede0"/>${chest(-2,-30)}</g></g>
+  <text x="12" y="20" font-family="Alegreya Sans,sans-serif" font-weight="800" font-size="12" fill="#f1e4c3">Exulanti odcházejí z vlasti</text>`),
+ castle:()=>sv(`<rect width="320" height="180" fill="url(#gSkyNight)"/><circle cx="268" cy="36" r="15" fill="url(#gMoon)"/>${Array.from({length:24},(_,i)=>`<circle class="tw" style="animation-delay:${(i*.41)%3}s" cx="${(i*83)%320}" cy="${(i*29)%90}" r="${.6+(i%3)*.5}" fill="#fff"/>`).join('')}
+  <path d="M0 180 V136 H34 V118 H54 V128 H80 V100 l8 -22 8 22 V120 H118 V90 l7 -30 7 30 V96 l10 -48 10 48 V120 H196 V106 H236 V128 H320 V180Z" fill="#0f1128"/>${[92,128,160,172,206,222].map((x,i)=>`<rect class="tw" style="animation-delay:${i*.6}s" x="${x}" y="124" width="5" height="7" fill="#f2c45a"/>`).join('')}
+  <path d="M0 160 Q160 150 320 164 V180 H0Z" fill="#1d2a4a"/><path d="M20 166 h40 M110 162 h50 M220 168 h40" stroke="#f2c45a" opacity=".3" stroke-width="1.5"/>
+  <g transform="translate(270,156)"><path d="M-22 -18 L18 -36" stroke="url(#gBrass)" stroke-width="6" stroke-linecap="round"/><path d="M-2 -26 l-10 26 M-2 -26 l12 26" stroke="#8a6418" stroke-width="2"/></g>`),
+};
+
+const PEOPLE={
+  rudolf:{n:'Rudolf II.',r:'římský císař a český král',p:.8,L:{hat:'crown',beard:'full',hair:'#6b4a2b',beardColor:'#7a5a3a',collar:'ruff',coat:'#1f1f1f',chain:1,lip:1},
+    t:'Jsem Rudolf II. Habsburský, římský císař a český král. Přestěhoval jsem dvůr z Vídně do Prahy, a tak se z Prahy stalo jedno z nejslavnějších měst Evropy. Miluji hvězdy, obrazy, hodiny a vzácné kameny. Pozval jsem k sobě hvězdáře Tycha Brahe a Johanna Keplera. Roku 1609 jsem podepsal Rudolfův majestát o svobodě víry. Můj bratr Matyáš mi pak vzal trůn. To mu nikdy neodpustím.'},
+  matyas:{n:'Matyáš',r:'Rudolfův bratr, český král od roku 1611',p:.95,L:{hat:'crown',beard:'pointed',mous:1,hair:'#4a3020',collar:'ruff',coat:'#7a1f1a',chain:1,lip:1},
+    t:'Jsem Matyáš, mladší bratr císaře Rudolfa. Můj bratr byl nemocný a vládnout nedokázal, tak jsem mu roku 1611 vzal českou korunu. Po jeho smrti jsem se stal i císařem a vrátil jsem dvůr do Vídně. Vlastní děti jsem neměl. Proto jsem za svého nástupce určil bratrance Ferdinanda.'},
+  ferdinand:{n:'Ferdinand II.',r:'Habsburk, císař a český král',p:.7,L:{hat:'tall',beard:'goatee',mous:1,hair:'#3a2a1a',collar:'flat',coat:'#1f1f1f',chain:1,lip:1},
+    t:'Jsem Ferdinand II. z rodu Habsburků. Vychovali mě jezuité a jsem horlivý katolík. Prý jsem řekl, že bych raději vládl poušti než zemi plné kacířů. Čeští stavové mě roku 1619 sesadili a zvolili si Fridricha Falckého. Já jsem se ale vrátil s velkým vojskem a na Bílé hoře jsem zvítězil. Potom jsem v Čechách dovolil jen katolickou víru.'},
+  fridrich:{n:'Fridrich Falcký',r:'„zimní král“, zvolen 1619',p:1.2,L:{hat:'feather',hatc:'#24427a',mous:1,beard:'goatee',hair:'#8a5a2b',collar:'flat',coat:'#2f4f7a',cheeks:1},
+    t:'Jsem Fridrich Falcký. Bylo mi teprve 23 let, když mě čeští stavové zvolili králem. Moje žena Alžběta je dcerou anglického krále. Doufal jsem, že mi tchán pošle vojáky, ale nepomohl. V den bitvy na Bílé hoře jsem byl na Pražském hradě. Po porážce jsem musel z Prahy utéct. Vládl jsem jen jednu zimu, a tak mi lidé posměšně říkají zimní král.'},
+  thurn:{n:'Jindřich Matyáš Thurn',r:'hrabě, vůdce českých stavů',p:.85,L:{hat:'tall',hatc:'#3b2b17',beard:'full',hair:'#2b2b2b',beardColor:'#3a3a3a',collar:'flat',coat:'#5a2e1a'},
+    t:'Jsem hrabě Jindřich Matyáš Thurn, jeden z vůdců českých stavů. Habsburkové porušovali Rudolfův majestát, a tak jsme 23. května 1618 vtrhli na Pražský hrad. Já jsem vedl stavy do České kanceláře. Potom jsem velel stavovskému vojsku a táhl jsem až k Vídni.'},
+  martinic:{n:'Jaroslav Bořita z Martinic',r:'královský místodržící',p:.9,L:{hat:'tall',beard:'pointed',mous:1,hair:'#1f1f1f',collar:'ruff',coat:'#1f1f1f'},
+    t:'Jsem Jaroslav Bořita z Martinic, královský místodržící a věrný katolík. Stavové mě vyhodili z okna jako prvního! Přežil jsem a utekl jsem z Prahy. Po Bílé hoře jsem se vrátil a dostal jsem od císaře vysoké úřady.'},
+  slavata:{n:'Vilém Slavata z Chlumu',r:'královský místodržící',p:.8,L:{hat:'tall',hatc:'#2a1a2e',beard:'full',hair:'#5b3a1d',collar:'ruff',coat:'#5a2e6e'},
+    t:'Jsem Vilém Slavata z Chlumu, královský místodržící. Při pádu z okna jsem si poranil hlavu, ale přežil jsem. Ještě dlouhá léta jsem pak psal vzpomínky o tom, co se v Čechách stalo.'},
+  fabricius:{n:'Filip Fabricius',r:'písař místodržících',p:1.15,L:{hat:'cap',hair:'#8a5a2b',collar:'band',coat:'#6b5a3a',cheeks:1},
+    t:'Jsem Filip Fabricius, písař. Z okna jsem letěl jako poslední. Hned jsem se zvedl a pospíchal do Vídně, abych o všem řekl císaři. Za odměnu jsem dostal šlechtický titul s přídomkem von Hohenfall. To znamená z Vysokého pádu!'},
+  anhalt:{n:'Kristián z Anhaltu',r:'velitel stavovského vojska',p:.9,L:{hat:'helmet',beard:'pointed',mous:1,hair:'#7a7a7a',beardColor:'#8a8a8a',armor:1,coat:'#7a1f1a'},
+    t:'Jsem Kristián z Anhaltu, vrchní velitel stavovského vojska. Mí vojáci byli unavení, hladoví a dlouho nedostali žold. Na kopci jsme nestihli dokončit valy. Bitvu na Bílé hoře jsme prohráli asi za dvě hodiny. Můj syn vedl statečný útok jízdy, ale byl zraněn a zajat.'},
+  tilly:{n:'Jan Tserclaes Tilly',r:'velitel vojska Katolické ligy',p:.75,L:{hat:'helmet',beard:'goatee',mous:1,hair:'#9a9a9a',beardColor:'#bbbbbb',armor:1,coat:'#24427a'},
+    t:'Jsem Jan Tserclaes Tilly, velitel vojska Katolické ligy. Sloužím bavorskému vévodovi Maxmiliánovi. Na Bílé hoře jsem chtěl hned zaútočit do kopce, i když jiní váhali. Zvítězili jsme.'},
+  buquoy:{n:'Karel Bonaventura Buquoy',r:'velitel císařského vojska',p:.85,L:{hat:'tall',beard:'full',hair:'#3a2a1a',collar:'flat',coat:'#1f1f1f',armor:1},
+    t:'Jsem Karel Bonaventura Buquoy, velitel císařského vojska. Pocházím z Nizozemí a sloužím císaři. Před bitvou jsem byl zraněn, ale s vojskem jsem došel až k Praze. Za vítězství jsem dostal od císaře panství na jihu Čech.'},
+  komensky:{n:'Jan Amos Komenský',r:'učitel národů',p:.85,L:{hat:'cap',beard:'long',hair:'#d8d4cc',beardColor:'#e8e4dc',collar:'band',coat:'#1f1f1f'},
+    t:'Jsem Jan Amos Komenský, kněz Jednoty bratrské a učitel. Po Bílé hoře jsem doma nesměl zůstat ve své víře. Roku 1628 jsem odešel z vlasti a už jsem se nevrátil. Napsal jsem mnoho knih o tom, jak učit děti hrou. Proto mi říkají učitel národů.'},
+};
+Object.keys(LOOKS).forEach(k=>{ if(PEOPLE[k]) PEOPLE[k].L=LOOKS[k]; });
+function cast(ids){ return `<div class="cast"><span class="lbl">Postavy · klikni na hlavu a postava ti o sobě poví <span class="lock">· zamčeno, dokud neodpovíš na otázku</span></span>${ids.map(id=>`<button class="head" data-person="${id}" aria-label="${PEOPLE[id].n} – poslechnout si">${headSVG(PEOPLE[id].L)}<span>${PEOPLE[id].n}</span></button>`).join('')}</div>`; }
+let typer=null;
+function showSpeaker(id){
+  const P=PEOPLE[id]; closeSpeaker();
+  const d=document.createElement('div'); d.className='speaker'; d.id='speaker'; d.setAttribute('role','dialog'); d.setAttribute('aria-label',P.n);
+  d.innerHTML=`<div class="box"><div class="big talk" id="spHead">${headSVG(P.L,1)}</div><div class="bubble"><div class="role">${P.r}</div><h3>${P.n}</h3><p class="typed" id="spText"></p><div class="row" style="margin-top:6px"><button class="btn" id="spClose">Děkuji, můžeš jít</button>${'speechSynthesis' in window?`<button class="btn ghost" id="spVoice">${voiceOn?'Hlas: zap.':'Pustit nahlas'}</button>`:''}</div></div></div>`;
+  document.body.appendChild(d);
+  const el=$('#spText'); let i=0; const txt=P.t;
+  let speaking=speak(txt,P.p,1,()=>{ const h=$('#spHead'); if(h) h.classList.remove('talk'); });
+  typer=setInterval(()=>{ i+=2; el.textContent=txt.slice(0,i); if(i>=txt.length){ clearInterval(typer); if(!speaking){ const h=$('#spHead'); if(h) h.classList.remove('talk'); } } },38);
+  $('#spClose').onclick=closeSpeaker; $('#spClose').focus();
+  const vb=$('#spVoice'); if(vb) vb.onclick=()=>{ if(!voiceOn) setVoice(true); if(voiceOn){ $('#spHead').classList.add('talk'); speaking=speak(txt,P.p,1,()=>{ const h=$('#spHead'); if(h) h.classList.remove('talk'); }); vb.textContent='Hlas: zap.'; } };
+  d.onclick=e=>{ if(e.target===d) closeSpeaker(); };
+  tone(330,.15,.08,'triangle');
+}
+function closeSpeaker(){ clearInterval(typer); try{speechSynthesis.cancel()}catch(e){} const d=$('#speaker'); if(d) d.remove(); }
+document.addEventListener('keydown',e=>{ if(e.key==='Escape') closeSpeaker(); });
+document.addEventListener('click',e=>{ const h=e.target.closest('.head'); if(!h) return; if(LOCKS.size){ buzz(); toast('Nejdřív odpověz na otázku. Teď ti postavy neporadí!'); return; } showSpeaker(h.dataset.person); });
+
+/* ================= ANIMOVANÉ OBRÁZKY K OTÁZKÁM ================= */
+function illus(k,cap){ if(!ILL[k]) return ''; return `<figure class="ill">${ILL[k]()}${cap?`<figcaption>${cap}</figcaption>`:''}</figure>`; }
+
+/* ================= CESTA ČASEM ================= */
+/* ================= STROJ ČASU ================= */
+function gearPath(cx,cy,r,n){ let d=''; for(let i=0;i<n*2;i++){ const a1=i*Math.PI/n, a2=(i+1)*Math.PI/n, rr=i%2?r:r+5; d+=(i?'L':'M')+(cx+rr*Math.cos(a1)).toFixed(1)+' '+(cy+rr*Math.sin(a1)).toFixed(1)+' L'+(cx+rr*Math.cos(a2)).toFixed(1)+' '+(cy+rr*Math.sin(a2)).toFixed(1)+' '; } return d+'Z'; }
+function machineSVG(withHand){
+  return `<svg viewBox="0 0 420 300" class="msvg" aria-hidden="true">
+  <g class="gearA" style="transform-origin:120px 90px"><path d="${gearPath(120,90,30,12)}" fill="url(#gBrass)" stroke="#5b3a10" stroke-width="2"/><circle cx="120" cy="90" r="8" fill="#5b3a10"/></g>
+  <g class="gearB" style="transform-origin:262px 84px"><path d="${gearPath(262,84,22,9)}" fill="url(#gBrass)" stroke="#5b3a10" stroke-width="2"/><circle cx="262" cy="84" r="6" fill="#5b3a10"/></g>
+  <rect x="110" y="232" width="20" height="44" fill="url(#gWood)"/><rect x="252" y="232" width="20" height="44" fill="url(#gWood)"/>
+  <path d="M154 96 Q191 18 228 96Z" fill="#7fe3d622" stroke="url(#gBrass)" stroke-width="5"/><circle class="glowp" style="transform-origin:191px 66px" cx="191" cy="66" r="20" fill="url(#gTeal)"/><path d="M182 76 q9 -22 18 0" stroke="#dffcf8" stroke-width="2" fill="none"/>
+  <rect x="88" y="94" width="206" height="144" rx="16" fill="url(#gBrass)" stroke="#5b3a10" stroke-width="4"/>
+  ${[100,282].flatMap(x=>[106,226].map(y=>`<circle cx="${x}" cy="${y}" r="3.4" fill="#f6dc8e" stroke="#5b3a10"/>`)).join('')}
+  <circle cx="150" cy="166" r="44" fill="url(#gParch)" stroke="#5b3a10" stroke-width="5"/>${Array.from({length:12},(_,i)=>`<path d="M${150+38*Math.cos(i*Math.PI/6)} ${166+38*Math.sin(i*Math.PI/6)} L${150+32*Math.cos(i*Math.PI/6)} ${166+32*Math.sin(i*Math.PI/6)}" stroke="#3b2b17" stroke-width="${i%3?1.5:3}"/>`).join('')}
+  <g id="mHandH" class="clockH" style="transform-origin:150px 166px"><path d="M150 166 L150 140" stroke="#2b1d12" stroke-width="4" stroke-linecap="round"/></g>
+  <g id="mHandM" class="clockM" style="transform-origin:150px 166px"><path d="M150 166 L150 130" stroke="#7a1f1a" stroke-width="2.5" stroke-linecap="round"/></g><circle cx="150" cy="166" r="4" fill="#5b3a10"/>
+  <rect x="208" y="146" width="74" height="40" rx="5" fill="#0d0f1e" stroke="#5b3a10" stroke-width="3"/><text id="mYear" x="245" y="175" text-anchor="middle" font-family="Alegreya Sans,sans-serif" font-weight="800" font-size="24" fill="#7fe3d6">${$('#year')?$('#year').textContent:'2026'}</text>
+  <text x="245" y="208" text-anchor="middle" font-family="Grenze Gotisch,serif" font-size="14" fill="#3b2b17">Annus</text>
+  <circle cx="310" cy="166" r="12" fill="#5b3a10"/>
+  <g id="mCrank" style="transform-origin:310px 166px"><rect x="306" y="160" width="52" height="12" rx="6" fill="url(#gBrass)" stroke="#5b3a10" stroke-width="2"/><rect x="346" y="152" width="16" height="28" rx="7" fill="url(#gVelvet)" stroke="#3b0f0c" stroke-width="2"/></g>
+  ${withHand?`<g id="mHand" transform="translate(560 360)"><path d="M10 -6 L270 110 L240 170 L2 14Z" fill="url(#gVelvet)"/><path d="M40 6 L250 120 M30 14 L220 150" stroke="#3b0f0c" stroke-width="2" opacity=".6"/><path d="M2 -16 L26 -6 L16 22 L-8 12Z" fill="#f8f5ec"/>${[0,1,2,3,4].map(i=>`<circle cx="${-6+i*6}" cy="${-12+i*7}" r="3" fill="#f8f5ec" stroke="#cfc8b6" stroke-width=".5"/>`).join('')}<rect x="-16" y="-14" width="24" height="28" rx="9" fill="#e6bf98" stroke="#b98762"/><path d="M-14 -5 h18 M-14 2 h18 M-14 9 h17" stroke="#b98762" stroke-width="1.2"/><path d="M-12 -12 Q-4 -22 6 -12" stroke="#e6bf98" stroke-width="7" stroke-linecap="round" fill="none"/></g>`:''}
+  </svg>`;
+}
+function flipDigits(y){ return String(y).padStart(4,'0').split('').map(d=>`<span class="fd">${d}</span>`).join(''); }
+function setFlip(y){ const el=$('#flipY'); if(!el) return; const s=String(y).padStart(4,'0'); const ds=el.querySelectorAll('.fd'); s.split('').forEach((d,i)=>{ if(ds[i] && ds[i].textContent!==d){ ds[i].textContent=d; ds[i].classList.remove('fdflip'); void ds[i].offsetWidth; ds[i].classList.add('fdflip'); } }); }
+let traveling=false;
+function travel(scene){
+  if(traveling) return; traveling=true; closeSpeaker(); closeDetail();
+  const ch=CH.find(c=>c.id===scene);
+  const target= ch? ch.year : 2026;
+  const from=+$('#year').textContent;
+  const w=$('#warp');
+  w.innerHTML=`<div class="rings"></div><div class="ctr"><div class="lbl">Stroj času · cesta do roku</div><div class="mwrap">${machineSVG(true)}</div><div class="flipyear" id="flipY">${flipDigits(from)}</div><div class="dest">${ch? ch.name : (scene==='zkouska'?'Zpět do přítomnosti':'Do přítomnosti')}</div></div>`;
+  w.classList.add('on');
+  const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const T_IN=reduce?10:650, T_TURN=reduce?300:1900, T_OUT=reduce?10:500, R=44, PX=310, PY=166;
+  const hand=$('#mHand'), crank=$('#mCrank'), hh=$('#mHandH'), mh=$('#mHandM'), my=$('#mYear');
+  const dir= target>=from?1:-1, turns=3;
+  const knob=a=>[PX+R*Math.cos(a), PY+R*Math.sin(a)];
+  let lastQ=0; const t0=performance.now();
+  const lerp=(a,b,k)=>a+(b-a)*k, ease=k=>k<.5?2*k*k:1-Math.pow(-2*k+2,2)/2;
+  function step(t){
+    const e=t-t0;
+    if(e<T_IN){ const k=ease(e/T_IN), [kx,ky]=knob(0); hand.setAttribute('transform',`translate(${lerp(560,kx,k)} ${lerp(360,ky,k)})`); }
+    else if(e<T_IN+T_TURN){ const k=ease((e-T_IN)/T_TURN), ang=dir*k*turns*2*Math.PI, [kx,ky]=knob(ang);
+      crank.style.transform=`rotate(${ang*180/Math.PI}deg)`; hand.setAttribute('transform',`translate(${kx} ${ky})`);
+      hh.style.transform=`rotate(${ang*180/Math.PI*2}deg)`; mh.style.transform=`rotate(${ang*180/Math.PI*12}deg)`;
+      const y=Math.round(from+(target-from)*k); setYear(y); setFlip(y); my.textContent=y;
+      const q=Math.floor(k*turns*4); if(q!==lastQ){ lastQ=q; tone(1400,.03,.05,'square'); }
+      if(e-T_IN<20) whoosh(); }
+    else if(e<T_IN+T_TURN+T_OUT){ const k=ease((e-T_IN-T_TURN)/T_OUT), [kx,ky]=knob(dir*turns*2*Math.PI); hand.setAttribute('transform',`translate(${lerp(kx,560,k)} ${lerp(ky,360,k)})`); setYear(target); setFlip(target); my.textContent=target; }
+    else { chime(); setTimeout(()=>{ go(scene); w.classList.remove('on'); traveling=false; },250); return; }
+    requestAnimationFrame(step);
+  }
+  requestAnimationFrame(step);
+}
+
+/* ================= DETAIL – obrázek přímo u kliknutého bloku ================= */
+function showDetail(ill,title,html,cap){
+  closeDetail();
+  const d=document.createElement('div'); d.className='speaker'; d.id='detail'; d.setAttribute('role','dialog'); d.setAttribute('aria-label',title);
+  d.innerHTML=`<div class="dbox"><div class="dpic">${ILL[ill]?ILL[ill]():''}</div><div class="dtext"><div class="role">${cap||''}</div><h3>${title}</h3><p>${html}</p><div class="row"><button class="btn" id="dClose">Rozumím, zavřít</button></div></div></div>`;
+  document.body.appendChild(d); $('#dClose').onclick=closeDetail; $('#dClose').focus();
+  d.onclick=e=>{ if(e.target===d) closeDetail(); };
+}
+function closeDetail(){ const d=$('#detail'); if(d) d.remove(); }
+
+/* ================= ÚTĚK ZIMNÍHO KRÁLE ================= */
+function bubble(id,x,y,w,text,tail='left'){ const tx= tail==='left'? x+18 : x+w-18; return `<g id="${id}" class="bub"><rect x="${x}" y="${y}" width="${w}" height="34" rx="9" fill="#fffaf0" stroke="#3b2b17" stroke-width="2"/><path d="M${tx-6} ${y+34} L${tx} ${y+48} L${tx+6} ${y+34}" fill="#fffaf0" stroke="#3b2b17" stroke-width="2"/><path d="M${tx-5} ${y+33} h10" stroke="#fffaf0" stroke-width="3"/><text x="${x+w/2}" y="${y+22}" text-anchor="middle" font-family="Alegreya Sans,sans-serif" font-weight="800" font-size="15" fill="#2b1d12">${text}</text></g>`; }
+function winterScene(){
+  return `<div class="scene-wrap" id="wkWrap"><svg viewBox="0 0 800 360" id="wk" role="img" aria-label="Útěk zimního krále z Prahy">
+  <rect width="800" height="360" fill="url(#gSkyWinter)"/>
+  <g fill="#8e9cb0"><path d="M0 250 V170 H40 V150 H70 V160 H110 V120 l10 -30 10 30 V140 H170 V96 l9 -40 9 40 V104 l14 -64 14 64 V140 H260 V150 H300 V250Z"/></g><text x="150" y="140" text-anchor="middle" font-family="Alegreya Sans,sans-serif" font-weight="800" font-size="16" fill="#eef2f6">PRAŽSKÝ HRAD</text>
+  <path d="M0 262 Q400 240 800 266 V360 H0Z" fill="url(#gSnow)"/><path d="M0 300 Q400 284 800 300" stroke="#cbb994" stroke-width="30" fill="none" opacity=".55"/>
+  <g transform="translate(36,300)"><rect x="-3" y="-60" width="6" height="60" fill="#6b4a26"/><rect x="-6" y="-60" width="70" height="20" fill="#f1e4c3" stroke="#6b4a26"/><text x="29" y="-45" text-anchor="middle" font-family="Alegreya Sans,sans-serif" font-weight="800" font-size="12" fill="#2b1d12">← Bílá hora</text></g>
+  <g transform="translate(740,300)"><rect x="-3" y="-60" width="6" height="60" fill="#6b4a26"/><rect x="-66" y="-60" width="70" height="20" fill="#f1e4c3" stroke="#6b4a26"/><text x="-31" y="-45" text-anchor="middle" font-family="Alegreya Sans,sans-serif" font-weight="800" font-size="12" fill="#2b1d12">Vratislav →</text></g>
+  <g transform="translate(200,300)"><rect x="-34" y="-34" width="68" height="6" fill="url(#gWood)"/><rect x="-30" y="-28" width="4" height="28" fill="#4a2e14"/><rect x="26" y="-28" width="4" height="28" fill="#4a2e14"/><ellipse cx="-10" cy="-37" rx="12" ry="3" fill="#f8f5ec"/><ellipse cx="14" cy="-38" rx="7" ry="4" fill="#c8884a"/><path d="M6 -40 q-6 -10 6 -10" stroke="#c79a3b" stroke-width="3" fill="none"/></g>
+  <g id="wkCar" style="transform:translate(470px,300px)">${horse(150,0,'#3a2a1a',true)}${horse(110,4,'#5a3a20',true)}<g class="carbody"><path d="M-50 -82 H50 V-22 H-50Z" fill="#24427a" stroke="#0f1f3a" stroke-width="2"/><path d="M-50 -82 Q0 -100 50 -82" fill="#1a3260" stroke="#0f1f3a" stroke-width="2"/><rect x="-36" y="-72" width="28" height="24" fill="#cfe2f0" stroke="#0f1f3a"/><rect x="6" y="-72" width="28" height="24" fill="#cfe2f0" stroke="#0f1f3a"/><path d="M-6 -96 l3 -9 4 5 3 -8 3 8 4 -5 3 9z" fill="url(#gGold)"/><g id="wkLoad"></g></g>${[-34,34].map(wx=>`<g transform="translate(${wx},-12)"><g class="wheel fb"><circle r="14" fill="none" stroke="#2a1a0e" stroke-width="3.5"/><path d="M-14 0 H14 M0 -14 V14 M-10 -10 L10 10 M-10 10 L10 -10" stroke="#2a1a0e" stroke-width="1.5"/></g></g>`).join('')}<path d="M50 -30 L96 -34" stroke="#2a1a0e" stroke-width="3"/>${[0,1,2].map(i=>`<circle class="dust fb" style="animation-delay:${i*.25}s" cx="-60" cy="-8" r="10" fill="url(#gSmoke)"/>`).join('')}</g>
+  <g id="wkMsg" style="transform:translate(-80px,300px)">${soldier({x:0,y:0,c:'#a8322a',hat:'morion',la:'runA',lb:'runB',arm:'wave2',s:1.25})}</g>
+  <g id="wkF" style="transform:translate(250px,300px)"><g id="wkFin">
+    <g class="lgA fb"><path d="M-9 -40 L-10 -10 L-4 -10 L-2 -40Z" fill="#f2ede0"/><path d="M-11 -12 L-11 -1 L-18 0 L-4 0 L-4 -12Z" fill="#3a2614"/></g>
+    <g class="lgB fb"><path d="M2 -40 L4 -10 L10 -10 L9 -40Z" fill="#f2ede0"/><path d="M3.6 -12 L4 0 L16 0 L11 -1 L10 -12Z" fill="#3a2614"/></g>
+    <g class="cape fb"><path d="M-12 -84 Q-36 -60 -38 -34 L-6 -40 Z" fill="url(#gVelvet)"/></g>
+    <path d="M-13 -38 L-12 -82 Q0 -88 12 -82 L13 -38 Q0 -34 -13 -38Z" fill="#2f4f7a"/><path d="M-11 -82 L12 -46" stroke="#3a6ad0" stroke-width="5"/><path d="M-14 -44 h28" stroke="#c79a3b" stroke-width="3"/>
+    <g id="wkArm" class="fb"><path d="M10 -78 L26 -64" stroke="#2f4f7a" stroke-width="7" stroke-linecap="round"/><circle cx="27" cy="-62" r="4" fill="#e6bf98"/><g id="wkChick"><ellipse cx="32" cy="-66" rx="7" ry="4.5" fill="#b5651d" transform="rotate(-30 32 -66)"/><path d="M36 -70 l6 -5" stroke="#f8f5ec" stroke-width="3" stroke-linecap="round"/></g></g>
+    ${nestHead(LOOKS.fridrich,-30,-142,60)}
+  </g></g>
+  <g id="wkCrown" style="transform:translate(250px,165px)"><g class="fb"><path d="M-13 0 l2 -14 6 7 5 -12 5 12 6 -7 2 14z" fill="url(#gGold)" stroke="#6b4d14"/><rect x="-13" y="-2" width="26" height="5" fill="url(#gGold)"/><circle cx="0" cy="0" r="1.8" fill="#b0202a"/></g></g>
+  <g id="wkGarter" style="transform:translate(250px,240px);opacity:0"><path d="M-10 0 Q0 -8 10 0 Q0 8 -10 0Z" fill="#3a6ad0" stroke="#1a3a90"/><text x="0" y="-12" text-anchor="middle" font-family="Alegreya Sans,sans-serif" font-weight="800" font-size="11" fill="#1a3a90">podvazkový řád</text></g>
+  ${[0,1].map(i=>`<g id="wkChest${i}" style="transform:translate(150px,240px);opacity:0">${chest(0,0,i?'#5a3a20':'#7a4a20')}</g>`).join('')}
+  <g id="wkBaby" style="transform:translate(150px,240px);opacity:0"><ellipse cx="0" cy="-6" rx="10" ry="6" fill="#f8f5ec" stroke="#bdb6a4"/><circle cx="8" cy="-8" r="4.5" fill="#f2c9a8"/></g>
+  ${bubble('bMsg',30,170,200,'Výsosti! Bitva je prohraná!')}
+  ${bubble('bF1',190,110,170,'Cože?! Rychle pryč!')}
+  ${bubble('bServ',330,150,250,'Málem jsme zapomněli prince!','right')}
+  ${bubble('bF2',260,110,190,'Moje koruna! … Není čas!')}
+  <g id="wkSnow" opacity="0">${Array.from({length:40},(_,i)=>`<circle class="snow2" style="animation-duration:${4+(i%5)}s;animation-delay:-${(i*.33).toFixed(2)}s" cx="${10+i*20}" cy="0" r="${1.5+(i%3)}" fill="#fff"/>`).join('')}</g>
+  <g id="wkEnd" opacity="0"><rect x="160" y="110" width="480" height="70" rx="10" fill="#3b2b17" opacity=".9"/><text x="400" y="142" text-anchor="middle" font-family="Grenze Gotisch,serif" font-size="30" fill="#f6dc8e">A tak vznikl „zimní král“</text><text x="400" y="166" text-anchor="middle" font-family="Alegreya Sans,sans-serif" font-weight="700" font-size="15" fill="#f1e4c3">vládl jen jednu zimu a v Praze nechal i korunu</text></g>
+  </svg></div>
+  <div class="row"><button class="btn brass" id="wkPlay">Spustit útěk zimního krále</button><span class="hint">Pozor, je to trochu legrační, ale založené na skutečnosti.</span></div>`;
+}
+let wkRun=0;
+async function runWinter(){
+  const my=++wkRun, svg=$('#wk'); if(!svg) return;
+  const sl=ms=>new Promise(r=>setTimeout(r,ms)), alive=()=>my===wkRun && document.getElementById('wk');
+  const el=id=>document.getElementById(id);
+  const A=(id,kf,o)=>{ const e=el(id); if(!e) return; e.getAnimations().forEach(a=>a.cancel()); return e.animate(kf,Object.assign({fill:'forwards'},o)); };
+  const show=(id,on)=>{ const e=el(id); if(e) e.classList.toggle('on',on); };
+  ['bMsg','bF1','bServ','bF2'].forEach(b=>show(b,false));
+  el('wkEnd').setAttribute('opacity',0); el('wkSnow').setAttribute('opacity',0); el('wkLoad').innerHTML='';
+  A('wkCar',[{transform:'translate(470px,300px)'}],{duration:1}); A('wkF',[{transform:'translate(250px,300px)',opacity:1}],{duration:1}); A('wkCrown',[{transform:'translate(250px,165px)'}],{duration:1}); A('wkChick',[{transform:'none',opacity:1}],{duration:1});
+  svg.classList.remove('carGo','fRun','msgRun'); el('wkGarter').style.opacity=0;
+  // 1. posel přibíhá
+  svg.classList.add('msgRun'); drum();
+  A('wkMsg',[{transform:'translate(-80px,300px)'},{transform:'translate(120px,300px)'}],{duration:1400,easing:'ease-out'});
+  await sl(1400); if(!alive())return; svg.classList.remove('msgRun'); show('bMsg',true); tone(500,.2,.12,'square'); await sl(1500); if(!alive())return;
+  // 2. Fridrich vyskočí, kuře padá
+  show('bMsg',false); show('bF1',true);
+  A('wkFin',[{transform:'translateY(0)'},{transform:'translateY(-46px)'},{transform:'translateY(0)'}],{duration:500,easing:'ease-out',fill:'none'});
+  A('wkCrown',[{transform:'translate(250px,165px)'},{transform:'translate(250px,105px) rotate(-20deg)'},{transform:'translate(250px,165px)'}],{duration:500,fill:'forwards'});
+  A('wkChick',[{transform:'none'},{transform:'translate(30px,60px) rotate(200deg)',opacity:1}],{duration:700,easing:'ease-in'});
+  tone(900,.12,.12,'triangle'); tone(1300,.15,.1,'triangle',.08); await sl(1600); if(!alive())return;
+  // 3. sluhové házejí truhly a malého prince do kočáru
+  show('bF1',false);
+  for(const [i,id] of [[0,'wkChest0'],[1,'wkChest1']]){ A(id,[{transform:'translate(150px,240px) rotate(0)',opacity:1},{transform:`translate(${300+i*40}px,${120-i*10}px) rotate(180deg)`,opacity:1},{transform:`translate(${450+i*30}px,${214-i*4}px) rotate(360deg)`,opacity:1}],{duration:900,easing:'ease-in-out'}); thud(); await sl(450); }
+  await sl(500); if(!alive())return;
+  el('wkLoad').innerHTML=chest(-20,-82)+chest(8,-84,'#5a3a20'); el('wkChest0').style.opacity=0; ['wkChest0','wkChest1'].forEach(id=>el(id).getAnimations().forEach(a=>a.cancel()));
+  show('bServ',true);
+  A('wkBaby',[{transform:'translate(150px,240px) rotate(0)',opacity:1},{transform:'translate(330px,90px) rotate(360deg)',opacity:1},{transform:'translate(470px,230px) rotate(720deg)',opacity:1},{transform:'translate(470px,230px)',opacity:0}],{duration:1500,easing:'ease-in-out'});
+  tone(700,.3,.08,'sine'); tone(900,.3,.08,'sine',.3); await sl(1900); if(!alive())return;
+  // 4. Fridrich utíká, koruna mu spadne
+  show('bServ',false); svg.classList.add('fRun'); whoosh();
+  A('wkF',[{transform:'translate(250px,300px)'},{transform:'translate(440px,300px)'}],{duration:1500,easing:'linear'});
+  A('wkCrown',[{transform:'translate(250px,165px)',offset:0},{transform:'translate(330px,165px)',offset:.42},{transform:'translate(320px,105px) rotate(-60deg)',offset:.55},{transform:'translate(290px,292px) rotate(-260deg)',offset:.8},{transform:'translate(220px,292px) rotate(-560deg)',offset:1}],{duration:2600,easing:'linear'});
+  setTimeout(()=>{ tone(800,.12,.15,'triangle'); tone(400,.3,.12,'triangle',.1); el('wkGarter').animate([{transform:'translate(360px,240px)',opacity:1},{transform:'translate(340px,296px) rotate(90deg)',opacity:1}],{duration:700,fill:'forwards',easing:'ease-in'}); },1000);
+  await sl(1200); if(!alive())return; show('bF2',true); await sl(1500); if(!alive())return;
+  // 5. skok do kočáru a pryč do Vratislavi
+  show('bF2',false); svg.classList.remove('fRun');
+  A('wkF',[{transform:'translate(440px,300px) scale(1)',opacity:1},{transform:'translate(465px,240px) scale(.6)',opacity:0}],{duration:450,easing:'ease-in'});
+  await sl(500); if(!alive())return;
+  svg.classList.add('carGo'); drum(); setTimeout(drum,700); setTimeout(drum,1400);
+  A('wkCar',[{transform:'translate(470px,300px)'},{transform:'translate(520px,300px)',offset:.2},{transform:'translate(1000px,300px)'}],{duration:2600,easing:'ease-in'});
+  el('wkSnow').setAttribute('opacity',1);
+  await sl(2700); if(!alive())return;
+  el('wkEnd').setAttribute('opacity',1); el('wkEnd').animate([{opacity:0,transform:'translateY(10px)'},{opacity:1,transform:'none'}],{duration:600}); chime();
+  const b=el('wkPlay'); if(b) b.textContent='Pustit znovu';
+}
+
+function go(scene){ LOCKS.clear(); updLock(); closeSpeaker(); S.scene=scene; const ch=CH.find(c=>c.id===scene); if(ch) setYear(ch.year); window.scrollTo({top:0,behavior:'smooth'}); (SCENES[scene]||SCENES.intro)(); }
+
+/* ================= SCÉNY ================= */
+const SCENES={};
+
+/* ---------- ÚVOD ---------- */
+SCENES.intro=()=>{
+  setYear(2026);
+  stage.innerHTML=`
+  <div class="eyebrow">Dějepisná výprava · 5. třída</div>
+  <h1>Výprava na Bílou horu</h1>
+  <div class="herom">${machineSVG(false)}</div>
+  <p class="lead drop">Ve škole jste našli zaprášenou mosaznou skříňku. Na víku je vyrytý nápis <i>„Kdo otočí klikou, uvidí, co bylo.“</i> Je to stroj času. Ručička se zastavila na roce <b>1620</b> a na slově <b>Bílá hora</b>.</p>
+  ${guide('Ahoj, poutníku z budoucnosti! Jmenuji se Jakub a jsem písař na Pražském hradě. Provedu tě nejbouřlivějšími lety českých dějin. Za každou kapitolu dostaneš <b>pečeť</b> (nahoře v řadě koleček: koruna, žezla, okno, volební urna, meče a sněhová vločka). Když posbíráš všech šest a projdeš zkouškou, staneš se <b>kronikářem Bílé hory</b>.')}
+  <p><label for="nm"><b>Jak se jmenuješ, cestovateli?</b></label><br><input type="text" id="nm" maxlength="30" placeholder="Napiš své jméno" value="${esc(S.name)}"></p>
+  <p style="margin-top:10px"><b>Chceš hrát se zvukem?</b> Je to na tobě. Zapnout nebo vypnout to jde kdykoli i nahoře.</p>
+  <div class="row" style="margin-top:4px"><button class="btn ghost" data-sync="sound" aria-pressed="${soundOn}">${soundOn?'Zvuky jsou zapnuté':'Zapnout zvuky'}</button><button class="btn ghost" data-sync="voice" aria-pressed="${voiceOn}">${voiceOn?'Hlas postav je zapnutý':'Zapnout hlas postav'}</button></div>
+  <div class="row"><button class="btn brass" id="start">Otočit klikou a cestovat do roku 1609</button></div>
+  <div class="fact" style="margin-top:18px"><b>Co tě čeká:</b> císař Rudolf II. a jeho kouzelný dvůr · spor bratrů Rudolfa a Matyáše · vyhazování z oken Pražského hradu · volba nového krále · bitva na Bílé hoře · co přišlo potom.</div>`;
+  stage.querySelector('[data-sync=sound]').onclick=()=>setSound(!soundOn);
+  stage.querySelector('[data-sync=voice]').onclick=()=>setVoice(!voiceOn);
+  $('#start').onclick=()=>{S.name=$('#nm').value.trim(); travel('rudolf')};
+};
+
+/* ---------- 1. RUDOLF II. ---------- */
+const ICONS={
+ scope:`<svg viewBox="0 0 64 64"><rect x="8" y="26" width="40" height="10" rx="3" transform="rotate(-25 28 31)" fill="#a67a24"/><rect x="42" y="14" width="12" height="14" rx="2" transform="rotate(-25 48 21)" fill="#6b4d14"/><path d="M28 36l-8 22M28 36l8 22" stroke="#3b2b17" stroke-width="3"/><circle cx="54" cy="8" r="2" fill="#c79a3b"/><circle cx="10" cy="10" r="1.6" fill="#c79a3b"/></svg>`,
+ flask:`<svg viewBox="0 0 64 64"><path d="M26 6h12v16l14 26a6 6 0 0 1-5 9H17a6 6 0 0 1-5-9l14-26z" fill="#cfe8e4" stroke="#3b2b17" stroke-width="2.5"/><path d="M16 42h32l4 7a4 4 0 0 1-4 5H16a4 4 0 0 1-4-5z" fill="#6fbf4a"/><circle cx="28" cy="36" r="2.5" fill="#6fbf4a"/><circle cx="36" cy="30" r="1.8" fill="#6fbf4a"/></svg>`,
+ frame:`<svg viewBox="0 0 64 64"><rect x="6" y="8" width="52" height="46" fill="#c79a3b" stroke="#6b4d14" stroke-width="3"/><rect x="13" y="15" width="38" height="32" fill="#2c4a3a"/><circle cx="26" cy="30" r="7" fill="#d4473c"/><circle cx="38" cy="27" r="5" fill="#e8b33a"/><path d="M18 46c6-10 22-10 30 0z" fill="#6fbf4a"/></svg>`,
+ scroll:`<svg viewBox="0 0 64 64"><rect x="12" y="8" width="40" height="44" rx="3" fill="#f1e4c3" stroke="#6b4d14" stroke-width="2.5"/><path d="M18 18h28M18 25h28M18 32h20" stroke="#5b4630" stroke-width="2.5"/><path d="M30 46l-4 14 6-4 6 4-4-14z" fill="#9b2a22"/><circle cx="32" cy="44" r="7" fill="#9b2a22" stroke="#5e1611" stroke-width="2"/></svg>`,
+ crown:`<svg viewBox="0 0 64 64"><path d="M10 44l-2-24 12 10 12-18 12 18 12-10-2 24z" fill="#e2b958" stroke="#6b4d14" stroke-width="2.5"/><rect x="10" y="44" width="44" height="8" fill="#c79a3b" stroke="#6b4d14" stroke-width="2.5"/><circle cx="32" cy="34" r="4" fill="#9b2a22"/><circle cx="20" cy="38" r="3" fill="#24427a"/><circle cx="44" cy="38" r="3" fill="#24427a"/></svg>`,
+};
+SCENES.rudolf=()=>{
+  const items=[
+   {k:'crown',t:'Císařská koruna',f:'<b>Rudolf II. Habsburský</b> (1552–1612) byl římský císař a český král. Přestěhoval svůj dvůr z Vídně do <b>Prahy</b>. Praha se tak stala jedním z nejdůležitějších měst Evropy.'},
+   {k:'scope',t:'Dalekohled a mapy hvězd',f:'Rudolf zval na svůj dvůr vědce. Pracovali tu slavní hvězdáři <b>Tycho Brahe</b> a <b>Johannes Kepler</b>. Kepler v Praze objevil, jak se planety pohybují kolem Slunce.'},
+   {k:'flask',t:'Baňka alchymisty',f:'Rudolf podporoval <b>alchymisty</b>. Ti se snažili vyrobit zlato nebo lék, který by dal věčné mládí. Zlato nevyrobili, ale podle pověstí bydleli ve Zlaté uličce.'},
+   {k:'frame',t:'Obrazy a sbírky',f:'Rudolf byl vášnivý <b>sběratel</b>. V jeho sbírce (kunstkomoře) byly obrazy, sochy, hodiny, drahokamy i podivné věci z celého světa.'},
+   {k:'scroll',t:'Listina s pečetí',f:'Roku <b>1609</b> podepsal Rudolf <b>Rudolfův majestát</b>. Tato listina dovolovala lidem v Čechách svobodně vyznávat víru, katolickou i protestantskou (evangelickou). Vynutily si ji <b>české stavy</b>.'},
+  ];
+  const seen=new Set();
+  stage.innerHTML=`
+  <div class="eyebrow">Kapitola 1 · Praha, rok 1609</div>
+  <h2>Kouzelný dvůr Rudolfa II.</h2>
+  ${illus('court','Večer na Pražském hradě, kde císař dával pracovat alchymisty')}
+  ${guide('Vítej na Pražském hradě! Právě jsme v komnatách císaře Rudolfa II. Je tu plno vzácných věcí. <b>Klikni na každou z nich</b> a dozvíš se, jaký byl náš císař. A podívej, sám císař je tu taky. Klikni na jeho hlavu!')}
+  ${cast(['rudolf'])}
+  <div class="grid-items" id="items">${items.map((it,i)=>`<button class="item" data-i="${i}">${ICONS[it.k]}<span>${it.t}</span></button>`).join('')}</div>
+  <div id="facts"></div>
+  <div id="q"></div>`;
+  const ITEM_ILL={crown:'crown',scope:'orbits',flask:'court',frame:'gallery',scroll:'majestat'};
+  document.querySelectorAll('.item').forEach(b=>b.onclick=()=>{ const i=+b.dataset.i; tone(600+i*80,.2,.1,'triangle'); b.classList.add('seen'); showDetail(ITEM_ILL[items[i].k],items[i].t,items[i].f,'Rudolfova komnata · '+(seen.size+ (seen.has(i)?0:1))+' z 5'); if(!seen.has(i)){seen.add(i); $('#facts').insertAdjacentHTML('beforeend',`<div class="fact">${items[i].f}</div>`);} if(seen.size===items.length && !$('#q').innerHTML){ $('#q').innerHTML=`<h3 style="margin-top:16px">Otázka od císařského rady</h3>` + quizBlock({img:'majestat',cap:'Rudolfův majestát dostává pečeť',h:'Majestát je listina. Vzpomeň si, o čem se v Čechách lidé nejvíc přeli: o tom, jak věřit v Boha.',q:'Co povoloval Rudolfův majestát z roku 1609?',o:['Vyrábět zlato z olova','Svobodně vyznávat víru, katolickou i protestantskou','Stěhovat císařský dvůr do Vídně'],a:1,ok:'Správně! Lidé si mohli vybrat víru. Habsburkové to ale nesli nelibě.'},()=>{giveSeal('rudolf'); $('#q').insertAdjacentHTML('beforeend',`<div class="row"><button class="btn brass" id="nx">Cestovat do roku 1611</button></div>`); $('#nx').onclick=()=>travel('matyas');}); } });
+};
+
+/* společný kvízový blok */
+let qid=0;
+function quizBlock(Q,done){
+  const id='qb'+(++qid);
+  lock(id);
+  setTimeout(()=>{ const box=document.getElementById(id); if(!box) return;
+    const hb=box.querySelector('.hintbtn'); if(hb) hb.onclick=()=>{ hb.insertAdjacentHTML('afterend',`<div class="hinttxt"><b>Rada od Jakuba:</b> ${Q.h}</div>`); hb.remove(); tone(880,.2,.08,'triangle'); };
+    box.querySelectorAll('.choice').forEach(b=>b.onclick=()=>{ const i=+b.dataset.i; if(i===Q.a){ b.classList.add('right'); box.querySelectorAll('.choice').forEach(x=>x.disabled=true); const h2=box.querySelector('.hintbtn'); if(h2) h2.remove(); box.insertAdjacentHTML('beforeend',`<div class="fact green">${Q.ok}</div>`); chime(); unlock(id); done&&done(true);} else { b.classList.add('wrong'); b.disabled=true; buzz(); } }); });
+  return `<div id="${id}">${Q.img?illus(Q.img,Q.cap):''}<p><b>${Q.q}</b></p><div class="choices">${Q.o.map((o,i)=>`<button class="choice" data-i="${i}">${o}</button>`).join('')}</div>${Q.h?`<button class="hintbtn">Potřebuješ radu?</button>`:''}</div>`;
+}
+
+/* ---------- 2. MATYÁŠ ---------- */
+SCENES.matyas=()=>{
+  const evs=[
+    {y:'1609',t:'Rudolf podepíše <b>Rudolfův majestát</b> o svobodě víry.'},
+    {y:'1611',t:'Rudolfův mladší bratr <b>Matyáš</b> ho připraví o český trůn a sám se stane českým králem.'},
+    {y:'1612',t:'Rudolf II. umírá. Matyáš je i císařem a <b>stěhuje dvůr zpátky do Vídně</b>.'},
+    {y:'1617',t:'Za příštího krále je přijat <b>Ferdinand Štýrský</b>, přísný katolík.'},
+    {y:'1618',t:'Habsburští úředníci zavřou evangelický kostel v <b>Broumově</b> a zbourají kostel v <b>Hrobu</b>. Stavy zuří!'},
+  ];
+  const EVPIC=['majestat','brothers','move','coronation','march'];
+  const order=[3,0,4,2,1]; // zamíchané pořadí zobrazení
+  let next=0;
+  stage.innerHTML=`
+  <div class="eyebrow">Kapitola 2 · Praha a Vídeň, 1611–1618</div>
+  <h2>Bratři se hádají o korunu</h2>
+  ${illus('move','Matyáš stěhuje císařský dvůr z Prahy do Vídně')}
+  ${guide('Psst! Na hradě je dusno. Císař Rudolf je nemocný a zamlklý a jeho bratr <b>Matyáš</b> chce vládnout místo něj. Pomoz mi uspořádat kroniku. <b>Klikej na události od té nejstarší po nejnovější.</b>')}
+  ${cast(['rudolf','matyas','ferdinand'])}
+  <div class="timeline" id="tl">${order.map(i=>`<button class="ev" data-i="${i}"><span class="n">?</span><span>${evs[i].t}</span></button>`).join('')}</div>
+  <p class="hint" id="tlh">Zbývá seřadit: 5 událostí</p>
+  <div id="after"></div>`;
+  document.querySelectorAll('.ev').forEach(b=>b.onclick=()=>{ if(b.classList.contains('done'))return; const i=+b.dataset.i; if(i===next){ b.classList.add('done'); b.querySelector('.n').textContent=evs[i].y.slice(2); b.querySelector('.n').title=evs[i].y; b.querySelector('.n').textContent=evs[i].y; b.querySelector('.n').style.flexBasis='54px'; b.querySelector('.n').style.borderRadius='8px'; b.insertAdjacentHTML('beforeend',`<span class="evpic">${ILL[EVPIC[i]]()}</span>`); tone(500+next*90,.18,.1,'triangle'); next++; $('#tlh').textContent= next<5?`Zbývá seřadit: ${5-next}`:'Kronika je v pořádku!'; if(next===5) finish(); } else { b.classList.remove('shake'); void b.offsetWidth; b.classList.add('shake'); buzz(); } });
+  function finish(){
+    $('#after').innerHTML=`
+    <div class="fact red"><b>Proč se stavy zlobily?</b> <b>České stavy</b> byli šlechtici (páni a rytíři) a zástupci měst. Spolu s králem rozhodovali o zemi. Většina z nich byla evangelíků. Báli se, že Habsburkové jim vezmou svobodu víry, kterou slíbil Rudolfův majestát.</div>
+    ${quizBlock({img:'brothers',cap:'Dva bratři se přetahují o korunu',h:'Byl to člen rodiny. Mladší bratr.',q:'Kdo připravil Rudolfa II. o český trůn?',o:['Jeho bratr Matyáš','Hvězdář Kepler','Fridrich Falcký'],a:0,ok:'Ano! Matyáš byl Rudolfův mladší bratr. Rudolf zemřel roku 1612 skoro sám a opuštěný.'},()=>{giveSeal('matyas'); $('#after').insertAdjacentHTML('beforeend',`<div class="row"><button class="btn brass" id="nx">Cestovat do 23. května 1618</button></div>`); $('#nx').onclick=()=>travel('okno');})}`;
+  }
+};
+
+/* ---------- 3. DEFENESTRACE ---------- */
+function figure(id,x,coat,hat,dx,dy,rot){
+  return `<g class="fig" id="${id}" style="--dx:${dx}px;--dy:${dy}px;--rot:${rot}deg" tabindex="0" role="button" aria-label="Vyhodit z okna">
+    <ellipse class="hl" cx="${x}" cy="128" rx="20" ry="44" fill="#ffd86b55"/>
+    <path d="M${x-14} 170 L${x-11} 120 Q${x} 110 ${x+11} 120 L${x+14} 170 Z" fill="${coat}"/>
+    <ellipse cx="${x}" cy="117" rx="12" ry="4.5" fill="#f7f3ea" stroke="#bbb" stroke-width=".8"/>
+    <circle cx="${x}" cy="105" r="9" fill="#e9c39b"/>
+    <path d="M${x-6} 109 q6 6 12 0 l-2 6 q-4 3 -8 0z" fill="#5b3a1d"/>
+    <ellipse cx="${x}" cy="97" rx="13" ry="3.5" fill="${hat}"/><rect x="${x-7}" y="88" width="14" height="9" rx="2" fill="${hat}"/>
+  </g>`;
+}
+SCENES.okno=()=>{
+  const ppl={
+    martinic:{n:'Jaroslav Bořita z Martinic',t:'místodržící (zástupce krále v Praze), horlivý katolík a přívrženec Habsburků. Spadl první. Přežil a později utekl z Prahy.'},
+    slavata:{n:'Vilém Slavata z Chlumu',t:'místodržící a přívrženec Habsburků. Při pádu se zranil nejvíc, ale také přežil. Později o tom napsal vzpomínky.'},
+    fabricius:{n:'Filip Fabricius',t:'písař (sekretář) místodržících. Vyletěl jako poslední. Hned se zvedl a utíkal do Vídně oznámit císaři, co se stalo. Císař ho pak povýšil do šlechtického stavu s přídomkem „von Hohenfall“, tedy „z Vysokého pádu“.'},
+  };
+  let out=0;
+  stage.innerHTML=`
+  <div class="eyebrow">Kapitola 3 · Pražský hrad, 23. května 1618</div>
+  <h2>Z okna ven!</h2>
+  <p class="lead drop">Je středa ráno. Do <b>České kanceláře</b> na Pražském hradě se hrnou rozzlobení zástupci stavů. V čele jde hrabě <b>Jindřich Matyáš Thurn</b>. Křičí, že královští místodržící porušují Rudolfův majestát. Pak padne rozhodnutí: <i>„Z okna s nimi, jak je dávným obyčejem!“</i></p>
+  ${guide('Stojím v rohu a třesu se jako osika. <b>Klikni na každého ze tří habsburských přívrženců</b> u okna a uvidíš, co se tehdy stalo. Dole si můžeš poslechnout, co o sobě říkají.')}
+  ${illus('march','Ráno 23. května 1618: stavové stoupají na Pražský hrad')}
+  ${cast(['thurn','martinic','slavata','fabricius'])}
+  <div class="scene-wrap">
+  <svg viewBox="0 0 600 420" role="img" aria-label="Okno České kanceláře na Pražském hradě a příkop pod ním">
+    <defs>
+      <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#8fb6d9"/><stop offset="1" stop-color="#e8e1c9"/></linearGradient>
+      <pattern id="stone" width="40" height="22" patternUnits="userSpaceOnUse"><rect width="40" height="22" fill="#d9cfb7"/><path d="M0 21h40M20 0v11M0 11h40M40 11v11M0 11v11" stroke="#b7a987" stroke-width="1.2"/></pattern>
+    </defs>
+    <rect width="600" height="420" fill="url(#sky)"/>
+    <path d="M440 70 l20-30 20 30 v40 h-40z" fill="#7e8aa0"/><path d="M500 90 l12-22 12 22 v30 h-24z" fill="#8e98ad"/>
+    <rect x="0" y="0" width="420" height="330" fill="url(#stone)"/>
+    <rect x="0" y="0" width="420" height="16" fill="#9b8c6c"/>
+    <rect x="200" y="62" width="150" height="112" fill="#3a2a1a"/>
+    <rect x="200" y="62" width="150" height="112" fill="none" stroke="#7a6a4a" stroke-width="8"/>
+    <rect x="196" y="172" width="158" height="10" fill="#a8997a"/>
+    <g opacity=".55"><circle cx="230" cy="92" r="7" fill="#c9a37e"/><circle cx="325" cy="90" r="7" fill="#c9a37e"/><path d="M220 110h20v40h-20zM315 108h20v40h-20z" fill="#5a1f1a"/></g>
+    ${figure('martinic',235,'#1f1f1f','#1f1f1f',150,215,520)}
+    ${figure('slavata',275,'#5a2e6e','#2a1a2e',120,222,-460)}
+    ${figure('fabricius',315,'#6b5a3a','#3b2b17',95,228,610)}
+    <g id="glassbits">${[0,1,2,3,4,5].map(i=>`<rect class="glass" x="${215+i*22}" y="${100+(i%2)*30}" width="6" height="9" fill="#bfe3ef" style="--gx:${(i-2)*12}px"/>`).join('')}</g>
+    <path d="M0 330 H600 V420 H0 Z" fill="#6f8a3f"/>
+    <path d="M0 330 Q140 350 300 362 T600 340 V420 H0Z" fill="#5c7433"/>
+    <path d="M330 398 q55 -48 120 -4 q30 -24 70 2 v24 h-200z" fill="#6b4a26"/>
+    <path d="M360 386 q25 -14 50 0M430 392 q20 -10 40 0" stroke="#4a3118" stroke-width="3" fill="none"/>
+    <text x="440" y="414" font-family="Alegreya Sans, sans-serif" font-size="13" font-weight="700" fill="#f1e4c3" text-anchor="middle">hromada hnoje a smetí</text>
+    <text x="275" y="40" font-family="Alegreya Sans, sans-serif" font-size="14" font-weight="800" fill="#3b2b17" text-anchor="middle">ČESKÁ KANCELÁŘ</text>
+    <text x="410" y="250" font-family="Alegreya Sans, sans-serif" font-size="13" font-weight="700" fill="#3b2b17" text-anchor="end">asi 16 metrů</text>
+    <path d="M415 180 v130" stroke="#3b2b17" stroke-dasharray="4 4" stroke-width="2"/>
+  </svg>
+  </div>
+  <p class="hint" id="okh">Vyhozeno: 0 ze 3</p>
+  <div id="who"></div>
+  <div id="after"></div>`;
+  document.querySelectorAll('.fig').forEach(g=>{ const act=()=>{ if(g.classList.contains('out'))return; g.classList.add('out'); crash(); document.querySelectorAll('.glass').forEach(x=>{x.classList.remove('on');void x.getBBox();x.classList.add('on')}); setTimeout(thud,1500); out++; $('#okh').textContent=`Vyhozeno: ${out} ze 3`; const p=ppl[g.id]; $('#who').insertAdjacentHTML('beforeend',`<div class="fact red"><b>${p.n}</b> – ${p.t}</div>`); if(out===3) setTimeout(finish,1700); }; g.onclick=act; g.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();act()}}; });
+  function finish(){
+    $('#after').innerHTML=`
+    <div class="fact"><b>Tomu se říká pražská defenestrace.</b> Slovo <i>defenestrace</i> pochází z latiny: <i>fenestra</i> = okno. Byla to už <b>druhá</b> pražská defenestrace. Ta první se stala roku <b>1419</b>, kdy husité vyhodili konšely z oken Novoměstské radnice.</div>
+    <p><b>Kupodivu všichni tři přežili!</b> Jak je to možné?</p>
+    ${quizBlock({img:'window',cap:'Pád z okna České kanceláře',h:'Podívej se na obrázek. Co leželo dole v příkopu pod oknem?',q:'Proč podle tebe přežili pád z výšky asi 16 metrů?',o:['Měli s sebou padáky','Dopadli na šikmý svah příkopu, nejspíš do hromady smetí, a tlumily je i těžké pláště','Chytili je vojáci do sítě'],a:1,ok:'Přesně tak. Katolíci tvrdili, že je zachránila Panna Marie. Evangelíci se posmívali, že přistáli v hnoji. Kdo měl pravdu, se už nedozvíme.'},()=>{ $('#after').insertAdjacentHTML('beforeend',`<div class="fact red"><b>Co to znamenalo?</b> Vyhození královských úředníků z okna bylo jako vyhlášení války Habsburkům. Začalo <b>stavovské povstání</b> a s ním <b>třicetiletá válka</b> (1618–1648), která zasáhla celou Evropu.</div><div class="row"><button class="btn brass" id="nx">Cestovat do roku 1619</button></div>`); giveSeal('okno'); $('#nx').onclick=()=>travel('volba'); })}`;
+  }
+};
+
+/* ---------- 4. VOLBA KRÁLE ---------- */
+const CREST={
+  f:`<svg class="crest" viewBox="0 0 56 56"><path d="M6 6h44v22c0 14-10 20-22 24C16 48 6 42 6 28z" fill="#24427a" stroke="#c79a3b" stroke-width="3"/><path d="M18 18l10 6 10-6v18l-10 6-10-6z" fill="#e2b958"/><path d="M28 24v18" stroke="#24427a" stroke-width="2"/></svg>`,
+  h:`<svg class="crest" viewBox="0 0 56 56"><path d="M6 6h44v22c0 14-10 20-22 24C16 48 6 42 6 28z" fill="#e2b958" stroke="#1d1d1d" stroke-width="3"/><path d="M16 22c4-8 8-8 12-2 4-6 8-6 12 2-3 0-6 2-6 6 0 6-6 12-6 12s-6-6-6-12c0-4-3-6-6-6z" fill="#1d1d1d"/></svg>`,
+  s:`<svg class="crest" viewBox="0 0 56 56"><path d="M6 6h44v22c0 14-10 20-22 24C16 48 6 42 6 28z" fill="#1d1d1d" stroke="#c79a3b" stroke-width="3"/><path d="M8 16h40M8 24h40M8 32h40" stroke="#e2b958" stroke-width="4"/><path d="M12 40l32-28" stroke="#3f8b49" stroke-width="5"/></svg>`,
+};
+SCENES.volba=()=>{
+  const c=[
+    {k:'h',n:'Ferdinand II. Štýrský',tg:'Habsburk · katolík',d:'Už byl přijat za českého krále. Je to přísný katolík a chce, aby všichni byli katolíci. Stavy ho v létě 1619 <b>sesadily</b>.',r:'Ferdinanda stavy právě sesadily z trůnu. Nechtěly krále, který jim bere svobodu víry. Zkus to znovu.'},
+    {k:'s',n:'Jan Jiří Saský',tg:'saský kurfiřt · luterán',d:'Mocný soused ze Saska. Je evangelík (luterán), ale s císařem se nechce hádat. O českou korunu nestojí.',r:'Jan Jiří o korunu nestál a nakonec se postavil na stranu císaře. Zkus to znovu.'},
+    {k:'f',n:'Fridrich Falcký',tg:'falcký kurfiřt · kalvinista',d:'Mladý panovník z Falce (23 let). Vede Protestantskou unii a jeho tchánem je anglický král Jakub I. Stavy doufají, že jim pomůže Anglie.',r:''},
+  ];
+  stage.innerHTML=`
+  <div class="eyebrow">Kapitola 4 · Praha, srpen 1619</div>
+  <h2>Koho zvolíme králem?</h2>
+  <p class="lead drop">Po defenestraci vládnou zemi <b>české stavy</b>. Postavily vlastní vojsko a vytvořily vládu třiceti <b>direktorů</b>. Habsburka Ferdinanda už za krále nechtějí. Na sněmu v Praze se proto volí nový král.</p>
+  ${guide('Jsi zástupcem stavů a máš v ruce hlasovací lístek. <b>Vyber kandidáta</b>, kterého stavy opravdu zvolily. Přečti si, co o kom víme.')}
+  ${cast(['ferdinand','fridrich'])}
+  ${illus('vote','Hlasování o novém králi')}
+  <div class="cands">${c.map((x,i)=>`<button class="cand" data-i="${i}">${CREST[x.k]}<span class="tag">${x.tg}</span><h3>${x.n}</h3><span>${x.d}</span></button>`).join('')}</div>
+  <button class="hintbtn" id="vh">Potřebuješ radu?</button>
+  <div id="res"></div>`;
+  lock('vote');
+  $('#vh').onclick=()=>{ $('#vh').outerHTML='<div class="hinttxt"><b>Rada od Jakuba:</b> Stavy chtěly krále, který je evangelík a má mocné příbuzné v Anglii.</div>'; };
+  document.querySelectorAll('.cand').forEach(b=>b.onclick=()=>{ const i=+b.dataset.i; if(c[i].k==='f'){ unlock('vote'); const vh=$('#vh'); if(vh) vh.remove(); b.classList.add('pick'); document.querySelectorAll('.cand').forEach(x=>x.disabled=true); drum(); setTimeout(chime,700);
+    $('#res').innerHTML=`${illus('coronation','4. listopadu 1619: korunovace ve svatovítské katedrále')}<div class="fact green"><b>Vivat rex!</b> 26. srpna 1619 stavy zvolily českým králem <b>Fridricha Falckého</b>. Ve svatovítské katedrále byl korunován <b>4. listopadu 1619</b>.</div>
+    <div class="fact red"><b>Jenže…</b> Fridrich neznal češtinu ani české zvyky. Jeho kalvinističtí kazatelé dali z katedrály vyházet sochy a obrazy, a to se Pražanům nelíbilo. Anglie ani Protestantská unie pořádně nepomohly. Zato Ferdinand, který se mezitím stal císařem, sehnal mocné spojence: <b>Katolickou ligu</b> v čele s bavorským vévodou Maxmiliánem, Španělsko i papeže.</div>
+    ${guide('Do Čech táhne obrovské císařské vojsko. Vezmi si helmu, příteli. Jedeme na <b>Bílou horu</b> u Prahy.')}
+    <div class="row"><button class="btn brass" id="nx">Cestovat na 8. listopadu 1620</button></div>`; giveSeal('volba'); $('#nx').onclick=()=>travel('bitva');
+  } else { b.classList.add('nope'); b.disabled=true; buzz(); $('#res').innerHTML=`<div class="fact red">${c[i].r}</div>`; } });
+};
+
+/* ---------- 5. BITVA ---------- */
+function soldiers(color,n,cols,pike){ let s=''; for(let i=0;i<n;i++){ const cx=(i%cols)*9, cy=Math.floor(i/cols)*11; s+=`<g transform="translate(${cx},${cy})"><rect x="-3" y="0" width="6" height="8" fill="${color}"/><circle cx="0" cy="-2.5" r="2.5" fill="#e9c39b"/>${pike?`<path d="M3 8 L5 -14" stroke="#3b2b17" stroke-width="1"/>`:''}</g>`;} return s; }
+function cav(color,n){ let s=''; for(let i=0;i<n;i++){ const cx=(i%5)*15, cy=Math.floor(i/5)*12; s+=`<g transform="translate(${cx},${cy})"><path d="M-6 4 h12 l2 -3 l3 1 l-2 4 v4 h-2 v-3 h-9 v3 h-2z" fill="#4a3220"/><rect x="-2" y="-5" width="4" height="7" fill="${color}"/><circle cx="0" cy="-7" r="2.2" fill="#e9c39b"/></g>`;} return s; }
+function flag(c1,c2){ return `<path d="M0 -26 V0" stroke="#3b2b17" stroke-width="1.5"/><path d="M0 -26 h16 v6 h-16z" fill="${c1}"/><path d="M0 -20 h16 v5 h-16z" fill="${c2}"/>`; }
+SCENES.bitva=()=>{
+  const B={st:100, ci:100, phase:0};
+  const U={ // počáteční pozice jednotek
+    s1:[560,200], s2:[640,192], s3:[600,232], sc:[700,214], sm:[690,150],
+    c1:[60,318], c2:[140,330], c3:[100,356], cc:[20,350]
+  };
+  stage.innerHTML=`
+  <div class="eyebrow">Kapitola 5 · Bílá hora u Prahy, 8. listopadu 1620</div>
+  <h2>Bitva na Bílé hoře</h2>
+  ${cast(['anhalt','buquoy','tilly','fridrich'])}
+  <div class="bars">
+    <div class="bar st"><label><span>České stavy</span><span id="vs">100 %</span></label><div class="track"><div class="fill" id="fs" style="width:100%"></div></div></div>
+    <div class="bar ci"><label><span>Císař a Katolická liga</span><span id="vc">100 %</span></label><div class="track"><div class="fill" id="fc" style="width:100%"></div></div></div>
+  </div>
+  <div class="scene-wrap" id="bwrap">
+  <svg viewBox="0 0 800 420" id="field" role="img" aria-label="Bojiště na Bílé hoře">
+    <defs>
+      <linearGradient id="bsky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#9aa6b5"/><stop offset="1" stop-color="#d9d4c3"/></linearGradient>
+      <linearGradient id="hill" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#8a8f55"/><stop offset="1" stop-color="#5f6a35"/></linearGradient>
+    </defs>
+    <rect width="800" height="420" fill="url(#bsky)"/>
+    <g fill="#7d8597" opacity=".8"><path d="M730 120 v-30 l6 -12 6 12 v30z"/><path d="M748 120 v-20 h14 v20z"/><path d="M770 120 v-40 l5 -16 5 16 v40z"/><path d="M700 120 h100 v8 h-100z"/></g>
+    <text x="760" y="146" text-anchor="middle" font-family="Alegreya Sans,sans-serif" font-weight="800" font-size="12" fill="#3b4150">PRAHA</text>
+    <path d="M0 340 C160 330 260 320 380 270 C460 236 520 214 800 205 V420 H0Z" fill="url(#hill)"/>
+    <path d="M0 360 C180 352 300 360 800 330 V420 H0Z" fill="#55602f" opacity=".6"/>
+    <path d="M200 420 C210 380 230 350 250 318" stroke="#5b8fb0" stroke-width="7" fill="none"/>
+    <text x="232" y="408" font-family="Alegreya Sans,sans-serif" font-weight="700" font-size="12" fill="#e8f1f5">potok</text>
+    <path d="M640 140 H790 V188" stroke="#8a7a5a" stroke-width="4" fill="none"/>
+    <g transform="translate(720,160)"><path d="M0 -14 L4 -4 L14 0 L4 4 L0 14 L-4 4 L-14 0 L-4 -4 Z" fill="#f1e4c3" stroke="#5b4630" stroke-width="1.5"/></g>
+    <text x="720" y="132" text-anchor="middle" font-family="Alegreya Sans,sans-serif" font-weight="800" font-size="11" fill="#2b1d12">obora a letohrádek Hvězda</text>
+    <text x="560" y="180" font-family="Alegreya Sans,sans-serif" font-weight="800" font-size="13" fill="#2b1d12">BÍLÁ HORA</text>
+    <g id="mist" opacity=".75" style="transition:opacity 2s"><rect width="800" height="420" fill="#e9e6dc"/></g>
+    <g class="unit" id="s1" style="transform:translate(${U.s1[0]}px,${U.s1[1]}px)">${soldiers('#b03028',18,6,1)}<g transform="translate(22,-6)">${flag('#c0392b','#f3efe6')}</g></g>
+    <g class="unit" id="s2" style="transform:translate(${U.s2[0]}px,${U.s2[1]}px)">${soldiers('#b03028',18,6,1)}<g transform="translate(22,-6)">${flag('#f3efe6','#c0392b')}</g></g>
+    <g class="unit" id="s3" style="transform:translate(${U.s3[0]}px,${U.s3[1]}px)">${soldiers('#8d2a20',12,6,0)}</g>
+    <g class="unit" id="sm" style="transform:translate(${U.sm[0]}px,${U.sm[1]}px)">${soldiers('#c06b20',12,6,1)}<g transform="translate(22,-6)">${flag('#d4a017','#c0392b')}</g></g>
+    <g class="unit" id="sc" style="transform:translate(${U.sc[0]}px,${U.sc[1]}px)">${cav('#b03028',10)}</g>
+    <g id="cannonS" transform="translate(520,222)"><rect x="-14" y="-5" width="22" height="7" rx="3" fill="#2b2b2b" transform="rotate(12)"/><circle cx="-4" cy="4" r="5" fill="#5b3a1d"/></g>
+    <g class="unit" id="c1" style="transform:translate(${U.c1[0]}px,${U.c1[1]}px)">${soldiers('#2a2a2a',24,8,1)}<g transform="translate(30,-6)">${flag('#1d1d1d','#e2b62e')}</g></g>
+    <g class="unit" id="c2" style="transform:translate(${U.c2[0]}px,${U.c2[1]}px)">${soldiers('#24427a',24,8,1)}<g transform="translate(30,-6)">${flag('#2a5db0','#f3efe6')}</g></g>
+    <g class="unit" id="c3" style="transform:translate(${U.c3[0]}px,${U.c3[1]}px)">${soldiers('#2a2a2a',16,8,0)}</g>
+    <g class="unit" id="cc" style="transform:translate(${U.cc[0]}px,${U.cc[1]}px)">${cav('#2a2a2a',10)}</g>
+    <g id="fx"></g>
+  </svg>
+  <div class="banner" id="banner" hidden><span></span></div>
+  </div>
+  <div style="display:flex;flex-wrap:wrap;gap:6px 16px;font-family:var(--ui);font-size:13px;font-weight:700;color:var(--ink-soft)">
+    <span><span style="color:#b03028">■</span> stavovské vojsko (asi 21 000 mužů, velí Kristián z Anhaltu)</span>
+    <span><span style="color:#2a2a2a">■</span> císařští (velí Buquoy)</span>
+    <span><span style="color:#24427a">■</span> Katolická liga (velí Tilly)</span>
+    <span><span style="color:#c06b20">■</span> moravský pluk</span>
+  </div>
+  <div id="panel"></div>`;
+
+  const fx=$('#fx');
+  const move=(id,x,y)=>{ const el=document.getElementById(id); el.style.transform=`translate(${x}px,${y}px)`; };
+  const setBars=()=>{ B.st=Math.max(0,Math.min(100,B.st)); B.ci=Math.max(0,Math.min(100,B.ci)); $('#fs').style.width=B.st+'%'; $('#fc').style.width=B.ci+'%'; $('#vs').textContent=Math.round(B.st)+' %'; $('#vc').textContent=Math.round(B.ci)+' %'; };
+  function puff(x,y,r=10,col='#f2efe8'){ const ns='http://www.w3.org/2000/svg'; const c=document.createElementNS(ns,'circle'); c.setAttribute('cx',x);c.setAttribute('cy',y);c.setAttribute('r',r);c.setAttribute('fill',col);c.setAttribute('class','puff'); fx.appendChild(c); setTimeout(()=>c.remove(),1500); }
+  function flash(x,y){ const ns='http://www.w3.org/2000/svg'; const c=document.createElementNS(ns,'circle'); c.setAttribute('cx',x);c.setAttribute('cy',y);c.setAttribute('r',6);c.setAttribute('fill','#ffd34d');c.setAttribute('class','flash'); fx.appendChild(c); setTimeout(()=>c.remove(),300); }
+  function ball(x1,y1,x2,y2,cb){ const ns='http://www.w3.org/2000/svg'; const b=document.createElementNS(ns,'circle'); b.setAttribute('r',3.5); b.setAttribute('fill','#111'); fx.appendChild(b); const t0=performance.now(), d=700; boom(); flash(x1,y1); puff(x1,y1,12);
+    (function st(t){ const k=Math.min(1,(t-t0)/d); const x=x1+(x2-x1)*k, y=y1+(y2-y1)*k-Math.sin(Math.PI*k)*70; b.setAttribute('cx',x); b.setAttribute('cy',y); if(k<1) requestAnimationFrame(st); else { b.remove(); puff(x2,y2,14,'#a8916a'); thud(); cb&&cb(); } })(t0); }
+  function volley(xs,y,n=6){ for(let i=0;i<n;i++) setTimeout(()=>{ const x=xs+Math.random()*50; flash(x,y); puff(x,y-4,6); musket(); },i*120); }
+  function banner(t){ const b=$('#banner'); b.querySelector('span').textContent=t; b.hidden=false; setTimeout(()=>b.hidden=true,1800); }
+  const panel=$('#panel');
+
+  const PH=[
+    {t:'Ráno · mlha nad kopcem', img:'camp', cap:'Co dělají vojáci, než začne bitva',
+     txt:`Je chladné listopadové ráno. Nad Bílou horou leží hustá mlha. Stavovské vojsko stojí nahoře na kopci. Vojáci jsou unavení a hladoví a mnoho z nich <b>už měsíce nedostalo žold</b> (výplatu). Dole u potoka se objevují první oddíly nepřítele. Císařských a ligistů je víc, <b>asi 28 000 mužů</b>.`,
+     q:'Co nařídíš svým vojákům?',
+     o:[{t:'Kopat valy a šance na obranu',r:'Vojáci kopou, ale zem je zmrzlá a času málo. Opevnění <b>nestihnou dokončit</b>. Tak to opravdu bylo.',st:-2,ci:-3},
+        {t:'Poslat zvědy dolů k potoku',r:'Zvědové se vrací: „Jsou jich tisíce a jdou přímo na nás!“ Aspoň víte, kudy nepřítel přijde.',st:0,ci:-2},
+        {t:'Nechat vojáky odpočívat u ohňů',r:'Vojáci se trochu zahřejí, ale nepřítel mezitím v klidu překročí potok.',st:-3,ci:0}],
+     anim:()=>{ $('#mist').style.opacity='.15'; move('c1',190,300); move('c2',260,312); move('c3',230,338); move('cc',150,330); drum(); }},
+    {t:'Poledne · útok do kopce',
+     txt:`Mlha se zvedla. Císařští a ligisté překročili potok a <b>stoupají do kopce</b>. Je čas na děla! <b>Zastav ukazatel v zeleném poli</b> a vystřel. Máš tři rány.`,
+     cannon:true,
+     anim:()=>{ move('c1',300,282); move('c2',360,266); move('c3',330,300); }},
+    {t:'Protiútok jízdy', img:'duel', cap:'Muž proti muži',
+     txt:`Nepřátelská pěchota je už blízko. Jezdci mladého <b>Kristiána z Anhaltu</b> (syna velitele) se třesou nedočkavostí.`,
+     q:'Pošleš jízdu do protiútoku?',
+     o:[{t:'Ano! Jízda, vpřed!',r:'Jezdci se řítí z kopce a <b>zatlačí nepřítele zpátky</b>, ukořistí i prapory! Tohle se v bitvě opravdu stalo. Jenže zbytek vojska jim nepřijde na pomoc. Mladý Anhalt je zraněn a zajat.',st:-6,ci:-10,charge:true},
+        {t:'Ne, budeme se bránit na kopci',r:'Vojáci stojí a střílejí. Nepřítel ale postupuje dál a dál. Historicky jízda vyrazila a na chvíli zvítězila.',st:-8,ci:-4}],
+     anim:()=>{}},
+    {t:'Zlom bitvy', img:'clash', cap:'Řady vojáků do sebe narážejí',
+     txt:`Najednou se ozve křik. <b>Uherští jezdci</b>, spojenci stavů, se obrátili a <b>prchají</b>. Nezaplacení žoldnéři hází zbraně na zem a utíkají za nimi. Kristián z Anhaltu marně volá, ať vydrží.`,
+     q:'Co uděláš?',
+     o:[{t:'Zastavit prchající a vrátit je do boje',r:'Křičíš a máváš praporem, ale nikdo tě neposlouchá. Kdo nedostal výplatu, nechce umírat.',st:-30,ci:-3},
+        {t:'Poslat pro krále Fridricha na hrad',r:'Posel cválá do Prahy. Král Fridrich zrovna obědvá na Pražském hradě. Než se vypraví ven, je skoro po všem.',st:-30,ci:-2}],
+     anim:()=>{ move('sc',820,140); move('s3',830,180); move('c1',470,236); move('c2',520,222); move('cc',420,250); volley(470,236,8); }},
+    {t:'Moravané u zdi obory Hvězda', img:'fallen', cap:'Mnoho vojáků už se domů nevrátí',
+     txt:`Jen jeden oddíl ještě neutekl. <b>Moravský pluk</b> se postavil ke zdi obory Hvězda a bojuje dál, i když je obklíčený.`,
+     q:'Jak se rozhodneš?',
+     o:[{t:'Bojovat do posledního muže',r:'Moravané se statečně brání, ale jsou obklíčeni ze všech stran. Většina z nich padne. Dodnes se na ně vzpomíná jako na hrdiny Bílé hory.',st:-25,ci:-4},
+        {t:'Ustoupit k Praze',r:'Cesta zpět už je zablokovaná nepřítelem. Jen pár vojáků se dostane do města.',st:-25,ci:-2}],
+     anim:()=>{ move('c3',640,190); move('cc',740,186); move('c2',600,210); volley(640,186,10); move('s1',820,190); move('s2',840,196); }},
+  ];
+
+  function runPhase(){
+    const P=PH[B.phase];
+    P.anim();
+    panel.innerHTML=`<div class="log"><div class="eyebrow">Fáze ${B.phase+1} z ${PH.length} · ${P.t}</div><div class="logrow"><p>${P.txt}</p>${P.img?illus(P.img,P.cap):''}</div></div><div id="act"></div>`; panel.scrollIntoView({behavior:'smooth',block:'nearest'});
+    const act=$('#act');
+    if(P.cannon){ cannonGame(act); return; }
+    act.innerHTML=`<p><b>${P.q}</b></p><div class="choices">${P.o.map((o,i)=>`<button class="choice" data-i="${i}">${o.t}</button>`).join('')}</div>`;
+    act.querySelectorAll('.choice').forEach(b=>b.onclick=()=>{ const o=P.o[+b.dataset.i]; act.querySelectorAll('.choice').forEach(x=>x.disabled=true); b.classList.add('right');
+      if(o.charge){ move('sc',380,262); setTimeout(()=>{ for(let i=0;i<4;i++) setTimeout(()=>{puff(390+i*15,270,8); musket();},i*150); move('c1',230,300); move('c2',290,300); },1600); setTimeout(()=>move('sc',600,236),3300); }
+      else volley(530,224,6);
+      B.st+=o.st; B.ci+=o.ci; setTimeout(setBars,600);
+      act.insertAdjacentHTML('beforeend',`<div class="fact ${o.st<-15?'red':''}">${o.r}</div><div class="row"><button class="btn" id="nxp">${B.phase<PH.length-1?'Pokračovat v bitvě':'Konec bitvy'}</button></div>`);
+      $('#nxp').onclick=()=>{ B.phase++; if(B.phase<PH.length) runPhase(); else end(); };
+    });
+  }
+
+  function cannonGame(act){
+    let shots=3, hits=0, pos=0, dir=1, raf, busy=false;
+    act.innerHTML=`<div class="cannon-game"><div class="shots" id="sh">Zbývající rány: 3 · Zásahy: 0</div><div class="meter"><div class="needle" id="nd"></div></div><div class="row" style="margin-top:6px"><button class="btn brass" id="fire">PAL!</button><span style="font-family:var(--ui);font-size:14px">Mezerník funguje taky.</span></div></div><div id="cres"></div>`;
+    const nd=$('#nd'), meter=act.querySelector('.meter');
+    function loop(){ pos+=dir*1.6; if(pos>=100){pos=100;dir=-1} if(pos<=0){pos=0;dir=1} nd.style.left=`calc(${pos}% - 3px)`; raf=requestAnimationFrame(loop); }
+    loop();
+    const fire=()=>{ if(busy||shots<=0)return; busy=true; const p=pos; const hit=p>=40&&p<=60; const near=p>=28&&p<=72; shots--;
+      const tx= hit? 330+Math.random()*40 : near? 270+Math.random()*30 : 200+Math.random()*60; const ty= hit? 290: 330;
+      ball(520,218,tx,ty,()=>{ if(hit){hits++; B.ci-=6;} else if(near){B.ci-=2;} setBars(); $('#sh').textContent=`Zbývající rány: ${shots} · Zásahy: ${hits}`; busy=false; if(shots===0) done(); });
+    };
+    $('#fire').onclick=fire;
+    const key=e=>{ if(e.code==='Space'&&document.getElementById('fire')){ e.preventDefault(); fire(); } };
+    document.addEventListener('keydown',key);
+    function done(){ cancelAnimationFrame(raf); document.removeEventListener('keydown',key); $('#fire').disabled=true;
+      setTimeout(()=>{ // nepřátelská odpověď
+        ball(330,288,560,206); setTimeout(()=>ball(360,272,620,200),500); B.st-=8; setTimeout(setBars,1200);
+        $('#cres').innerHTML=`<div class="fact">${hits>=2?'Výborná muška! Tvá děla zasáhla nepřátelské řady.':hits===1?'Jeden zásah! Nepřítel ale pořád postupuje.':'Koule letěly vedle. Děla tehdy nebyla moc přesná, nic si z toho nedělej.'} Stavovských děl bylo ale <b>málo</b> a nepřátelská děla začala odpovídat.</div><div class="row"><button class="btn" id="nxp">Pokračovat v bitvě</button></div>`;
+        $('#nxp').onclick=()=>{ B.phase++; runPhase(); };
+      },400);
+    }
+  }
+
+  function end(){
+    B.st=Math.min(B.st,6); setBars(); banner('PORÁŽKA STAVŮ'); drum();
+    move('sm',690,150);
+    panel.innerHTML=`<div class="log"><div class="eyebrow">Konec bitvy · asi za dvě hodiny</div>
+      <p>Bitva na Bílé hoře trvala jen <b>asi dvě hodiny</b>. <b>České stavy prohrály.</b> Zvítězilo vojsko císaře Ferdinanda II. a Katolické ligy.</p></div>
+      ${guide('Bylo jedno, jak ses rozhodoval. <b>Dějiny se změnit nedají</b>, ale můžeme pochopit, proč to tak dopadlo.')}
+      <div class="fact red"><b>Proč stavy prohrály?</b><br>· Vojáci dlouho <b>nedostávali žold</b> a nechtělo se jim bojovat.<br>· Nepřítel měl <b>víc vojáků</b> a zkušené velitele (Buquoy, Tilly).<br>· Stavy byly <b>nejednotné</b> a slíbená pomoc z ciziny nepřišla.<br>· Valy na kopci nebyly dokončené a uherská jízda utekla jako první.</div>
+      ${quizBlock({img:'fallen',cap:'Na Bílé hoře padly tisíce vojáků',h:'Vzpomeň si, kdo utíkal z bojiště a čí král pak musel opustit Prahu.',q:'Kdo prohrál bitvu na Bílé hoře 8. listopadu 1620?',o:['Císař Ferdinand II.','České stavy a jejich král Fridrich Falcký','Katolická liga'],a:1,ok:'Správně. Po porážce stavů začala pro české země těžká doba.'},()=>{giveSeal('bitva'); panel.insertAdjacentHTML('beforeend',`<div class="row"><button class="btn brass" id="nx">Cestovat do roku 1621</button></div>`); $('#nx').onclick=()=>travel('po');})}`;
+  }
+
+  panel.innerHTML=`${guide('Jsme na kopci mezi stavovskými vojáky. Ty jsi teď <b>pobočník velitele</b>. Budeš rozhodovat, co dělat. Vezmi si ale k srdci jednu věc: pozorně čti, protože se tu dozvíš, jak bitva opravdu probíhala.')}<div class="row"><button class="btn" id="go">Zahájit bitvu</button></div>`;
+  $('#go').onclick=()=>{ drum(); runPhase(); };
+};
+
+/* ---------- 6. PO BITVĚ ---------- */
+SCENES.po=()=>{
+  const cards=[
+    {f:'Zimní král',b:'Hned po bitvě <b>Fridrich Falcký utekl</b> z Prahy a už se nevrátil. Vládl jen jednu zimu, proto mu lidé posměšně říkají <b>„zimní král“</b>.'},
+    {f:'21. 6. 1621',b:'Na <b>Staroměstském náměstí</b> bylo popraveno <b>27 vůdců povstání</b>, pánů, rytířů i měšťanů. Na jejich památku je dnes v dlažbě u radnice <b>27 křížů</b>.'},
+    {f:'Majetky',b:'Šlechticům, kteří stáli proti císaři, byly <b>zabaveny statky a zámky</b>. Získali je hlavně šlechtici věrní Habsburkům.'},
+    {f:'1627',b:'Ferdinand II. vydal <b>Obnovené zřízení zemské</b>. Jediným povoleným náboženstvím bylo <b>katolické</b>. Němčina měla stejná práva jako čeština a Habsburkové se stali dědičnými českými králi.'},
+    {f:'Exulanti',b:'Kdo nechtěl změnit víru, musel <b>odejít z vlasti</b>. Odešly desetitisíce lidí. Mezi nimi i <b>Jan Amos Komenský</b>, „učitel národů“.'},
+    {f:'1618–1648',b:'Válka, která začala defenestrací, se rozšířila po celé Evropě. Trvala 30 let, proto se jmenuje <b>třicetiletá válka</b>. Skončila až roku 1648.'},
+  ];
+  let opened=new Set();
+  const PICS=[['winter','Zimní král utíká z Prahy'],['crosses','Kříže v dlažbě připomínají popravené'],['castle','Zámky a statky dostali věrní císaře'],['majestat','Nový zákon: Obnovené zřízení zemské'],['exile','Exulanti odcházejí z vlasti'],['war30','Třicet let války']];
+  stage.innerHTML=`
+  <div class="eyebrow">Kapitola 6 · Praha, 1621 a dál</div>
+  <h2>Co přišlo po Bílé hoře</h2>
+  ${winterScene()}
+  ${guide('Praha je smutná a tichá. Na náměstích stojí císařští vojáci. <b>Otoč všech šest karet</b> a zjistíš, jak bitva změnila život v Čechách na dlouhá léta.')}
+  ${cast(['ferdinand','fridrich','komensky'])}
+  <div class="cards">${cards.map((c,i)=>`<button class="flip" data-i="${i}" aria-label="Otočit kartu ${c.f}"><div class="in"><div class="f"><span class="big">${c.f}</span><span class="hint2">klikni a otoč</span></div><div class="b"><div class="bpic">${ILL[PICS[i][0]]()}</div><div>${c.b}</div></div></div></button>`).join('')}</div>
+  <div id="after"></div>`;
+  $('#wkPlay').onclick=()=>runWinter(); setTimeout(()=>{ if(S.scene==='po') runWinter(); },700);
+  document.querySelectorAll('.flip').forEach(b=>b.onclick=()=>{ b.classList.toggle('open'); tone(420,.15,.08,'triangle'); opened.add(+b.dataset.i); if(opened.size===cards.length && !$('#after').innerHTML){ giveSeal('po'); $('#after').innerHTML=`${guide('Máš všech šest pečetí! Teď tě čeká poslední <b>zkouška kronikáře</b>. Stroj času tě přitom vrátí domů do přítomnosti.')}<div class="row"><button class="btn brass" id="nx">Zpět do roku 2026 a ke zkoušce</button></div>`; $('#nx').onclick=()=>travel('zkouska'); } });
+};
+
+/* ---------- ZKOUŠKA ---------- */
+SCENES.zkouska=()=>{
+  setYear(2026);
+  const Q=[
+    {img:'castle',cap:'Noc nad Pražským hradem',q:'Ve kterém městě sídlil císař Rudolf II.?',o:['Ve Vídni','V Praze','V Madridu'],a:1,h:'Hvězdáři Brahe a Kepler pracovali na hradě nad Vltavou.'},
+    {img:'majestat',cap:'Listina s pečetí z roku 1609',q:'Co povoloval Rudolfův majestát z roku 1609?',o:['Svobodu víry','Výrobu zlata','Stavbu hradů'],a:0,h:'Šlo o to, jak smějí lidé věřit v Boha.'},
+    {img:'brothers',cap:'Spor o korunu',q:'Kdo byl Matyáš?',o:['Hvězdář na dvoře','Rudolfův bratr, který ho připravil o trůn','Velitel na Bílé hoře'],a:1,h:'Podívej se na obrázek. Kdo se tu přetahuje o korunu?'},
+    {img:'window',cap:'Let z okna',q:'Kdy byla druhá pražská defenestrace?',o:['23. května 1618','8. listopadu 1620','6. července 1415'],a:0,h:'Stalo se to na jaře. Ze stejného roku je začátek třicetileté války.'},
+    {img:'window',cap:'Kdo letěl z okna?',q:'Kdo byl vyhozen z okna Pražského hradu?',o:['Thurn a Komenský','Martinic, Slavata a písař Fabricius','Rudolf a Matyáš'],a:1,h:'Byli to dva místodržící a jeden písař.'},
+    {img:'vote',cap:'Volba krále',q:'Koho zvolily české stavy roku 1619 králem?',o:['Ferdinanda II.','Jana Jiřího Saského','Fridricha Falckého'],a:2,h:'Byl to mladý evangelík, zeť anglického krále.'},
+    {img:'camp',cap:'Ráno před bitvou',q:'Kdy se odehrála bitva na Bílé hoře?',o:['8. listopadu 1620','23. května 1618','21. června 1621'],a:0,h:'Bylo to na podzim, dva roky po defenestraci.'},
+    {img:'clash',cap:'Boj na Bílé hoře',q:'Kdo bitvu na Bílé hoře prohrál?',o:['Katolická liga','České stavy','Císař Ferdinand II.'],a:1,h:'Vítězem byl Habsburk. Kdo tedy stál proti němu?'},
+    {img:'winter',cap:'Útěk z Prahy',q:'Proč se Fridrichovi říká „zimní král“?',o:['Narodil se v zimě','Vládl jen asi jednu zimu','Měl rád sníh'],a:1,h:'Korunovali ho v listopadu 1619 a za rok už utíkal.'},
+    {img:'war30',cap:'Přesýpací hodiny války',q:'Jaká válka začala defenestrací roku 1618?',o:['Stoletá válka','Husitské války','Třicetiletá válka'],a:2,h:'Spočítej, kolik let je mezi roky 1618 a 1648.'},
+  ];
+  let i=0, score=0;
+  lock('exam');
+  stage.innerHTML=`<div class="eyebrow">Zkouška kronikáře · zpátky v roce 2026</div><h2>Velká zkouška</h2><p>Deset otázek. Za každou správnou odpověď na první pokus dostaneš bod. Když si nevíš rady, zeptej se Jakuba. Postavy ti ale teď nenapoví!</p>${cast(['rudolf','matyas','ferdinand','fridrich','thurn','komensky'])}<div id="qq"></div>`;
+  function show(){
+    const q=Q[i]; let first=true;
+    $('#qq').innerHTML=`<p class="hint">Otázka ${i+1} z ${Q.length} · body: ${score}</p>${illus(q.img,q.cap)}<p class="lead"><b>${q.q}</b></p><div class="choices">${q.o.map((o,k)=>`<button class="choice" data-k="${k}">${o}</button>`).join('')}</div><button class="hintbtn" id="qh">Potřebuješ radu?</button><div id="qn"></div>`;
+    $('#qh').onclick=()=>{ $('#qh').outerHTML=`<div class="hinttxt"><b>Rada od Jakuba:</b> ${q.h}</div>`; tone(880,.2,.08,'triangle'); };
+    document.querySelectorAll('#qq .choice').forEach(b=>b.onclick=()=>{ const k=+b.dataset.k; if(k===q.a){ if(first)score++; b.classList.add('right'); chime(); document.querySelectorAll('#qq .choice').forEach(x=>x.disabled=true); const qh=$('#qh'); if(qh) qh.remove(); $('#qn').innerHTML=`<div class="row"><button class="btn" id="qnx">${i<Q.length-1?'Další otázka':'Zobrazit výsledek'}</button></div>`; $('#qnx').onclick=()=>{ i++; i<Q.length?show():cert(); }; } else { first=false; b.classList.add('wrong'); b.disabled=true; buzz(); } });
+  }
+  function cert(){
+    unlock('exam');
+    S.quizScore=score;
+    const rank= score>=9?'Mistr kronikář Bílé hory': score>=6?'Kronikář Bílé hory':'Učeň kronikáře';
+    const nm=S.name||'Neznámý cestovatel';
+    stage.innerHTML=`<div class="eyebrow">Výprava dokončena</div>
+    <div class="cert">
+      <div class="eyebrow">Listina vydaná na Pražském hradě</div>
+      <h2>${rank}</h2>
+      <p style="margin:0 auto">Tímto se potvrzuje, že</p>
+      <div class="name">${esc(nm)}</div>
+      <p style="margin:0 auto .6em">cestoval(a) časem do let 1609–1621, získal(a) <b>${S.seals.length} ze 6 pečetí</b> a ve zkoušce dosáhl(a) <b>${score} z ${Q.length} bodů</b>.</p>
+      <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap">${CH.map((c,i)=>`<span class="certseal"><span class="seal stampin ${S.seals.includes(c.id)?'got':''}" style="animation-delay:${.3+i*.25}s"><svg viewBox="0 0 20 20" fill="currentColor">${SEAL_ICON[c.id]}</svg></span><small>${c.name}</small></span>`).join('')}</div>
+      <p style="margin:.8em auto 0;font-style:italic">Podepsán Jakub, písař z Pražského hradu</p>
+    </div>
+    <div class="fact"><b>Zapamatuj si:</b> Rudolf II. (Praha, Rudolfův majestát 1609) → Matyáš (1611, dvůr do Vídně) → defenestrace <b>23. 5. 1618</b> → stavy volí <b>Fridricha Falckého</b> (1619) → <b>Bílá hora 8. 11. 1620</b>, stavy prohrály → poprava 27 pánů (1621) → třicetiletá válka do 1648.</div>
+    <div class="row"><button class="btn ghost" id="again">Zkusit zkoušku znovu</button><button class="btn brass" id="restart">Nová výprava od začátku</button></div>`;
+    chime(); drum();
+    $('#again').onclick=()=>SCENES.zkouska();
+    $('#restart').onclick=()=>{ S.seals=[]; renderSeals(); travel('intro'); };
+  }
+  show();
+};
+
+/* ================= START ================= */
+function start(d){ if(d&&d.S) S=Object.assign(S,d.S); renderSeals(); go(S.scene||'intro'); }
+window.claude?.hot?.snapshot?.(()=>({S}));
+window.claude?.hot?.ready ? window.claude.hot.ready(start) : start(window.claude?.hot?.data ?? {});
+</script>
+
+</body>
+</html>
