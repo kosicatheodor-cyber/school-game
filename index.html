@@ -111,18 +111,32 @@ header{display:flex;align-items:center;gap:20px;padding:6px 0 16px;margin-bottom
 /* menu her */
 .games h2{font-size:34px;margin-bottom:14px;color:var(--green)}
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px;list-style:none;margin:0;padding:0}
-.card{display:flex;flex-direction:column;height:100%;overflow:hidden;text-decoration:none;background:var(--panel);border:2px solid var(--line);border-top:6px solid var(--blue);border-radius:16px;transition:border-color .15s,transform .15s}
+.card{display:flex;flex-direction:column;height:100%;overflow:hidden;background:var(--panel);border:2px solid var(--line);border-top:6px solid var(--blue);border-radius:16px;transition:border-color .15s,transform .15s}
+.card .link{display:flex;flex-direction:column;flex:1;text-decoration:none;color:inherit}
 .card .thumb{position:relative;aspect-ratio:16/10;overflow:hidden;background:var(--blueSoft);border-bottom:2px solid var(--line)}
 .card .thumb img{display:block;width:100%;height:100%;object-fit:cover;object-position:top;transition:transform .3s}
 .card:hover .thumb img{transform:scale(1.04)}
 .card .thumb iframe{position:absolute;top:0;left:0;width:1200px;height:750px;border:0;transform-origin:0 0;pointer-events:none;background:#fff}
 .card .body{display:flex;flex-direction:column;gap:6px;flex:1;padding:14px 20px 16px}
-.grid li:nth-child(even) .card{border-top-color:var(--green)}
+.grid li.card:nth-child(even){border-top-color:var(--green)}
 .card:hover{border-color:var(--blue);transform:translateY(-3px)}
 .card b{font-family:"Baloo 2","Nunito",sans-serif;font-size:26px;line-height:1.1}
 .card span{color:var(--muted);font-size:15px}
 .card .go{margin-top:auto;padding-top:8px;color:var(--green);font-weight:800}
 .status{color:var(--muted)}
+
+/* hodnocení her */
+.rate{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:4px 10px;padding:10px 16px 12px 20px;border-top:2px dashed var(--line)}
+.stars{display:flex}
+.stars button{border:0;background:none;padding:0 1px;font-size:23px;line-height:1;color:var(--line);cursor:pointer;transition:transform .1s}
+.stars button.on{color:#f2b705}
+.stars:hover button{color:#f2b705}
+.stars button:hover ~ button{color:var(--line)}
+.stars button:hover{transform:scale(1.2)}
+.stars button:focus-visible{outline:3px solid var(--green);outline-offset:1px;border-radius:6px}
+.stars:disabled,.stars[aria-busy="true"]{opacity:.5}
+.card .rate .avg{font-weight:800;font-size:15px;white-space:nowrap}
+.card .rate .avg.thanks{color:var(--green)}
 </style>
 </head>
 <body>
@@ -334,6 +348,79 @@ async function describe(file) {
   }
 }
 
+// Hodnocení her: společné pro všechny návštěvníky, ukládá se přes /api/hodnoceni.
+// Když databáze není připojená (nebo web běží lokálně), hvězdičky se neukážou.
+const MY_VOTES = 'hodnoceni-moje';
+function myVotes() {
+  try { return JSON.parse(localStorage.getItem(MY_VOTES)) || {}; } catch { return {}; }
+}
+function saveMyVote(game, stars) {
+  try { localStorage.setItem(MY_VOTES, JSON.stringify({ ...myVotes(), [game]: stars })); } catch {}
+}
+
+async function loadRatings() {
+  try {
+    const res = await fetch('/api/hodnoceni');
+    if (!res.ok) return null;
+    return await res.json();
+  } catch { return null; }
+}
+
+function avgText(r) {
+  if (!r || !r.count) return 'Zatím bez hodnocení';
+  const votes = r.count === 1 ? 'hlas' : r.count < 5 ? 'hlasy' : 'hlasů';
+  return '★ ' + r.avg.toLocaleString('cs') + ' (' + r.count + ' ' + votes + ')';
+}
+
+function rating(game, title, current) {
+  const box = document.createElement('div');
+  box.className = 'rate';
+  const stars = document.createElement('div');
+  stars.className = 'stars';
+  stars.setAttribute('role', 'group');
+  stars.setAttribute('aria-label', 'Ohodnoť hru ' + title);
+  const avg = document.createElement('span');
+  avg.className = 'avg';
+  avg.textContent = avgText(current);
+
+  const mark = n => stars.querySelectorAll('button').forEach((btn, i) => {
+    btn.classList.toggle('on', i < n);
+    btn.setAttribute('aria-pressed', String(i < n && i === n - 1));
+  });
+
+  for (let n = 1; n <= 5; n++) {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.textContent = '★';
+    btn.setAttribute('aria-label', n + (n === 1 ? ' hvězdička' : n < 5 ? ' hvězdičky' : ' hvězdiček'));
+    btn.addEventListener('click', async () => {
+      stars.setAttribute('aria-busy', 'true');
+      try {
+        const res = await fetch('/api/hodnoceni', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ game, stars: n }),
+        });
+        if (!res.ok) throw new Error();
+        const r = await res.json();
+        saveMyVote(game, n);
+        mark(n);
+        avg.textContent = 'Díky!';
+        avg.classList.add('thanks');
+        setTimeout(() => { avg.textContent = avgText(r); avg.classList.remove('thanks'); }, 1500);
+      } catch {
+        avg.textContent = 'Nepovedlo se, zkus to znovu';
+      } finally {
+        stars.removeAttribute('aria-busy');
+      }
+    });
+    stars.append(btn);
+  }
+  mark(myVotes()[game] || 0);
+  box.append(stars, avg);
+  return box;
+}
+
 async function buildMenu() {
   const status = document.getElementById('status');
   const list = document.getElementById('games');
@@ -347,12 +434,13 @@ async function buildMenu() {
   files = [...new Map(files.map(f => [f.normalize("NFC"), f])).values()];
   if (!files.length) { status.textContent = 'Zatím tu nejsou žádné hry.'; return; }
 
-  const games = await Promise.all(files.map(describe));
+  const [games, ratings] = await Promise.all([Promise.all(files.map(describe)), loadRatings()]);
   games.sort((a, b) => a.title.localeCompare(b.title, 'cs'));
   for (const g of games) {
     const li = document.createElement('li');
+    li.className = 'card';
     const a = document.createElement('a');
-    a.className = 'card';
+    a.className = 'link';
     a.href = g.href;
     a.append(preview(g.file, g.href));
     const body = document.createElement('div'); body.className = 'body';
@@ -360,7 +448,9 @@ async function buildMenu() {
     if (g.desc) { const s = document.createElement('span'); s.textContent = g.desc; body.append(s); }
     const go = document.createElement('span'); go.className = 'go'; go.textContent = 'Hrát →'; body.append(go);
     a.append(body);
-    li.append(a); list.append(li);
+    li.append(a);
+    if (ratings) li.append(rating(slug(g.file), g.title, ratings[slug(g.file)]));
+    list.append(li);
   }
   status.remove();
 }
