@@ -31,10 +31,7 @@ a{color:inherit}
 a:focus-visible{outline:3px solid var(--green);outline-offset:3px}
 
 header{display:flex;align-items:center;gap:20px;padding:6px 0 16px;margin-bottom:36px;border-bottom:4px solid;border-image:linear-gradient(90deg,var(--blue),var(--green)) 1}
-header h1{font-size:clamp(30px,6vw,48px);color:var(--blue)}
-header h1 span{color:var(--green)}
-.logo{width:clamp(120px,22vw,176px);height:auto;flex:none}
-@media (max-width:480px){header{flex-direction:column;align-items:flex-start;gap:8px}}
+.logo{display:block;width:clamp(120px,22vw,176px);height:auto}
 
 /* medailonek */
 .profile{display:grid;grid-template-columns:260px minmax(0,1fr);gap:44px;align-items:center;margin:0 0 52px}
@@ -58,7 +55,7 @@ header h1 span{color:var(--green)}
 .bart .bubble{position:absolute;right:62%;top:-6px;white-space:nowrap;background:var(--panel);color:var(--ink);border:2px solid var(--blue);border-radius:14px;padding:4px 10px;font-weight:800;font-size:15px;opacity:0;transform:translateY(6px);transition:opacity .2s,transform .2s;pointer-events:none}
 .bart:hover .bubble,.bart.say .bubble{opacity:1;transform:none}
 .bart .wheel{transform-box:fill-box;transform-origin:center;animation:spin .45s linear 4}
-.bart .tail{transform-box:fill-box;transform-origin:0% 100%;animation:wag .5s ease-in-out infinite alternate}
+.bart .tail{transform-box:fill-box;transform-origin:0% 90%;animation:wag .5s ease-in-out infinite alternate}
 .bart .lids{transform-box:fill-box;transform-origin:center;animation:blink 4s infinite}
 .bart .tongue{transform-box:fill-box;transform-origin:top;animation:pant .35s ease-in-out infinite alternate}
 .bart .dog{animation:bob 1.6s ease-in-out 1.8s infinite}
@@ -86,8 +83,7 @@ header h1 span{color:var(--green)}
 <body>
 <div class="wrap">
   <header>
-    <img class="logo" src="img/logo-tj.svg" alt="TJ" width="262" height="120">
-    <h1>Theodorovy <span>hry</span></h1>
+    <h1><img class="logo" src="img/logo-tj.svg" alt="TJ – Theodor" width="262" height="120"></h1>
   </header>
 
   <section class="profile" aria-labelledby="who">
@@ -128,39 +124,40 @@ header h1 span{color:var(--green)}
   <svg viewBox="0 0 170 160" aria-label="Pes Bart na skateboardu" role="img">
     <g class="dog">
       <!-- ocas -->
-      <path class="tail" d="M116 114c18-2 34-18 38-42c-6-2-12 2-14 6c-8 12-16 18-28 22z" fill="#b8742c"/>
+      <g class="tail"><path d="M150.2,81.1 Q153.8,91.4 149.8,101.0 Q148.7,113.4 142.4,114.4 Q137.3,121.7 132.5,113.6 Q126.3,111.4 125.8,98.9 Q122.2,88.6 126.2,79.0 Q127.3,66.6 133.6,65.6 Q138.7,58.3 143.5,66.4 Q149.7,68.6 150.2,81.1Z" fill="#8a5530"/><path d="M146.5,84.8 Q149.0,93.1 146.2,100.9 Q145.4,110.9 141.1,111.7 Q137.5,117.6 134.2,111.0 Q129.9,109.3 129.5,99.2 Q127.0,90.9 129.8,83.1 Q130.6,73.1 134.9,72.3 Q138.5,66.4 141.8,73.0 Q146.1,74.7 146.5,84.8Z" fill="#3b2418"/></g>
       <!-- tělo -->
-      <ellipse cx="86" cy="112" rx="40" ry="28" fill="#c9893a"/>
-      <ellipse cx="86" cy="102" rx="24" ry="26" fill="#e3ad62"/>
+      <path d="M132.0,112.0 Q135.3,119.8 127.4,125.9 Q125.6,133.9 114.7,137.0 Q108.0,143.7 96.2,143.2 Q86.0,147.2 75.8,143.2 Q64.0,143.7 57.3,137.0 Q46.4,133.9 44.6,125.9 Q36.7,119.8 40.0,112.0 Q36.7,104.2 44.6,98.1 Q46.4,90.1 57.3,87.0 Q64.0,80.3 75.8,80.8 Q86.0,76.8 96.2,80.8 Q108.0,80.3 114.7,87.0 Q125.6,90.1 127.4,98.1 Q135.3,104.2 132.0,112.0Z" fill="#8a5530"/>
+      <path d="M127.1,118.0 Q127.9,125.4 119.2,129.7 Q115.3,136.6 104.8,137.9 Q97.0,143.0 86.6,141.0 Q76.4,143.2 68.3,138.3 Q57.7,137.2 53.6,130.4 Q44.7,126.3 45.2,118.9 Q39.8,112.5 44.9,106.0 Q44.1,98.6 52.8,94.3 Q56.7,87.4 67.2,86.1 Q75.0,81.0 85.4,83.0 Q95.6,80.8 103.7,85.7 Q114.3,86.8 118.4,93.6 Q127.3,97.7 126.8,105.1 Q132.2,111.5 127.1,118.0Z" fill="#3b2418"/>
       <!-- přední tlapy -->
-      <rect x="66" y="108" width="13" height="28" rx="6" fill="#c9893a"/>
-      <rect x="93" y="108" width="13" height="28" rx="6" fill="#c9893a"/>
-      <ellipse cx="72" cy="136" rx="9" ry="5" fill="#a96526"/>
-      <ellipse cx="100" cy="136" rx="9" ry="5" fill="#a96526"/>
-      <!-- obojek -->
-      <path d="M64 84q22 12 44 0" fill="none" stroke="#2563c9" stroke-width="6" stroke-linecap="round"/>
-      <circle cx="86" cy="94" r="6" fill="#f2c94c" stroke="#b8862b" stroke-width="1.5"/>
-      <text x="86" y="97" text-anchor="middle" font-family="Arial,sans-serif" font-size="8" font-weight="700" fill="#7a5512">B</text>
-      <!-- hříva -->
-      <circle cx="86" cy="56" r="35" fill="#b8742c"/>
-      <circle cx="62" cy="40" r="12" fill="#b8742c"/><circle cx="110" cy="40" r="12" fill="#b8742c"/>
-      <circle cx="56" cy="64" r="12" fill="#b8742c"/><circle cx="116" cy="64" r="12" fill="#b8742c"/>
-      <!-- uši -->
-      <path d="M58 40c-10 4-12 22-4 30c6-6 10-16 10-26z" fill="#5a3416"/>
-      <path d="M114 40c10 4 12 22 4 30c-6-6-10-16-10-26z" fill="#5a3416"/>
-      <!-- hlava -->
-      <ellipse cx="86" cy="56" rx="27" ry="26" fill="#d4974a"/>
-      <!-- černá maska -->
-      <path d="M68 52q18-8 36 0l-2 26q-16 10-32 0z" fill="#3a2414" opacity=".85"/>
-      <ellipse cx="86" cy="70" rx="15" ry="11" fill="#2a1a10"/>
+      <rect x="63" y="106" width="16" height="32" rx="8" fill="#4f301e"/>
+      <rect x="93" y="106" width="16" height="32" rx="8" fill="#4f301e"/>
+      <ellipse cx="71" cy="137" rx="10" ry="5" fill="#3b2418"/>
+      <ellipse cx="101" cy="137" rx="10" ry="5" fill="#3b2418"/>
+      <!-- hrudník -->
+      <path d="M109.2,103.7 Q108.0,112.1 99.8,116.0 Q93.0,121.8 83.9,119.9 Q74.6,120.3 69.0,113.6 Q61.6,108.4 62.1,99.9 Q60.0,91.6 66.3,85.4 Q70.6,77.8 79.8,76.7 Q88.3,73.5 96.1,78.1 Q105.0,80.6 107.8,88.7 Q112.8,95.9 109.2,103.7Z" fill="#4f301e"/>
+      <path d="M78 90l-2 18M86 92v20M94 90l2 18" stroke="#8a5530" stroke-width="1.6" stroke-linecap="round" opacity=".7"/>
+      <!-- hlava – huňatá hříva -->
+      <path d="M130.0,56.0 Q134.3,64.7 126.7,71.3 Q127.0,80.9 117.1,84.3 Q113.4,93.2 102.8,93.0 Q95.6,99.9 86.0,96.0 Q76.4,99.9 69.2,93.0 Q58.6,93.2 54.9,84.3 Q45.0,80.9 45.3,71.3 Q37.7,64.7 42.0,56.0 Q37.7,47.3 45.3,40.7 Q45.0,31.1 54.9,27.7 Q58.6,18.8 69.2,19.0 Q76.4,12.1 86.0,16.0 Q95.6,12.1 102.8,19.0 Q113.4,18.8 117.1,27.7 Q127.0,31.1 126.7,40.7 Q134.3,47.3 130.0,56.0Z" fill="#8a5530"/>
+      <path d="M125.3,64.1 Q127.5,72.7 119.4,77.4 Q117.8,86.2 108.4,87.7 Q103.3,95.2 94.0,93.3 Q86.2,98.4 78.4,93.3 Q69.0,95.4 63.9,87.9 Q54.5,86.4 52.8,77.7 Q44.7,73.0 46.8,64.4 Q41.2,57.2 46.7,49.9 Q44.5,41.3 52.6,36.6 Q54.2,27.8 63.6,26.3 Q68.7,18.8 78.0,20.7 Q85.8,15.6 93.6,20.7 Q103.0,18.6 108.1,26.1 Q117.5,27.6 119.2,36.3 Q127.3,41.0 125.2,49.6 Q130.8,56.8 125.3,64.1Z" fill="#3b2418"/>
+      <!-- uši schované v srsti -->
+      <path d="M63.0,66.0 Q63.4,78.6 57.5,84.2 Q52.0,91.2 46.5,84.2 Q40.6,78.6 41.0,66.0 Q40.6,53.4 46.5,47.8 Q52.0,40.8 57.5,47.8 Q63.4,53.4 63.0,66.0Z" fill="#4f301e"/>
+      <path d="M131.0,66.0 Q131.4,78.6 125.5,84.2 Q120.0,91.2 114.5,84.2 Q108.6,78.6 109.0,66.0 Q108.6,53.4 114.5,47.8 Q120.0,40.8 125.5,47.8 Q131.4,53.4 131.0,66.0Z" fill="#4f301e"/>
+      <!-- obličej -->
+      <ellipse cx="86" cy="60" rx="27" ry="25" fill="#4f301e"/>
+      <ellipse cx="86" cy="66" rx="20" ry="17" fill="#24160f"/>
+      <!-- světlé skvrny nad očima -->
+      <ellipse cx="74" cy="47" rx="5" ry="3.2" fill="#9a6338"/>
+      <ellipse cx="98" cy="47" rx="5" ry="3.2" fill="#9a6338"/>
       <!-- oči -->
-      <circle cx="76" cy="52" r="4" fill="#ffffff"/><circle cx="96" cy="52" r="4" fill="#ffffff"/>
-      <circle cx="77" cy="52.5" r="2.4" fill="#111"/><circle cx="97" cy="52.5" r="2.4" fill="#111"/>
-      <g class="lids" fill="#3a2414"><rect x="71" y="47" width="10" height="10" rx="5"/><rect x="91" y="47" width="10" height="10" rx="5"/></g>
+      <circle cx="75" cy="54" r="3.2" fill="#0b0705"/><circle cx="97" cy="54" r="3.2" fill="#0b0705"/>
+      <circle cx="76" cy="53" r="1" fill="#ffffff" opacity=".8"/><circle cx="98" cy="53" r="1" fill="#ffffff" opacity=".8"/>
+      <g class="lids" fill="#4f301e"><rect x="70.5" y="49.5" width="9" height="9" rx="4.5"/><rect x="92.5" y="49.5" width="9" height="9" rx="4.5"/></g>
       <!-- čumák a jazyk -->
-      <ellipse cx="86" cy="64" rx="6" ry="4.2" fill="#000"/>
-      <path d="M80 73q6 5 12 0" fill="none" stroke="#000" stroke-width="2" stroke-linecap="round"/>
-      <path class="tongue" d="M82 75h8v6a4 4 0 0 1-8 0z" fill="#ec6f84"/>
+      <ellipse cx="86" cy="66" rx="7.5" ry="5" fill="#000"/>
+      <ellipse cx="84" cy="64.5" rx="2" ry="1" fill="#ffffff" opacity=".35"/>
+      <path d="M78 76q8 5 16 0" fill="none" stroke="#000" stroke-width="2" stroke-linecap="round"/>
+      <path class="tongue" d="M80 77h12v10a6 6 0 0 1-12 0z" fill="#e07a8a"/>
+      <path class="tongue" d="M86 79v7" stroke="#c45f70" stroke-width="1.2" stroke-linecap="round"/>
     </g>
     <!-- skateboard -->
     <path d="M18 140h134a8 8 0 0 1-8 8H26a8 8 0 0 1-8-8z" fill="#22994f"/>
