@@ -1,0 +1,1107 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Cesta dějinami</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Alegreya:wght@700;800;900&family=Alegreya+Sans:wght@400;500;700;800&display=swap&subset=latin-ext" rel="stylesheet">
+<style>
+:root{
+  --bg:#e6ede3; --panel:#fbfaf5; --ink:#1f2c35; --muted:#5d6b73; --line:#c9d3c6;
+  --good:#3d7a3f; --bad:#b23a30; --gold:#b8862b; --accent:#a8322d;
+  --btn:#1f2c35; --btnInk:#fbfaf5;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#172026; --panel:#212d34; --ink:#eef1ea; --muted:#9fb0b6; --line:#35454d;
+    --good:#7cc47e; --bad:#ef7b6f; --gold:#e3b456; --btn:#eef1ea; --btnInk:#172026;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#172026; --panel:#212d34; --ink:#eef1ea; --muted:#9fb0b6; --line:#35454d;
+  --good:#7cc47e; --bad:#ef7b6f; --gold:#e3b456; --btn:#eef1ea; --btnInk:#172026;
+}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*,*::before,*::after{box-sizing:inherit}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Alegreya Sans","Trebuchet MS",Arial,sans-serif;font-size:18px;line-height:1.5}
+.wrap{max-width:980px;margin:0 auto;padding:16px 16px 48px}
+h1,h2,h3{font-family:"Alegreya",Georgia,serif;font-weight:900;line-height:1.08;margin:0}
+button{font:inherit;color:inherit;cursor:pointer}
+button:focus-visible,input:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+.muted{color:var(--muted)}
+.primary{background:var(--btn);color:var(--btnInk);border:0;padding:13px 24px;font-weight:800;font-size:18px;border-radius:999px}
+.primary:disabled{opacity:.35;cursor:not-allowed}
+.ghost{background:transparent;border:2px solid var(--line);padding:9px 16px;border-radius:999px;font-weight:700}
+.ghost:hover{border-color:var(--ink)}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+
+/* top bar */
+.top{display:flex;align-items:center;gap:14px;flex-wrap:wrap;padding:8px 0 14px;border-bottom:3px solid var(--ink);margin-bottom:20px}
+.top .me{display:flex;align-items:center;gap:10px;margin-right:auto}
+.top .me svg{width:44px;height:62px}
+.top .me b{font-family:"Alegreya",Georgia,serif;font-size:24px}
+.hp{min-width:150px}
+.hp .lbl{font-size:14px;font-weight:700}
+.hp .track{height:12px;background:var(--line);border-radius:6px;overflow:hidden}
+.hp .fill{height:100%;background:var(--bad);transition:width .4s}
+.money{display:flex;align-items:center;gap:6px;font-weight:800;font-size:19px}
+.coin{width:24px;height:24px;flex:none}
+
+/* creator */
+.hero{display:grid;grid-template-columns:260px 1fr;gap:28px;align-items:start}
+@media (max-width:720px){.hero{grid-template-columns:1fr}}
+.stage{background:var(--panel);border:2px solid var(--line);border-radius:20px;padding:16px;display:flex;justify-content:center;position:sticky;top:12px}
+.stage svg{width:200px;height:280px}
+@media (max-width:720px){.stage{position:static}.stage svg{width:150px;height:210px}}
+.title{font-size:clamp(46px,9vw,88px);letter-spacing:-.02em;margin:10px 0 6px}
+.lead{max-width:52ch;color:var(--muted);margin:0 0 20px;font-size:19px}
+.opt{margin-bottom:16px}
+.opt h3{font-family:"Alegreya Sans",sans-serif;font-weight:800;font-size:16px;margin-bottom:6px}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{border:2px solid var(--line);background:var(--panel);padding:7px 14px;border-radius:999px;font-weight:700;font-size:16px}
+.chip[aria-pressed="true"]{border-color:var(--ink);background:var(--ink);color:var(--panel)}
+.sw{width:38px;height:38px;border-radius:50%;border:3px solid var(--panel);box-shadow:0 0 0 2px var(--line);padding:0}
+.sw[aria-pressed="true"]{box-shadow:0 0 0 3px var(--ink)}
+input[type=text]{font:inherit;font-size:20px;background:var(--panel);color:var(--ink);border:2px solid var(--line);padding:10px 14px;border-radius:12px;width:100%;max-width:340px}
+
+/* map */
+.timeline{position:relative;padding-left:34px;margin-top:10px}
+.timeline::before{content:"";position:absolute;left:13px;top:8px;bottom:8px;width:4px;background:var(--line);border-radius:2px}
+.era{position:relative;display:flex;gap:14px;align-items:center;width:100%;text-align:left;background:var(--panel);border:2px solid var(--line);border-radius:16px;padding:14px 16px;margin-bottom:12px}
+.era::before{content:"";position:absolute;left:-29px;top:50%;width:18px;height:18px;border-radius:50%;background:var(--c);border:3px solid var(--bg);transform:translateY(-50%)}
+.era:not(:disabled):hover{border-color:var(--c)}
+.era:disabled{opacity:.5;cursor:not-allowed}
+.era .yr{font-size:14px;font-weight:700;color:var(--muted)}
+.era h3{font-size:24px}
+.era .st{margin-left:auto;font-weight:800;font-size:15px;white-space:nowrap;color:var(--c)}
+.era.cur{border-color:var(--c);box-shadow:inset 6px 0 0 var(--c)}
+
+/* era hub */
+.band{background:var(--c);color:#fff;border-radius:20px;padding:22px 22px 20px;margin-bottom:18px;position:relative;overflow:hidden}
+.band h2{font-size:clamp(36px,6vw,56px)}
+.band p{margin:6px 0 0;max-width:60ch;opacity:.95}
+.band .yr{font-weight:800;opacity:.85}
+.cur-note{display:flex;gap:14px;align-items:flex-start;background:var(--panel);border:2px dashed var(--c);border-radius:16px;padding:14px 16px;margin-bottom:18px}
+.cur-note .coin{width:44px;height:44px}
+.tasks{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
+.task{text-align:left;background:var(--panel);border:2px solid var(--line);border-radius:18px;padding:18px;display:flex;flex-direction:column;gap:6px;min-height:150px}
+.task:hover{border-color:var(--c)}
+.task .ic{font-size:34px;line-height:1}
+.task h3{font-size:24px}
+.task .s{margin-top:auto;font-weight:800;font-size:15px}
+.task.done{border-color:var(--good)}
+.task.done .s{color:var(--good)}
+
+/* card */
+.card{background:var(--panel);border:2px solid var(--line);border-radius:20px;padding:24px}
+.card h2{font-size:clamp(30px,5vw,42px);margin-bottom:10px}
+.big{font-size:22px;line-height:1.5;max-width:56ch;margin:0 0 18px}
+.prog{display:flex;gap:6px;margin-bottom:14px}
+.prog i{flex:1;height:8px;border-radius:4px;background:var(--line)}
+.prog i.on{background:var(--c)}
+.answers{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media (max-width:560px){.answers{grid-template-columns:1fr}}
+.ans{border:2px solid var(--line);background:var(--bg);border-radius:14px;padding:14px 16px;text-align:left;font-weight:700;font-size:18px}
+.ans:not(:disabled):hover{border-color:var(--ink)}
+.ans.good{border-color:var(--good);background:color-mix(in srgb,var(--good) 20%,var(--panel))}
+.ans.bad{border-color:var(--bad);background:color-mix(in srgb,var(--bad) 18%,var(--panel))}
+.ans.gone{visibility:hidden}
+.ans:disabled{cursor:default}
+.fb{border-radius:14px;padding:14px 16px;margin:16px 0;max-width:62ch}
+.fb.g{background:color-mix(in srgb,var(--good) 16%,transparent)}
+.fb.b{background:color-mix(in srgb,var(--bad) 14%,transparent)}
+.slots{display:flex;flex-direction:column;gap:8px;margin-bottom:16px}
+.slot{display:flex;align-items:center;gap:12px;border:2px dashed var(--line);border-radius:14px;padding:10px 14px;min-height:54px;background:transparent;text-align:left;width:100%}
+.slot.full{border-style:solid;border-color:var(--c);background:var(--bg)}
+.slot .n{font-family:"Alegreya",Georgia,serif;font-weight:900;font-size:24px;width:28px;color:var(--c)}
+.slot .y{margin-left:auto;font-size:15px;color:var(--muted);font-weight:700}
+.slot.ok{border-color:var(--good);background:color-mix(in srgb,var(--good) 14%,var(--panel))}
+.slot.no{border-color:var(--bad);background:color-mix(in srgb,var(--bad) 12%,var(--panel))}
+.pool{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px}
+.pool button{border:2px solid var(--ink);background:var(--panel);border-radius:999px;padding:9px 16px;font-weight:800}
+
+/* shop */
+.shopgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px}
+.item{background:var(--panel);border:2px solid var(--line);border-radius:16px;padding:14px;display:flex;flex-direction:column;gap:4px}
+.item .ic{font-size:30px}
+.item b{font-size:18px}
+.item .d{font-size:15px;color:var(--muted)}
+.item .buy{margin-top:auto;display:flex;justify-content:space-between;align-items:center;gap:8px;padding-top:8px}
+.item .buy button{border:0;background:var(--btn);color:var(--btnInk);border-radius:999px;padding:7px 14px;font-weight:800}
+.item .buy button:disabled{opacity:.35;cursor:not-allowed}
+.sect{font-size:26px;margin:22px 0 10px}
+
+.toast{position:fixed;left:50%;bottom:calc(22px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--btn);color:var(--btnInk);padding:12px 22px;border-radius:999px;font-weight:800;z-index:20;box-shadow:0 6px 24px rgba(0,0,0,.25);max-width:90vw;text-align:center}
+.pop{animation:pop .45s}
+@keyframes pop{0%{transform:scale(.85)}60%{transform:scale(1.05)}100%{transform:scale(1)}}
+.shake{animation:sh .4s}
+@keyframes sh{20%{transform:translateX(-7px)}40%{transform:translateX(6px)}60%{transform:translateX(-4px)}80%{transform:translateX(2px)}}
+@media (prefers-reduced-motion:reduce){.pop,.shake{animation:none}.hp .fill{transition:none}}
+.foot{margin-top:30px;font-size:14px;color:var(--muted);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px}
+.foot button{background:none;border:0;color:var(--muted);text-decoration:underline;padding:0}
+.hp.low .lbl{color:var(--bad)}
+.hp.low .track{animation:blink 1s infinite}
+@keyframes blink{50%{opacity:.35}}
+.confetti{position:fixed;inset:0;pointer-events:none;overflow:hidden;z-index:15}
+.confetti i{position:absolute;top:-20px;width:10px;height:16px;border-radius:2px;animation:fall linear infinite}
+@keyframes fall{to{top:110%;transform:translateX(60px) rotate(720deg)}}
+.win{text-align:center}
+.trophy svg{width:150px;height:150px;animation:bob 2s ease-in-out infinite}
+@keyframes bob{50%{transform:translateY(-10px)}}
+.wintitle{font-size:clamp(52px,10vw,96px);color:var(--gold);margin:6px 0 8px}
+.diploma{display:flex;gap:22px;align-items:center;text-align:left;max-width:640px;margin:0 auto;background:var(--panel);border:4px double var(--gold);border-radius:18px;padding:22px 24px}
+@media (max-width:560px){.diploma{flex-direction:column;text-align:center}}
+.diploma .dav{width:130px;flex:none}
+.diploma .dl{font-family:"Alegreya",Georgia,serif;font-weight:900;font-size:15px;letter-spacing:.2em;text-transform:uppercase;color:var(--gold)}
+.diploma h3{font-size:32px;margin:2px 0 8px}
+.diploma p{margin:0}
+.dstats{display:flex;flex-wrap:wrap;gap:8px 18px;margin-top:12px;font-size:16px}
+@media (prefers-reduced-motion:reduce){.confetti{display:none}.trophy svg{animation:none}.hp.low .track{animation:none}}
+.starve{background:var(--bad);color:#fff;font-weight:800;border-radius:14px;padding:10px 16px;margin:-8px 0 16px;display:flex;gap:12px;align-items:center;flex-wrap:wrap;animation:blink 1.2s infinite}
+.starve button{border:0;background:#fff;color:var(--bad);border-radius:999px;padding:6px 14px;font-weight:800}
+@media (prefers-reduced-motion:reduce){.starve{animation:none}}
+/* šatník */
+.shop{display:grid;grid-template-columns:230px minmax(0,1fr);gap:22px;align-items:start}
+.preview{position:sticky;top:12px;background:var(--panel);border:2px solid var(--line);border-radius:20px;padding:14px}
+.preview .pv svg{width:100%;height:auto;display:block}
+.trybox{display:flex;flex-direction:column;gap:8px;align-items:stretch;text-align:center;margin-top:6px}
+.trybox .primary{padding:10px}
+@media (max-width:720px){.shop{grid-template-columns:1fr}.preview{top:0;z-index:5;display:grid;grid-template-columns:120px 1fr;gap:10px;align-items:center;padding:10px}.preview .pv{grid-row:span 3}.preview>button{margin-top:0!important}}
+.tabs{margin-bottom:16px}
+.wardgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(128px,1fr));gap:10px}
+.ward{background:var(--panel);border:2px solid var(--line);border-radius:16px;padding:8px 8px 10px;display:flex;flex-direction:column;align-items:center;gap:2px;text-align:center}
+.ward:hover{border-color:var(--ink)}
+.ward.on{border-color:var(--good);box-shadow:inset 0 0 0 2px var(--good)}
+.ward.try{border-color:var(--gold);box-shadow:inset 0 0 0 2px var(--gold)}
+.ward .mini svg{width:100%;height:auto;display:block}
+.ward b{font-size:15px;line-height:1.2}
+.ward .tag{font-size:13px;font-weight:800;color:var(--muted)}
+.ward .tag.price{color:var(--gold)}
+.ward.on .tag{color:var(--good)}
+.top .me svg{width:62px;height:62px}
+.stage svg{width:260px;height:260px}
+@media (max-width:720px){.stage svg{width:200px;height:200px}}
+.task.locked{border-style:dashed}
+.task.bonus{background:color-mix(in srgb,var(--c) 7%,var(--panel))}
+.pex{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+@media (max-width:560px){.pex{grid-template-columns:repeat(3,1fr)}}
+.pc{min-height:86px;border-radius:14px;border:2px solid var(--c);background:var(--c);color:#fff;font-weight:800;font-size:16px;padding:8px;display:flex;align-items:center;justify-content:center;text-align:center;transition:transform .2s}
+.pc .q{font-family:"Alegreya",Georgia,serif;font-size:36px;opacity:.9}
+.pc.up{background:var(--panel);color:var(--ink)}
+.pc.up.y{background:color-mix(in srgb,var(--gold) 16%,var(--panel))}
+.pc.done{border-color:var(--good);background:color-mix(in srgb,var(--good) 18%,var(--panel));opacity:.8}
+.tfy{border-color:var(--good);text-align:center;font-size:20px}
+.tfn{border-color:var(--bad);text-align:center;font-size:20px}
+.gap{display:inline-block;min-width:60px;border-bottom:3px solid var(--c);text-align:center;font-weight:800;color:var(--c)}
+.clue{display:flex;flex-direction:column;gap:2px;background:color-mix(in srgb,var(--c) 12%,var(--panel));border:2px solid var(--c);border-radius:14px;padding:12px 16px;margin-bottom:14px}
+.clue b{font-size:22px}
+.pexboard{position:relative;border-radius:16px;overflow:hidden;aspect-ratio:3/2;max-width:640px}
+.pexpic{position:absolute;inset:0;width:100%;height:100%}
+.pexboard .pex{position:absolute;inset:0;grid-template-columns:repeat(4,1fr);grid-template-rows:repeat(3,1fr);gap:4px;padding:0}
+@media (max-width:560px){.pexboard{aspect-ratio:3/4}.pexboard .pex{grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(4,1fr)}}
+.pexboard .pc{min-height:0;border-radius:10px}
+.pexboard .pc.done{background:transparent;border-color:transparent;opacity:1}
+.pexboard .pc.up{background:color-mix(in srgb,var(--panel) 94%,transparent);font-size:14px;line-height:1.22;overflow:hidden}
+.pexboard .pc.sel{border-color:var(--gold);box-shadow:inset 0 0 0 3px var(--gold);background:color-mix(in srgb,var(--gold) 22%,var(--panel))}
+.pexboard .pc.up:not(:disabled):hover{border-color:var(--ink)}
+.pexboard .pc.done .lab{background:#000000a0;color:#fff;border-radius:8px;padding:2px 8px;font-size:13px;animation:fadeLab 2.5s forwards}
+@keyframes fadeLab{0%,60%{opacity:1}100%{opacity:0}}
+.pexboard .pc.wrong{border-color:var(--bad);background:color-mix(in srgb,var(--bad) 20%,var(--panel))}
+</style>
+</head>
+<body>
+<div class="wrap" id="app"></div>
+<script>
+/* ================= DOBY ================= */
+const ERAS=[
+{id:'keltove',n:'Keltové',y:'asi 4.–1. století př. n. l.',c:'#3f7d4a',cur:['duhovky','duhovek','duhovka'],
+ intro:'Dávno předtím, než přišli Slované, žili v Čechách Keltové. Byli to zruční kováři a obchodníci.',
+ coin:'Keltové razili malé zlaté mince prohnuté do tvaru misky. Lidé je později nacházeli po dešti na polích a věřili, že spadly z duhy. Proto se jim říká duhovky.',
+ facts:['Keltský kmen Bójů žil v Čechách asi od 4. století před naším letopočtem. Podle nich Římané pojmenovali naši zemi Boiohaemum, odtud pochází latinské jméno Bohemia.',
+  'Keltové stavěli velká opevněná sídla zvaná oppida. Jedno z největších bylo Závist u Prahy, další bylo například ve Stradonicích u Berouna.',
+  'Keltové byli skvělí kováři a uměli zpracovávat železo. Proto patří do doby železné.',
+  'Duhovky jsou drobné zlaté keltské mince tvaru misky. Lidé věřili, že padají na zem tam, kde končí duha.',
+  'Velkou úctu měli u Keltů kněží zvaní druidové. Byli to učenci, soudci a znalci přírody.'],
+ order:{t:'Seřaď doby',items:[{n:'Doba kamenná',y:'nejstarší'},{n:'Doba bronzová',y:'asi od 2000 př. n. l.'},{n:'Doba železná a Keltové',y:'asi od 800 př. n. l.'},{n:'Příchod Slovanů',y:'6. století n. l.'}]},
+ qs:[{q:'Podle kterého keltského kmene dostaly Čechy latinské jméno Bohemia?',a:['Podle Bójů','Podle Markomanů','Podle Slovanů','Podle Římanů'],x:'Římané naši zemi podle Bójů nazývali Boiohaemum, země Bójů.'},
+  {q:'Jak se říká velkým opevněným sídlům Keltů?',a:['Oppida','Kláštery','Tvrze','Paláce'],x:'Oppidum bylo velké keltské hradiště obehnané valy.'},
+  {q:'Proč se keltským mincím říká duhovky?',a:['Lidé věřili, že padají z duhy','Byly barevné jako duha','Razil je král Duha','Platilo se jimi za déšť'],x:'Mince se po dešti objevovaly v hlíně na polích, a tak vznikla pověst o duze.'},
+  {q:'Jaký kov Keltové skvěle zpracovávali?',a:['Železo','Hliník','Titan','Platinu'],x:'Keltové žili v době železné a byli výborní kováři.'},
+  {q:'Jak se jmenovali keltští kněží?',a:['Druidové','Mniši','Rytíři','Šamani'],x:'Druidové byli u Keltů kněží, učenci i soudci.'},
+  {q:'Které velké keltské oppidum leželo u Prahy?',a:['Závist','Karlštejn','Tábor','Kutná Hora'],x:'Oppidum Závist leželo na jižním okraji dnešní Prahy.'}]},
+
+{id:'morava',n:'Velká Morava',y:'asi 833–906',c:'#8a5a2b',cur:['hřivny','hřiven','hřivna'],
+ intro:'Velká Morava byla první velký stát Slovanů na našem území. Přišli sem věrozvěstové Cyril a Metoděj.',
+ coin:'Na Velké Moravě se ještě nepoužívaly mince. Platilo se mimo jiné železnými sekerovitými hřivnami, které vypadaly jako malé ploché sekery.',
+ facts:['Velká Morava byla první velký státní útvar Slovanů na našem území. Existovala zhruba od roku 833 do počátku 10. století.',
+  'Roku 863 přišli na pozvání knížete Rastislava bratři Konstantin a Metoděj ze Soluně. Konstantin přijal před smrtí jméno Cyril.',
+  'Konstantin vytvořil pro slovanský jazyk první písmo, které se jmenuje hlaholice.',
+  'Nejslavnějším vládcem byl Svatopluk I. Podle pověsti ukázal synům, že tři pruty svázané dohromady nikdo nezlomí, ale jednotlivé ano. Chtěl, aby drželi při sobě.',
+  'Velkou Moravu na počátku 10. století rozvrátily nájezdy starých Maďarů.'],
+ order:{t:'Seřaď velkomoravské vládce',items:[{n:'Mojmír I.',y:'asi 830–846'},{n:'Rastislav',y:'846–870'},{n:'Svatopluk I.',y:'871–894'},{n:'Mojmír II.',y:'894–asi 906'}]},
+ qs:[{q:'Kdo pozval na Velkou Moravu Cyrila a Metoděje?',a:['Kníže Rastislav','Kníže Svatopluk','Kníže Bořivoj','Král Karel IV.'],x:'Rastislav chtěl, aby se lidé učili víru ve svém jazyce.'},
+  {q:'Kdy přišli Cyril a Metoděj na Velkou Moravu?',a:['Roku 863','Roku 973','Roku 1212','Roku 1348'],x:'Přišli roku 863 ze Soluně.'},
+  {q:'Jak se jmenuje první slovanské písmo?',a:['Hlaholice','Latinka','Runy','Hieroglyfy'],x:'Hlaholici vytvořil Konstantin, později zvaný Cyril.'},
+  {q:'Co měla ukázat pověst o Svatoplukových prutech?',a:['Že ve svornosti je síla','Jak se staví ploty','Jak se rozdělávají ohně','Že nejmladší je nejsilnější'],x:'Svázané pruty nezlomíš, jednotlivé ano. Bratři měli držet spolu.'},
+  {q:'Jak dlouho zhruba vládl Svatopluk I.?',a:['Asi 23 let (871–894)','Asi 1 rok','Asi 60 let','Asi 5 let'],x:'Svatopluk vládl od roku 871 do roku 894.'},
+  {q:'Kdo Velkou Moravu na začátku 10. století rozvrátil?',a:['Staří Maďaři','Římané','Keltové','Husité'],x:'Nájezdy Maďarů Velkou Moravu rozvrátily.'},
+  {q:'Čím se na Velké Moravě platilo místo mincí?',a:['Sekerovitými hřivnami','Korunami','Tolary','Papírovými bankovkami'],x:'Sekerovité hřivny byly železné slitky ve tvaru malých seker.'}]},
+
+{id:'premyslovci',n:'Přemyslovci',y:'asi 870–1306',c:'#a8322d',cur:['denáry','denárů','denár'],
+ intro:'Přemyslovci byli první českou panovnickou dynastií. Nejdřív vládli jako knížata, později jako králové.',
+ coin:'Přemyslovci razili malé stříbrné mince denáry. Roku 1300 dal Václav II. razit velký stříbrný pražský groš.',
+ facts:['Podle pověsti, kterou zapsal kronikář Kosmas, si kněžna Libuše vzala za muže oráče Přemysla ze Stadic. Od něj se rod jmenuje Přemyslovci.',
+  'Kníže Václav, pozdější svatý Václav a patron české země, byl zavražděn ve Staré Boleslavi svým bratrem Boleslavem. Stalo se to nejspíš roku 935.',
+  'Roku 1212 získal Přemysl Otakar I. Zlatou bulu sicilskou. Ta potvrdila, že čeští panovníci mají královský titul dědičně.',
+  'Přemyslu Otakarovi II. se říkalo král železný a zlatý, kvůli síle jeho vojska a bohatství. Padl roku 1278 v bitvě na Moravském poli.',
+  'Za Václava II. se v Kutné Hoře těžilo obrovské množství stříbra. Roku 1300 začal razit pražský groš.',
+  'Posledního Přemyslovce, mladého krále Václava III., zavraždili roku 1306 v Olomouci. Rod tím po meči vymřel.'],
+ order:{t:'Seřaď přemyslovské panovníky',items:[{n:'Bořivoj I.',y:'konec 9. století'},{n:'Svatý Václav',y:'asi 921–935'},{n:'Přemysl Otakar I.',y:'1197–1230'},{n:'Přemysl Otakar II.',y:'1253–1278'},{n:'Václav II.',y:'1278–1305'},{n:'Václav III.',y:'1305–1306'}]},
+ qs:[{q:'Jak dlouho vládl Přemysl Otakar II.?',a:['25 let (1253–1278)','2 roky','50 let','10 let'],x:'Vládl od roku 1253, dokud nepadl roku 1278 na Moravském poli.'},
+  {q:'Jak dlouho vládl Václav III.?',a:['Jen asi rok (1305–1306)','30 let','12 let','45 let'],x:'Václav III. byl zavražděn roku 1306, rok po nástupu na trůn.'},
+  {q:'Kdo zavraždil knížete Václava?',a:['Jeho bratr Boleslav','Jeho matka Drahomíra','Uherský král','Kníže Bořivoj'],x:'Boleslav nechal bratra zavraždit ve Staré Boleslavi.'},
+  {q:'Co potvrdila Zlatá bula sicilská z roku 1212?',a:['Dědičný královský titul','Založení univerzity','Stavbu Karlova mostu','Konec války'],x:'Čeští panovníci od té doby dědili královský titul.'},
+  {q:'Kterou minci zavedl Václav II. roku 1300?',a:['Pražský groš','Tolar','Korunu','Euro'],x:'Pražský groš se razil ze stříbra z Kutné Hory.'},
+  {q:'Jak se přezdívalo Přemyslu Otakaru II.?',a:['Král železný a zlatý','Otec vlasti','Zimní král','Král Bene'],x:'Železný kvůli vojsku, zlatý kvůli bohatství.'},
+  {q:'Koho si podle pověsti vzala za muže kněžna Libuše?',a:['Přemysla Oráče','Kroka','Bivoje','Horymíra'],x:'Poslové ho podle pověsti našli, jak orá pole ve Stadicích.'}]},
+
+{id:'lucemburkove',n:'Lucemburkové',y:'1310–1437',c:'#b8862b',cur:['groše','grošů','groš'],
+ intro:'Po Přemyslovcích přišli na český trůn Lucemburkové. Nejslavnější z nich byl Karel IV., král a císař.',
+ coin:'Platilo se pražskými groši, které se razily v Kutné Hoře. Patřily k nejznámějším mincím v Evropě.',
+ facts:['Jan Lucemburský se stal českým králem roku 1310, když se oženil s Eliškou Přemyslovnou, sestrou posledního Přemyslovce.',
+  'Jan Lucemburský byl na konci života slepý. Přesto se roku 1346 vrhl do bitvy u Kresčaku ve Francii, kde padl.',
+  'Karel IV. dostal při křtu jméno Václav. Jméno Karel přijal až ve Francii, kde vyrůstal.',
+  'Roku 1348 založil Karel IV. v Praze univerzitu, první ve střední Evropě. Dnes se jmenuje Univerzita Karlova.',
+  'Hrad Karlštejn dal Karel IV. postavit jako bezpečné místo pro korunovační klenoty a svaté relikvie.',
+  'Základní kámen Karlova mostu byl položen roku 1357. Most nahradil starší Juditin most, který strhla povodeň.'],
+ order:{t:'Seřaď lucemburské krále',items:[{n:'Jan Lucemburský',y:'1310–1346'},{n:'Karel IV.',y:'1346–1378'},{n:'Václav IV.',y:'1378–1419'},{n:'Zikmund',y:'1436–1437'}]},
+ qs:[{q:'Jak dlouho vládl Karel IV. jako český král?',a:['32 let (1346–1378)','5 let','60 let','12 let'],x:'Karel vládl od roku 1346 až do své smrti roku 1378.'},
+  {q:'Jak dlouho vládl Jan Lucemburský?',a:['36 let (1310–1346)','3 roky','70 let','15 let'],x:'Jan vládl od roku 1310, dokud nepadl u Kresčaku.'},
+  {q:'Kdo z Lucemburků vládl v Čechách nejdéle?',a:['Václav IV. (41 let)','Karel IV.','Jan Lucemburský','Zikmund'],x:'Václav IV. vládl od roku 1378 do roku 1419, tedy 41 let.'},
+  {q:'Kdy byla založena Karlova univerzita?',a:['Roku 1348','Roku 1212','Roku 1415','Roku 1918'],x:'Karel IV. ji založil roku 1348.'},
+  {q:'Jaké jméno dostal Karel IV. při křtu?',a:['Václav','Jan','Otakar','Zikmund'],x:'Jméno Karel přijal až na francouzském dvoře.'},
+  {q:'K čemu měl sloužit hrad Karlštejn?',a:['K uložení klenotů a relikvií','Jako vězení','Jako hvězdárna','Jako celnice'],x:'Na Karlštejně se uchovávaly korunovační klenoty a relikvie.'},
+  {q:'Kde padl slepý král Jan Lucemburský?',a:['U Kresčaku','Na Bílé hoře','U Lipan','Na Moravském poli'],x:'U Kresčaku ve Francii roku 1346.'}]},
+
+{id:'husite',n:'Husité',y:'1419–1434',c:'#c0582b',cur:['groše','grošů','groš'],
+ intro:'Po upálení mistra Jana Husa se země vzbouřila. Husité pod vedením Jana Žižky porazili mnohem větší vojska.',
+ coin:'I za husitských válek se platilo pražskými groši.',
+ facts:['Mistr Jan Hus kázal česky v Betlémské kapli a kritizoval hříchy církve. Roku 1415 byl v Kostnici upálen jako kacíř.',
+  'Symbolem husitů je kalich. Chtěli, aby i obyčejní lidé přijímali při mši chléb i víno. Tomu se říká přijímání pod obojí.',
+  'Jan Žižka z Trocnova nakonec úplně oslepl, a přesto neprohrál žádnou velkou bitvu.',
+  'Husité bojovali z vozové hradby. Spojené vozy tvořily pohyblivou pevnost, ze které se střílelo.',
+  'Roku 1420 husité založili v jižních Čechách město Tábor, pojmenované podle biblické hory.',
+  'Roku 1434 byli radikální husité poraženi v bitvě u Lipan. Padl tam i jejich vůdce Prokop Holý.'],
+ order:{t:'Seřaď události husitské doby',items:[{n:'Upálení Jana Husa',y:'1415'},{n:'První pražská defenestrace',y:'1419'},{n:'Bitva na Vítkově',y:'1420'},{n:'Smrt Jana Žižky',y:'1424'},{n:'Bitva u Lipan',y:'1434'}]},
+ qs:[{q:'Kde byl upálen mistr Jan Hus?',a:['V Kostnici','V Praze','V Táboře','V Římě'],x:'Hus byl upálen 6. července 1415 v Kostnici.'},
+  {q:'Co znamená husitský kalich?',a:['Přijímání pod obojí','Bohatství šlechty','Konec války','Znak krále'],x:'I obyčejní lidé měli přijímat chléb i víno z kalicha.'},
+  {q:'Co byla vozová hradba?',a:['Pevnost ze spojených vozů','Kamenná zeď kolem Prahy','Druh brnění','Hradní příkop'],x:'Husité spojili vozy řetězy a bojovali z nich jako z pevnosti.'},
+  {q:'Jak dlouho zhruba trvaly husitské války?',a:['Asi 15 let (1419–1434)','100 let','1 rok','50 let'],x:'Od roku 1419 do bitvy u Lipan roku 1434.'},
+  {q:'Který husitský vůdce padl u Lipan?',a:['Prokop Holý','Jan Žižka','Jan Hus','Karel IV.'],x:'Žižka zemřel už roku 1424, u Lipan padl Prokop Holý.'},
+  {q:'Jak si říkali Žižkovi vojáci po jeho smrti?',a:['Sirotci','Rytíři','Křižáci','Druidové'],x:'Po smrti Žižky se cítili jako sirotci bez otce.'},
+  {q:'Čím byl proslulý Jan Žižka?',a:['Neprohrál žádnou velkou bitvu','Založil univerzitu','Byl českým králem','Postavil Karlův most'],x:'I jako slepý vedl husity od vítězství k vítězství.'}]},
+
+{id:'jagellonci',n:'Jiří z Poděbrad a Jagellonci',y:'1453–1526',c:'#2f6d8a',cur:['groše','grošů','groš'],
+ intro:'Po husitech si Češi zvolili za krále českého šlechtice Jiřího z Poděbrad. Po něm vládli polští Jagellonci.',
+ coin:'Stále se platilo groši. Roku 1520 se ale v Jáchymově začaly razit velké stříbrné tolary. Z jejich jména vzniklo slovo dolar!',
+ facts:['Jiří z Poděbrad byl český šlechtic, kterého roku 1458 zvolili králem. Říká se mu husitský král.',
+  'Jiří z Poděbrad navrhoval, aby se evropští panovníci spojili a řešili spory mírem, ne válkou. Byl to jeden z prvních plánů na spojení Evropy.',
+  'Vladislav II. Jagellonský prý na všechno odpovídal latinským slovem bene, tedy dobře. Proto mu lidé říkali král Bene.',
+  'Na Pražském hradě dal Vladislav postavit obrovský Vladislavský sál. Konaly se v něm i rytířské turnaje.',
+  'Ludvík Jagellonský padl roku 1526 v bitvě u Moháče proti Turkům. Bylo mu teprve 20 let.'],
+ order:{t:'Seřaď české krále',items:[{n:'Ladislav Pohrobek',y:'1453–1457'},{n:'Jiří z Poděbrad',y:'1458–1471'},{n:'Vladislav II. Jagellonský',y:'1471–1516'},{n:'Ludvík Jagellonský',y:'1516–1526'}]},
+ qs:[{q:'Jak dlouho vládl Vladislav II. Jagellonský?',a:['45 let (1471–1516)','4 roky','10 let','80 let'],x:'Vladislav vládl v Čechách od roku 1471 do roku 1516.'},
+  {q:'Jak dlouho vládl Jiří z Poděbrad?',a:['13 let (1458–1471)','40 let','2 roky','25 let'],x:'Jiří vládl od svého zvolení roku 1458 až do smrti roku 1471.'},
+  {q:'Proč se Vladislavovi říkalo král Bene?',a:['Na všechno prý říkal bene, tedy dobře','Jmenoval se Benedikt','Měl rád benediktiny','Postavil město Benešov'],x:'Bene znamená latinsky dobře.'},
+  {q:'Jak se přezdívá Jiřímu z Poděbrad?',a:['Husitský král','Otec vlasti','Zimní král','Král železný a zlatý'],x:'Jiří byl zastánce kalicha, proto husitský král.'},
+  {q:'Kde padl Ludvík Jagellonský?',a:['U Moháče','U Lipan','Na Bílé hoře','U Kresčaku'],x:'Roku 1526 v bitvě s Turky u Moháče v Uhrách.'},
+  {q:'Které slovo vzniklo z názvu jáchymovských tolarů?',a:['Dolar','Euro','Koruna','Groš'],x:'Tolar se německy řekne Taler a z toho vzniklo slovo dolar.'},
+  {q:'Co navrhoval Jiří z Poděbrad evropským panovníkům?',a:['Řešit spory mírem','Válku s Francií','Zrušit mince','Postavit společný hrad'],x:'Jeho mírový plán je jeden z prvních nápadů na spojení Evropy.'}]},
+
+{id:'habsburkove',n:'Habsburkové a Rudolf II.',y:'1526–1620',c:'#6b4a8a',cur:['tolary','tolarů','tolar'],
+ intro:'Na český trůn nastoupili Habsburkové. Císař Rudolf II. udělal z Prahy město umělců, hvězdářů a alchymistů.',
+ coin:'V této době se hodně platilo velkými stříbrnými tolary.',
+ facts:['Císař Rudolf II. přesídlil roku 1583 císařský dvůr z Vídně do Prahy. Praha se stala centrem celé říše.',
+  'Na Rudolfův dvůr přišli hvězdáři Tycho Brahe a Johannes Kepler. Kepler v Praze zjistil, že planety obíhají kolem Slunce po elipsách.',
+  'Malíř Giuseppe Arcimboldo maloval portréty složené z ovoce, zeleniny a květin. Namaloval tak i samotného Rudolfa.',
+  'Podle pražské legendy vytvořil rabi Löw z hlíny Golema, který měl chránit židovské město.',
+  'Roku 1620 byla vojska českých stavů poražena v bitvě na Bílé hoře. Král Fridrich Falcký musel utéct, a protože vládl jen jednu zimu, říká se mu zimní král.'],
+ order:{t:'Seřaď české krále',items:[{n:'Ferdinand I.',y:'1526–1564'},{n:'Maxmilián II.',y:'1564–1576'},{n:'Rudolf II.',y:'1576–1611'},{n:'Matyáš',y:'1611–1619'},{n:'Fridrich Falcký',y:'1619–1620'}]},
+ qs:[{q:'Jak dlouho vládl Rudolf II. jako český král?',a:['35 let (1576–1611)','3 roky','60 let','12 let'],x:'Rudolf vládl v Čechách od roku 1576 do roku 1611.'},
+  {q:'Proč se Fridrichu Falckému říká zimní král?',a:['Vládl jen asi jednu zimu','Měl rád sníh','Narodil se v zimě','Bydlel v horách'],x:'Po porážce na Bílé hoře roku 1620 musel utéct.'},
+  {q:'Odkud přesunul Rudolf II. svůj dvůr do Prahy?',a:['Z Vídně','Z Říma','Z Madridu','Z Paříže'],x:'Roku 1583 se Praha stala císařským sídlem.'},
+  {q:'Kdo podle legendy vytvořil Golema?',a:['Rabi Löw','Tycho Brahe','Rudolf II.','Karel IV.'],x:'Golem byl podle legendy hliněný obr oživený rabim Löwem.'},
+  {q:'Co zjistil Johannes Kepler?',a:['Planety obíhají Slunce po elipsách','Země je placatá','Slunce obíhá kolem Země','Měsíc je ze sýra'],x:'Kepler využil pozorování Tycha Brahe.'},
+  {q:'Která bitva roku 1620 ukončila povstání českých stavů?',a:['Na Bílé hoře','U Lipan','U Moháče','Na Moravském poli'],x:'Bitva na Bílé hoře u Prahy, 8. listopadu 1620.'},
+  {q:'Z čeho skládal Arcimboldo své portréty?',a:['Z ovoce, zeleniny a květin','Z mincí','Z písmen','Z kamínků'],x:'Jeho portréty vypadají z dálky jako obličeje, zblízka jako košík ovoce.'}]},
+
+{id:'terezie',n:'Marie Terezie a Josef II.',y:'1740–1790',c:'#b0436e',cur:['krejcary','krejcarů','krejcar'],
+ intro:'Marie Terezie a její syn Josef II. provedli velké reformy. Děti díky nim začaly povinně chodit do školy.',
+ coin:'Platilo se zlatými a krejcary. Jeden zlatý měl 60 krejcarů.',
+ facts:['Marie Terezie se stala panovnicí roku 1740 po smrti svého otce Karla VI. Vládla 40 let, až do roku 1780.',
+  'Roku 1774 zavedla Marie Terezie povinnou školní docházku. Děti musely chodit do školy zhruba od 6 do 12 let.',
+  'Marie Terezie měla 16 dětí. Jednou z jejích dcer byla Marie Antoinetta, pozdější francouzská královna.',
+  'Za Marie Terezie se začaly číslovat domy, aby se dalo spočítat obyvatelstvo.',
+  'Josef II., syn Marie Terezie, zrušil roku 1781 nevolnictví. Poddaní se mohli stěhovat a ženit bez svolení pána.'],
+ order:{t:'Seřaď panovníky',items:[{n:'Karel VI.',y:'1711–1740'},{n:'Marie Terezie',y:'1740–1780'},{n:'Josef II.',y:'1780–1790'},{n:'Leopold II.',y:'1790–1792'}]},
+ qs:[{q:'Jak dlouho vládla Marie Terezie?',a:['40 let (1740–1780)','4 roky','75 let','12 let'],x:'Vládla od roku 1740 do své smrti roku 1780.'},
+  {q:'Jak dlouho vládl samostatně Josef II.?',a:['10 let (1780–1790)','40 let','1 rok','25 let'],x:'Po smrti matky vládl od roku 1780 do roku 1790.'},
+  {q:'Co zavedla Marie Terezie roku 1774?',a:['Povinnou školní docházku','Nová jména měst','Zákaz mincí','Stavbu hradů'],x:'Od té doby musely děti chodit do školy.'},
+  {q:'Kolik dětí měla Marie Terezie?',a:['16','2','5','30'],x:'Měla 16 dětí, mezi nimi i Josefa II. a Marii Antoinettu.'},
+  {q:'Co zrušil Josef II. roku 1781?',a:['Nevolnictví','Školy','Mince','Hrady'],x:'Poddaní se pak mohli stěhovat a ženit bez svolení pána.'},
+  {q:'Kolik krejcarů měl jeden zlatý?',a:['60','10','100','12'],x:'Jeden zlatý se dělil na 60 krejcarů.'},
+  {q:'Proč se za Marie Terezie začaly číslovat domy?',a:['Aby se spočítalo obyvatelstvo','Kvůli hezčím fasádám','Kvůli poště na kolech','Aby se domy lépe stavěly'],x:'Čísla domů pomáhala sčítat lidi.'}]},
+
+{id:'obrozeni',n:'Národní obrození a Rakousko-Uhersko',y:'1792–1918',c:'#3a5a9a',cur:['zlatky','zlatek','zlatka'],
+ intro:'Čeští vlastenci se snažili, aby se česky znovu psalo, učilo a hrálo divadlo. Země byla součástí rakouské monarchie.',
+ coin:'Platilo se zlatými, lidově zlatkami. Roku 1892 je nahradila nová měna, koruna.',
+ facts:['Národní buditelé se snažili, aby se česky znovu psaly knihy, učilo ve školách a hrálo divadlo. Toto období se jmenuje národní obrození.',
+  'Josef Jungmann sepsal velký česko-německý slovník, který vycházel v letech 1834 až 1839.',
+  'František Palacký napsal velké dějiny českého národa. Říká se mu Otec národa.',
+  'Národní divadlo se stavělo ze sbírek obyčejných lidí. Roku 1881 krátce po otevření vyhořelo, a tak se znovu otevřelo roku 1883.',
+  'František Josef I. vládl 68 let, od roku 1848 do roku 1916. Patří k nejdéle vládnoucím panovníkům v dějinách Evropy.'],
+ order:{t:'Seřaď rakouské císaře',items:[{n:'František I.',y:'1792–1835'},{n:'Ferdinand V. Dobrotivý',y:'1835–1848'},{n:'František Josef I.',y:'1848–1916'},{n:'Karel I.',y:'1916–1918'}]},
+ qs:[{q:'Jak dlouho vládl František Josef I.?',a:['68 let (1848–1916)','8 let','20 let','100 let'],x:'Vládl neuvěřitelných 68 let.'},
+  {q:'Jak se přezdívá Františku Palackému?',a:['Otec národa','Otec vlasti','Král Bene','Zimní král'],x:'Otec vlasti je Karel IV., Otec národa je Palacký.'},
+  {q:'Proč se Národní divadlo otevíralo dvakrát?',a:['Krátce po otevření vyhořelo','Spadla střecha kvůli sněhu','Herci utekli','Chyběla opona'],x:'Požár roku 1881, znovuotevření roku 1883.'},
+  {q:'Kdo sepsal velký česko-německý slovník?',a:['Josef Jungmann','Jan Hus','Tomáš G. Masaryk','Karel IV.'],x:'Jungmannův slovník vycházel v letech 1834 až 1839.'},
+  {q:'Jaká měna byla zavedena roku 1892?',a:['Koruna','Groš','Tolar','Euro'],x:'Koruna nahradila zlatky a platíme jí dodnes.'},
+  {q:'Jak se jmenuje období, kdy se Češi snažili o návrat češtiny?',a:['Národní obrození','Husitství','Osvícení','Sametová revoluce'],x:'Národní obrození probíhalo hlavně v 19. století.'}]},
+
+{id:'ceskoslovensko',n:'Československo',y:'1918–1992',c:'#1f5fa8',cur:['koruny','korun','koruna'],
+ intro:'Po první světové válce vznikl samostatný stát Čechů a Slováků. Prošel válkou, okupací i sametovou revolucí.',
+ coin:'Platilo se československými korunami.',
+ facts:['Československo vzniklo 28. října 1918. Prvním prezidentem byl Tomáš Garrigue Masaryk.',
+  'Masaryk byl prezidentem 17 let, do roku 1935. Lidé mu láskyplně říkali tatíček Masaryk.',
+  'Roku 1938 Mnichovská dohoda rozhodla, že Československo musí odstoupit pohraničí Německu. Pak přišla okupace a druhá světová válka.',
+  'V srpnu 1968 obsadila Československo vojska Varšavské smlouvy a ukončila období uvolnění zvané Pražské jaro.',
+  '17. listopadu 1989 začala sametová revoluce, která ukončila vládu komunistické strany. Prezidentem se stal spisovatel Václav Havel.'],
+ order:{t:'Seřaď prezidenty',items:[{n:'Tomáš G. Masaryk',y:'1918–1935'},{n:'Edvard Beneš',y:'1935–1948 s přestávkou'},{n:'Klement Gottwald',y:'1948–1953'},{n:'Ludvík Svoboda',y:'1968–1975'},{n:'Gustáv Husák',y:'1975–1989'},{n:'Václav Havel',y:'1989–1992'}]},
+ qs:[{q:'Kdy vzniklo Československo?',a:['28. října 1918','1. ledna 1993','17. listopadu 1989','6. července 1415'],x:'28. října slavíme jako státní svátek.'},
+  {q:'Jak dlouho byl Masaryk prezidentem?',a:['17 let (1918–1935)','2 roky','40 let','5 let'],x:'Masaryk byl prezidentem od roku 1918 do roku 1935.'},
+  {q:'Kdo se stal prezidentem po sametové revoluci?',a:['Václav Havel','Tomáš G. Masaryk','Gustáv Husák','Edvard Beneš'],x:'Havela zvolili prezidentem v prosinci 1989.'},
+  {q:'Co se stalo v srpnu 1968?',a:['Vojska obsadila Československo','Vznikl nový stát','Začala sametová revoluce','Stát se rozdělil'],x:'Vojska Varšavské smlouvy ukončila Pražské jaro.'},
+  {q:'Jak se říká revoluci z roku 1989?',a:['Sametová','Husitská','Průmyslová','Zimní'],x:'Proběhla pokojně, bez násilí, proto sametová.'},
+  {q:'Čím byl Václav Havel, než se stal prezidentem?',a:['Spisovatel a dramatik','Generál','Kovář','Fotbalista'],x:'Psal divadelní hry a kvůli svým názorům byl vězněn.'}]},
+
+{id:'cesko',n:'Česká republika',y:'od roku 1993',c:'#d14b3a',cur:['koruny','korun','koruna'],
+ intro:'Od roku 1993 je Česká republika samostatným státem. Tuhle dobu už zažívají lidé kolem tebe.',
+ coin:'Platíme českými korunami. Jedna koruna má 100 haléřů.',
+ facts:['1. ledna 1993 se Československo pokojně rozdělilo na Českou republiku a Slovensko.',
+  'Česká republika vstoupila roku 1999 do NATO a roku 2004 do Evropské unie.',
+  'Prvním prezidentem České republiky byl Václav Havel. Prezidentem byl do roku 2003.',
+  'Česká vlajka má bílý a červený pruh a modrý klín. Česko si ji ponechalo po Československu.',
+  'Na českých bankovkách jsou slavné osobnosti, třeba Karel IV. na stokoruně nebo Tomáš G. Masaryk na pětitisícovce.'],
+ order:{t:'Seřaď prezidenty',items:[{n:'Václav Havel',y:'1993–2003'},{n:'Václav Klaus',y:'2003–2013'},{n:'Miloš Zeman',y:'2013–2023'},{n:'Petr Pavel',y:'od 2023'}]},
+ qs:[{q:'Kdy vznikla Česká republika?',a:['1. ledna 1993','28. října 1918','17. listopadu 1989','1. května 2004'],x:'Rozdělení proběhlo pokojně.'},
+  {q:'Kdy vstoupila Česká republika do Evropské unie?',a:['Roku 2004','Roku 1993','Roku 1999','Roku 1918'],x:'Do NATO jsme vstoupili roku 1999, do EU roku 2004.'},
+  {q:'Kdo byl prvním prezidentem České republiky?',a:['Václav Havel','Václav Klaus','Miloš Zeman','Tomáš G. Masaryk'],x:'Masaryk byl první prezident Československa, Havel České republiky.'},
+  {q:'Kdo je na stokorunové bankovce?',a:['Karel IV.','Tomáš G. Masaryk','Jan Žižka','Václav Havel'],x:'Karel IV. je na stokoruně, Masaryk na pětitisícovce.'},
+  {q:'Kolik haléřů má jedna koruna?',a:['100','60','10','12'],x:'Koruna má 100 haléřů. Připomeň si, že zlatý měl 60 krejcarů.'},
+  {q:'Jak dlouho byl Václav Klaus prezidentem?',a:['10 let (2003–2013)','2 roky','25 let','5 let'],x:'Klaus byl prezidentem dvě volební období po pěti letech.'}]}
+];
+
+/* ================= VZHLED ================= */
+const SKIN=['#f3d3b5','#fbe3cf','#e0ac80','#b97a52','#7d4f33','#5c3a24'];
+const I=(cat,id,n,p,v)=>({cat,id,n,p,v:v===undefined?id:v});
+const CATALOG=[
+ // účesy
+ I('hair','kratke','Krátké',0),I('hair','rozcuch','Rozcuchané',0),I('hair','dlouhe','Dlouhé',0),I('hair','copy','Copy',0),I('hair','kudrny','Kudrnaté',0),I('hair','holy','Bez vlasů',0),
+ I('hair','culik','Culík',40),I('hair','drdol','Drdol',40),I('hair','dvadrdoly','Dva drdoly',60),I('hair','mikado','Mikádo',45),I('hair','afro','Afro',60),I('hair','cira','Číro',80),
+ I('hair','ofina','S ofinou',45),I('hair','vlny','Dlouhé vlnité',55),I('hair','dredy','Dredy',70),I('hair','bokem','Česané do strany',40),I('hair','pesinka','S pěšinkou',35),I('hair','copanky','Copánky',65),
+ // barva vlasů
+ I('hc','hc0','Černé',0,'#2a1d16'),I('hc','hc1','Hnědé',0,'#6b4226'),I('hc','hc2','Blond',0,'#d9b25c'),I('hc','hc3','Zrzavé',0,'#b5532a'),I('hc','hc4','Šedé',0,'#9a9a9a'),I('hc','hc5','Fialové',0,'#7a4fa0'),
+ I('hc','hc6','Růžové',40,'#e87aa8'),I('hc','hc7','Modré',40,'#3f7fd6'),I('hc','hc8','Zelené',40,'#4caf6a'),I('hc','hc9','Oranžové',40,'#f08a24'),I('hc','hc10','Tyrkysové',50,'#2bb8b0'),I('hc','hc11','Stříbrné',60,'#d7dde3'),I('hc','hc12','Zlaté',60,'#f2c14e'),I('hc','hc13','Duhové',150,'rainbow'),
+ // barva očí
+ I('eyec','ec0','Hnědé',0,'#5a3a22'),I('eyec','ec1','Modré',0,'#3a6ea5'),I('eyec','ec2','Zelené',0,'#3f7d4a'),
+ I('eyec','ec3','Šedé',25,'#7d8a93'),I('eyec','ec4','Fialové',35,'#8a4fc0'),I('eyec','ec5','Jantarové',35,'#d4912a'),I('eyec','ec6','Tyrkysové',35,'#22a6a0'),I('eyec','ec7','Růžové',35,'#e0609a'),I('eyec','ec8','Rudé',50,'#c0392b'),
+ // oči
+ I('eyes','normal','Obyčejné',0),I('eyes','velke','Velké',40),I('eyes','mrk','Mrkající',40),I('eyes','ospale','Ospalé',30),I('eyes','hvezdy','Hvězdičky',70),I('eyes','srdicka','Srdíčka',70),
+ // pusa
+ I('mouth','smile','Úsměv',0),I('mouth','velky','Velký úsměv',25),I('mouth','zuby','Se zuby',30),I('mouth','jazyk','Vyplazený jazyk',35),I('mouth','o','Překvapená',25),I('mouth','kysela','Kyselá',20),I('mouth','rty','Rudé rty',30),
+ // oblečení
+ I('outfit','tunika','Tunika',0),I('outfit','saty','Šaty',0),I('outfit','vesta','Košile a vesta',0),
+ I('outfit','triko','Tričko',30),I('outfit','kosile','Košile',40),I('outfit','mikina','Mikina',60),I('outfit','dres','Sportovní dres',70),I('outfit','kabat','Kabát',80),I('outfit','uniforma','Uniforma',90),
+ I('outfit','kutna','Mnišská kutna',50),I('outfit','krouzkova','Kroužková zbroj',120),I('outfit','zbroj','Plátová zbroj',150),I('outfit','plesove','Plesové šaty',120),I('outfit','hermelin','Královský hermelín',200),
+ // barva oblečení
+ I('cloth','c0','Červená',0,'#a8322d'),I('cloth','c1','Modrá',0,'#2f5d8a'),I('cloth','c2','Zelená',0,'#4d7a3a'),I('cloth','c3','Žlutá',0,'#d6a52a'),I('cloth','c4','Fialová',0,'#6b4a8a'),I('cloth','c5','Hnědá',0,'#7a5533'),
+ I('cloth','c6','Růžová',25,'#e27ba4'),I('cloth','c7','Nebeská',25,'#7fc8f0'),I('cloth','c8','Oranžová',25,'#e8742a'),I('cloth','c9','Bílá',25,'#f1efe8'),I('cloth','c10','Černá',30,'#26262b'),I('cloth','c11','Tyrkysová',30,'#1f9e98'),I('cloth','c12','Stříbrná',60,'#c3cad1'),I('cloth','c13','Zlatá',60,'#e0b43a'),
+ // vzory
+ I('pattern','none','Bez vzoru',0),I('pattern','pruhy','Proužky',30),I('pattern','puntiky','Puntíky',30),I('pattern','kostky','Kostičky',40),I('pattern','hvezdy','Hvězdičky',50),I('pattern','srdicka','Srdíčka',50),I('pattern','lilie','Královské lilie',60),
+ // kalhoty
+ I('pants','p0','Hnědé',0,'#4a3526'),I('pants','p1','Modré',20,'#2f4f7f'),I('pants','p2','Černé',20,'#1e1e22'),I('pants','p3','Zelené',20,'#3d5e2e'),I('pants','p4','Bílé',20,'#e8e4da'),I('pants','p5','Červené',25,'#8e2a1f'),I('pants','p6','Pruhované',40,'stripe'),
+ // boty
+ I('shoes','s0','Kožené',0,'#2a1d16'),I('shoes','s1','Červené',20,'#b3261e'),I('shoes','s2','Modré',20,'#2a4f8a'),I('shoes','s3','Bílé tenisky',35,'#f4f4f0'),I('shoes','s4','Jezdecké holinky',45,'boots'),I('shoes','s5','Zlaté',60,'#e0b43a'),
+ // na hlavu
+ I('head','venec','Květinový věnec',35),I('head','masle','Mašle',25),I('head','capka','Čepice s bambulí',25),I('head','celenka','Čelenka',30),I('head','satek','Šátek',30),I('head','bereta','Baret',40),
+ I('head','kapuce','Kapuce',45),I('head','klobouk','Klobouk s pérem',50),I('head','pirat','Pirátský šátek',60),I('head','knizeci','Knížecí čepice',70),I('head','carodej','Čarodějný klobouk',80),
+ I('head','prilba','Rytířská přilba',90),I('head','diadem','Diadém',120),I('head','chochol','Helma s chocholem',130),I('head','koruna','Královská koruna',200),
+ // na záda
+ I('back','batoh','Batoh',40),I('back','plast','Červený plášť',45),I('back','plast_m','Modrý plášť',45),I('back','toulec','Toulec se šípy',60),I('back','plast_k','Královský plášť',120),I('back','kridla','Andělská křídla',150),
+ // do ruky
+ I('hand','kvetina','Květina',20),I('hand','hul','Poutnická hůl',35),I('hand','kniha','Kronika',40),I('hand','lucerna','Lucerna',45),I('hand','pochoden','Pochodeň',50),I('hand','mec','Meč',60),
+ I('hand','cep','Husitský cep',60),I('hand','stit','Štít',70),I('hand','luk','Luk',70),I('hand','sekera','Sekera',70),I('hand','prapor','Prapor',80),I('hand','zezlo','Královské žezlo',150),
+ // obličej
+ I('face','pihy','Pihy',15),I('face','bryle','Brýle',30),I('face','knir','Knír',30),I('face','kulate','Kulaté brýle',35),I('face','paska','Páska přes oko',40),I('face','vousy','Plnovous',45),I('face','slunecni','Sluneční brýle',50),
+ // krk
+ I('neck','motylek','Motýlek',30),I('neck','sala','Šála',35),I('neck','nahrdelnik','Náhrdelník',50),I('neck','medaile','Zlatá medaile',80),
+ // mazlíčci
+ I('pet','kure','Slepička',60),I('pet','kralik','Králík',90),I('pet','pes','Pejsek',100),I('pet','kocka','Kočka',100),I('pet','liska','Liška',110),I('pet','sova','Sova',120),I('pet','drak','Dráček',250)
+];
+const CATS=[['hair','Účesy'],['hc','Barva vlasů'],['eyes','Oči'],['eyec','Barva očí'],['mouth','Pusa'],['outfit','Oblečení'],['cloth','Barva oblečení'],['pattern','Vzory'],['pants','Kalhoty'],['shoes','Boty'],['head','Na hlavu'],['back','Na záda'],['hand','Do ruky'],['face','Na obličej'],['neck','Na krk'],['pet','Mazlíčci']];
+const OPT=new Set(['head','back','hand','face','neck','pet']);
+const DEFLOOK={skin:0,hair:'kratke',hc:'hc1',eyec:'ec0',eyes:'normal',mouth:'smile',outfit:'tunika',cloth:'c0',pattern:'none',pants:'p0',shoes:'s0',head:null,back:null,hand:null,face:null,neck:null,pet:null};
+const ITEM=Object.fromEntries(CATALOG.map(x=>[x.cat+':'+x.id,x]));
+const val=(cat,id)=>{const x=ITEM[cat+':'+id];return x?x.v:ITEM[cat+':'+DEFLOOK[cat]].v;};
+const PAID=CATALOG.filter(x=>x.p>0).length;
+
+let AVN=0;
+function avatar(L0,W={}){
+  const L={...DEFLOOK,...L0,...W}; const u='a'+(AVN++);
+  const s=SKIN[L.skin]||SKIN[0];
+  const hv=val('hc',L.hc), h=hv==='rainbow'?`url(#rb${u})`:hv;
+  const e=val('eyec',L.eyec), c=val('cloth',L.cloth), pv=val('pants',L.pants), shv=val('shoes',L.shoes);
+  const pc=pv==='stripe'?`url(#ps${u})`:pv, sc=shv==='boots'?'#5a3a22':shv;
+  const P=L.pattern;
+  const pat={pruhy:`<rect width="6" height="3" fill="#fff" opacity=".45"/>`,puntiky:`<circle cx="3" cy="3" r="1.3" fill="#fff" opacity=".6"/>`,kostky:`<rect width="4" height="4" fill="#000" opacity=".18"/><rect x="4" y="4" width="4" height="4" fill="#000" opacity=".18"/>`,
+    hvezdy:`<path d="M5 1l1.2 2.6 2.8.3-2.1 1.9.6 2.8L5 7.2 2.5 8.6l.6-2.8L1 3.9l2.8-.3z" fill="#fff5c0" opacity=".85"/>`,srdicka:`<path d="M4.5 7.5C1 5 1 2.5 3 2.2c.8-.1 1.3.4 1.5.9.2-.5.7-1 1.5-.9 2 .3 2 2.8-1.5 5.3z" fill="#fff" opacity=".7"/>`,
+    lilie:`<path d="M5 1c1 1.5 1 3 0 4.5C4 4 4 2.5 5 1zM2 4c1.4 0 2.4 1 3 2.5M8 4c-1.4 0-2.4 1-3 2.5M3 7h4" stroke="#f2c14e" stroke-width=".9" fill="#f2c14e"/>`}[P];
+  const psz={pruhy:6,puntiky:6,kostky:8,hvezdy:10,srdicka:9,lilie:10}[P];
+  const defs=`<defs><linearGradient id="rb${u}" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#e74c3c"/><stop offset=".25" stop-color="#f39c12"/><stop offset=".5" stop-color="#f1c40f"/><stop offset=".75" stop-color="#2ecc71"/><stop offset="1" stop-color="#3498db"/></linearGradient>
+    <pattern id="ps${u}" width="5" height="5" patternUnits="userSpaceOnUse"><rect width="5" height="5" fill="#2f4f7f"/><rect width="5" height="2.5" fill="#e8e4da"/></pattern>
+    ${pat?`<pattern id="pt${u}" width="${psz}" height="${psz}" patternUnits="userSpaceOnUse">${pat}</pattern>`:''}</defs>`;
+  const PF=pat?`url(#pt${u})`:null;
+  const withPat=(d,extra='')=>`<path d="${d}" fill="${c}" ${extra}/>`+(PF?`<path d="${d}" fill="${PF}"/>`:'');
+
+  /* ----- záda ----- */
+  let back='';
+  const cape=(col,trim)=>`<path d="M34 60 L20 126 Q50 134 80 126 L66 60Z" fill="${col}"/>${trim?`<path d="M20 126 Q50 134 80 126" stroke="#fff" stroke-width="5" fill="none"/><circle cx="30" cy="128" r="1.3" fill="#111"/><circle cx="44" cy="131" r="1.3" fill="#111"/><circle cx="58" cy="131" r="1.3" fill="#111"/><circle cx="72" cy="128" r="1.3" fill="#111"/>`:''}`;
+  if(L.back==='plast') back=cape('#8e2a1f');
+  if(L.back==='plast_m') back=cape('#2a4f8a');
+  if(L.back==='plast_k') back=cape('#5b2a86',true);
+  if(L.back==='kridla') back=`<path d="M40 66 C10 40 -8 60 -6 84 C4 78 12 84 16 92 C22 84 30 84 38 86Z" fill="#fff" stroke="#d7d2c4" stroke-width="1.5"/><path d="M60 66 C90 40 108 60 106 84 C96 78 88 84 84 92 C78 84 70 84 62 86Z" fill="#fff" stroke="#d7d2c4" stroke-width="1.5"/>`;
+  if(L.back==='batoh') back=`<rect x="30" y="62" width="40" height="36" rx="7" fill="#7a5533"/><rect x="28" y="74" width="6" height="16" rx="2" fill="#5a3f28"/><rect x="66" y="74" width="6" height="16" rx="2" fill="#5a3f28"/>`;
+  if(L.back==='toulec') back=`<g transform="rotate(20 60 80)"><rect x="56" y="54" width="12" height="44" rx="3" fill="#7a5533"/><path d="M58 54 L56 42 M62 54 L62 40 M66 54 L68 42" stroke="#caa56a" stroke-width="2"/><path d="M53 42 l3 -5 3 5Z M59 40 l3 -5 3 5Z M65 42 l3 -5 3 5Z" fill="#b3261e"/></g>`;
+
+  /* ----- vlasy ----- */
+  const capF=`<path d="M30 38 Q30 18 50 18 Q70 18 70 38 Q66 28 50 28 Q36 28 30 38Z" fill="${h}"/>`;
+  const longF=`<path d="M29 44 Q28 18 50 18 Q72 18 71 44 Q68 30 58 27 Q48 34 34 32 Q30 36 29 44Z" fill="${h}"/>`;
+  let hb='',hf='';
+  switch(L.hair){
+    case 'kratke': hf=capF; break;
+    case 'rozcuch': hf=`<path d="M29 40 L31 26 L36 30 L39 18 L45 26 L50 14 L55 25 L61 17 L64 29 L69 25 L71 40 Q66 29 50 29 Q35 29 29 40Z" fill="${h}"/>`; break;
+    case 'dlouhe': hb=`<path d="M28 38 Q26 72 32 84 L68 84 Q74 72 72 38 Z" fill="${h}"/>`; hf=longF; break;
+    case 'copy': hb=`<path d="M30 46 q-6 20 -2 34 q4 6 8 0 q-4 -14 0 -30Z M70 46 q6 20 2 34 q-4 6 -8 0 q4 -14 0 -30Z" fill="${h}"/><circle cx="31" cy="82" r="3.5" fill="#c33"/><circle cx="69" cy="82" r="3.5" fill="#c33"/>`; hf=longF; break;
+    case 'kudrny': hf=[[33,30],[40,22],[50,19],[60,22],[67,30],[30,40],[70,40]].map(([x,y])=>`<circle cx="${x}" cy="${y}" r="8" fill="${h}"/>`).join(''); break;
+    case 'culik': hb=`<path d="M64 26 Q86 30 80 62 Q78 72 72 66 Q76 46 62 34Z" fill="${h}"/><circle cx="68" cy="30" r="3" fill="#c33"/>`; hf=capF; break;
+    case 'drdol': hb=`<circle cx="50" cy="16" r="9" fill="${h}"/>`; hf=capF; break;
+    case 'dvadrdoly': hb=`<circle cx="34" cy="21" r="8" fill="${h}"/><circle cx="66" cy="21" r="8" fill="${h}"/>`; hf=capF; break;
+    case 'mikado': hb=`<path d="M28 40 Q28 16 50 16 Q72 16 72 40 L72 58 L28 58Z" fill="${h}"/>`; hf=`<path d="M30 34 Q31 17 50 17 Q69 17 70 34Z" fill="${h}"/>`; break;
+    case 'afro': hb=`<circle cx="50" cy="36" r="29" fill="${h}"/>`; hf=`<path d="M30 36 Q32 20 50 20 Q68 20 70 36 Q60 28 50 29 Q40 28 30 36Z" fill="${h}"/>`; break;
+    case 'cira': hf=`<path d="M45 27 L43 4 L49 12 L51 1 L55 12 L59 5 L56 27Z" fill="${h}"/>`; break;
+    case 'ofina': hb=`<path d="M29 40 Q28 18 50 18 Q72 18 71 40 L71 52 L29 52Z" fill="${h}"/>`; hf=`<path d="M30 35 Q31 18 50 18 Q69 18 70 35Z" fill="${h}"/>`; break;
+    case 'vlny': hb=`<path d="M28 38 Q22 60 30 70 Q24 82 34 92 L66 92 Q76 82 70 70 Q78 60 72 38Z" fill="${h}"/>`; hf=longF; break;
+    case 'dredy': hb=[[32,36,27,84],[37,32,35,88],[43,30,43,86],[57,30,57,86],[63,32,65,88],[68,36,73,84]].map(([a,b,x,y])=>`<path d="M${a} ${b} L${x} ${y}" stroke="${h}" stroke-width="5.5" stroke-linecap="round"/>`).join(''); hf=capF; break;
+    case 'bokem': hf=`<path d="M29 40 Q28 17 52 17 Q72 18 71 38 Q64 26 54 26 Q44 30 36 34 Q31 36 29 40Z" fill="${h}"/><path d="M30 39 Q33 23 54 21 Q44 30 34 43Z" fill="${h}"/>`; break;
+    case 'pesinka': hf=capF+`<path d="M41 19 L39 28" stroke="#00000055" stroke-width="1.5"/>`; break;
+    case 'copanky': hb=[31,37,43,57,63,69].map(x=>`<path d="M${x} 34 L${x+(x<50?-3:3)} 86" stroke="${h}" stroke-width="4" stroke-dasharray="3.5 1.2"/>`).join(''); hf=longF; break;
+  }
+
+  /* ----- oblečení ----- */
+  const O=L.outfit;
+  const LONG=new Set(['saty','kutna','plesove','hermelin']);
+  let body='', sleeve=c, short=false;
+  switch(O){
+    case 'tunika': body=withPat('M36 60 L64 60 L70 104 L30 104Z')+`<rect x="31" y="84" width="38" height="5" fill="#3b2a1d"/><circle cx="50" cy="86.5" r="3" fill="#d6a52a"/>`; break;
+    case 'saty': body=withPat('M37 60 L63 60 L76 126 L24 126Z')+`<path d="M37 60 L63 60 L62 74 L38 74Z" fill="#fff" opacity=".25"/>`; break;
+    case 'vesta': body=`<path d="M36 60 L64 60 L68 102 L32 102Z" fill="#efe6d4"/>`+withPat('M36 60 L47 60 L46 102 L32 102Z M53 60 L64 60 L68 102 L54 102Z')+`<rect x="31" y="96" width="38" height="8" rx="2" fill="#4a3526"/>`; sleeve='#efe6d4'; break;
+    case 'triko': body=withPat('M36 60 L64 60 L66 102 L34 102Z')+`<path d="M44 60 Q50 66 56 60" stroke="#00000033" stroke-width="2" fill="none"/>`; short=true; break;
+    case 'kosile': body=withPat('M36 60 L64 60 L67 102 L33 102Z')+`<path d="M42 60 L50 70 L58 60" fill="#fff"/><path d="M50 70 V100" stroke="#00000030" stroke-width="1.2"/>${[76,84,92].map(y=>`<circle cx="50" cy="${y}" r="1.4" fill="#fff"/>`).join('')}`; break;
+    case 'mikina': body=`<path d="M36 58 Q50 70 64 58 L64 64 Q50 74 36 64Z" fill="${c}" opacity=".85"/>`+withPat('M36 60 L64 60 L68 104 L32 104Z')+`<rect x="40" y="86" width="20" height="10" rx="3" fill="#00000026"/><path d="M46 62 v10 M54 62 v10" stroke="#fff" stroke-width="1.4"/>`; break;
+    case 'dres': body=withPat('M36 60 L64 60 L66 102 L34 102Z')+`<path d="M36 60 L40 60 L40 102 L34 102Z M60 60 L64 60 L66 102 L60 102Z" fill="#fff" opacity=".7"/><text x="50" y="90" text-anchor="middle" font-size="16" font-weight="900" font-family="Arial,sans-serif" fill="#fff">10</text>`; short=true; break;
+    case 'kabat': body=withPat('M35 60 L65 60 L70 116 L30 116Z')+`<path d="M44 60 L50 80 L56 60" fill="#00000030"/><path d="M50 80 V116" stroke="#00000040" stroke-width="1.5"/>${[88,98,108].map(y=>`<circle cx="46" cy="${y}" r="1.6" fill="#d6a52a"/>`).join('')}`; break;
+    case 'uniforma': body=withPat('M36 60 L64 60 L67 104 L33 104Z')+`${[70,78,86,94].map(y=>`<circle cx="45" cy="${y}" r="1.6" fill="#e0b43a"/><circle cx="55" cy="${y}" r="1.6" fill="#e0b43a"/>`).join('')}<rect x="36" y="59" width="28" height="5" fill="#e0b43a"/><rect x="33" y="98" width="34" height="5" fill="#26262b"/>`; break;
+    case 'kutna': body=withPat('M36 60 L64 60 L69 126 L31 126Z')+`<path d="M36 60 Q50 72 64 60" fill="${c}" stroke="#00000030" stroke-width="2"/><path d="M34 88 Q50 92 66 88 M48 90 L46 108 M52 90 L55 106" stroke="#e8d7a8" stroke-width="2" fill="none"/>`; break;
+    case 'krouzkova': body=`<path d="M36 60 L64 60 L68 106 L32 106Z" fill="#8f979e"/><path d="M36 60 L64 60 L68 106 L32 106Z" fill="url(#cm${u})"/>`+withPat('M42 64 L58 64 L60 108 L40 108Z')+`<path d="M44 76 h12 M50 70 v14" stroke="#fff" stroke-width="2.5"/>`; sleeve='#8f979e'; break;
+    case 'zbroj': body=`<path d="M35 60 L65 60 L68 104 L32 104Z" fill="#b8c0c8" stroke="#7d868e" stroke-width="1.5"/><path d="M40 66 Q50 74 60 66 M38 80 Q50 86 62 80 M36 94 Q50 99 64 94" stroke="#7d868e" stroke-width="1.5" fill="none"/><circle cx="50" cy="72" r="4" fill="${c}"/>`; sleeve='#b8c0c8'; break;
+    case 'plesove': body=withPat('M40 60 L60 60 L63 80 L84 126 L16 126 L37 80Z')+`<path d="M37 80 Q50 86 63 80" stroke="#fff" stroke-width="2" fill="none" opacity=".7"/>${[[30,112],[50,118],[68,108],[42,100],[60,120]].map(([x,y])=>`<path d="M${x} ${y-3}l1 3 3 1-3 1-1 3-1-3-3-1 3-1z" fill="#fff"/>`).join('')}`; break;
+    case 'hermelin': body=withPat('M35 60 L65 60 L72 126 L28 126Z')+`<path d="M35 60 L65 60 L63 70 L37 70Z M44 70 L56 70 L55 126 L45 126Z" fill="#fff"/>${[[40,65],[50,64],[60,65],[48,82],[52,96],[48,110],[52,122]].map(([x,y])=>`<path d="M${x} ${y-2}v4M${x-1.5} ${y}h3" stroke="#111" stroke-width="1.2"/>`).join('')}`; break;
+  }
+  const chain=`<pattern id="cm${u}" width="4" height="4" patternUnits="userSpaceOnUse"><circle cx="2" cy="2" r="1.4" fill="none" stroke="#c9ced3" stroke-width=".8"/></pattern>`;
+  const isLong=LONG.has(O);
+  const legs=isLong?'':`<rect x="38" y="100" width="9" height="26" rx="3" fill="${pc}"/><rect x="53" y="100" width="9" height="26" rx="3" fill="${pc}"/>`;
+  const boots=shv==='boots'?`<rect x="37" y="112" width="11" height="15" rx="3" fill="${sc}"/><rect x="52" y="112" width="11" height="15" rx="3" fill="${sc}"/>`:'';
+  const shoes=`${isLong?'':boots}<ellipse cx="42" cy="127.5" rx="7" ry="4" fill="${sc}"/><ellipse cx="58" cy="127.5" rx="7" ry="4" fill="${sc}"/>${shv==='#f4f4f0'?'<path d="M36 128h12M52 128h12" stroke="#c33" stroke-width="1.2"/>':''}`;
+  const arm=(x1,x2)=>short?`<path d="M${x1} 62 L${x2} 92" stroke="${s}" stroke-width="7" stroke-linecap="round"/><path d="M${x1} 62 L${x1+(x2-x1)*.35} 72.5" stroke="${sleeve}" stroke-width="9.5" stroke-linecap="round"/>`
+    :`<path d="M${x1} 62 L${x2} 92" stroke="${sleeve}" stroke-width="9" stroke-linecap="round"/>`;
+  const arms=arm(36,26)+arm(64,74)+`<circle cx="25" cy="95" r="5" fill="${s}"/><circle cx="75" cy="95" r="5" fill="${s}"/>`;
+
+  /* ----- obličej ----- */
+  let eyes='';
+  switch(L.eyes){
+    case 'normal': eyes=`<circle cx="43" cy="41" r="2.8" fill="${e}"/><circle cx="57" cy="41" r="2.8" fill="${e}"/><circle cx="44" cy="40" r=".9" fill="#fff"/><circle cx="58" cy="40" r=".9" fill="#fff"/>`; break;
+    case 'velke': eyes=`<circle cx="43" cy="40" r="4.6" fill="#fff"/><circle cx="57" cy="40" r="4.6" fill="#fff"/><circle cx="43.5" cy="41" r="3.2" fill="${e}"/><circle cx="57.5" cy="41" r="3.2" fill="${e}"/><circle cx="44.6" cy="39.6" r="1.2" fill="#fff"/><circle cx="58.6" cy="39.6" r="1.2" fill="#fff"/>`; break;
+    case 'mrk': eyes=`<circle cx="43" cy="41" r="2.8" fill="${e}"/><circle cx="44" cy="40" r=".9" fill="#fff"/><path d="M54 41 Q57 38 60 41" stroke="#3b2a1d" stroke-width="2" fill="none" stroke-linecap="round"/>`; break;
+    case 'ospale': eyes=`<circle cx="43" cy="42" r="2.6" fill="${e}"/><circle cx="57" cy="42" r="2.6" fill="${e}"/><path d="M39.5 40.5 H46.5 M53.5 40.5 H60.5" stroke="${s}" stroke-width="3.2"/><path d="M39.5 41.8 H46.5 M53.5 41.8 H60.5" stroke="#3b2a1d" stroke-width="1.2"/>`; break;
+    case 'hvezdy': eyes=[43,57].map(x=>`<path d="M${x} 36.5l1.4 3 3.3.3-2.5 2.2.8 3.2L${x} 43.5l-3 1.7.8-3.2-2.5-2.2 3.3-.3z" fill="${e}"/>`).join(''); break;
+    case 'srdicka': eyes=[43,57].map(x=>`<path d="M${x} 45C${x-6} 41 ${x-4.5} 36.5 ${x-2} 37c1 .2 1.7.9 2 1.7.3-.8 1-1.5 2-1.7 2.5-.5 4 4-2 8z" fill="#d6336c"/>`).join(''); break;
+  }
+  let mouth='';
+  switch(L.mouth){
+    case 'smile': mouth=`<path d="M44 49 Q50 54 56 49" stroke="#6b2e24" stroke-width="2" fill="none" stroke-linecap="round"/>`; break;
+    case 'velky': mouth=`<path d="M43 48 Q50 58 57 48Z" fill="#8e2a1f"/><path d="M45.5 52.5 Q50 55 54.5 52.5" stroke="#e46a6a" stroke-width="2" fill="none"/>`; break;
+    case 'zuby': mouth=`<path d="M42 48 Q50 57 58 48Z" fill="#fff" stroke="#6b2e24" stroke-width="1.5"/><path d="M46 48.5 v3 M50 48.5 v4 M54 48.5 v3" stroke="#d8d2c4" stroke-width="1"/>`; break;
+    case 'jazyk': mouth=`<path d="M44 49 Q50 54 56 49" stroke="#6b2e24" stroke-width="2" fill="none" stroke-linecap="round"/><path d="M48 51.5 Q50 58 53 51.5Z" fill="#e46a8a"/>`; break;
+    case 'o': mouth=`<ellipse cx="50" cy="50.5" rx="2.8" ry="3.4" fill="#6b2e24"/>`; break;
+    case 'kysela': mouth=`<path d="M44 51 Q47 48.5 50 51 T56 51" stroke="#6b2e24" stroke-width="2" fill="none" stroke-linecap="round"/>`; break;
+    case 'rty': mouth=`<path d="M44 49.5 Q47 47 50 48.5 Q53 47 56 49.5 Q50 55 44 49.5Z" fill="#c0233a"/>`; break;
+  }
+  let face='';
+  switch(L.face){
+    case 'pihy': face=[[37,46],[39,48.5],[36,49],[63,46],[61,48.5],[64,49]].map(([x,y])=>`<circle cx="${x}" cy="${y}" r=".9" fill="#a0603a"/>`).join(''); break;
+    case 'bryle': face=`<rect x="37.5" y="37" width="11" height="8" rx="2" fill="none" stroke="#2a1d16" stroke-width="1.6"/><rect x="51.5" y="37" width="11" height="8" rx="2" fill="none" stroke="#2a1d16" stroke-width="1.6"/><path d="M48.5 40 h3" stroke="#2a1d16" stroke-width="1.6"/>`; break;
+    case 'kulate': face=`<circle cx="43" cy="41" r="5.5" fill="none" stroke="#b8862b" stroke-width="1.5"/><circle cx="57" cy="41" r="5.5" fill="none" stroke="#b8862b" stroke-width="1.5"/><path d="M48.5 41 h3" stroke="#b8862b" stroke-width="1.5"/>`; break;
+    case 'slunecni': face=`<path d="M36 37 h12 v4 q-1 5 -6 5 q-5 0 -6 -5Z M52 37 h12 v4 q-1 5 -6 5 q-5 0 -6 -5Z" fill="#111"/><path d="M48 38 h4" stroke="#111" stroke-width="2"/>`; break;
+    case 'paska': face=`<path d="M30 30 L70 44" stroke="#111" stroke-width="1.8"/><ellipse cx="57" cy="41" rx="5.5" ry="4.8" fill="#111"/>`; break;
+    case 'knir': face=`<path d="M50 47 Q44 44 39 48 Q44 49 50 48 Q56 49 61 48 Q56 44 50 47Z" fill="${h}"/>`; break;
+    case 'vousy': face=`<path d="M31 44 Q32 62 50 64 Q68 62 69 44 Q66 54 58 53 Q50 50 42 53 Q34 54 31 44Z" fill="${h}"/>`; break;
+  }
+  let neck='';
+  switch(L.neck){
+    case 'motylek': neck=`<path d="M50 61 L42 57 L42 65Z M50 61 L58 57 L58 65Z" fill="#b3261e"/><circle cx="50" cy="61" r="2" fill="#8e1b14"/>`; break;
+    case 'sala': neck=`<path d="M38 57 Q50 64 62 57 L63 63 Q50 70 37 63Z" fill="#2f7d6d"/><path d="M56 63 L60 82 L54 83 L52 65Z" fill="#2f7d6d"/><path d="M40 60 L42 64 M46 62 L47 66 M52 62 L53 66 M58 60 L59 64 M55 72 H60 M56 78 H61" stroke="#f2c14e" stroke-width="1.4"/>`; break;
+    case 'nahrdelnik': neck=`<path d="M40 60 Q50 72 60 60" stroke="#e0b43a" stroke-width="1.6" fill="none"/><circle cx="50" cy="68" r="3" fill="#2bb8b0" stroke="#e0b43a" stroke-width="1"/>`; break;
+    case 'medaile': neck=`<path d="M42 58 L48 74 M58 58 L52 74" stroke="#2a4f8a" stroke-width="4"/><circle cx="50" cy="78" r="6" fill="#e0b43a" stroke="#a37b1c" stroke-width="1.2"/><path d="M50 74.5l1 2.2 2.3.2-1.7 1.6.5 2.3-2.1-1.2-2.1 1.2.5-2.3-1.7-1.6 2.3-.2z" fill="#fff5d6"/>`; break;
+  }
+
+  /* ----- pokrývka hlavy ----- */
+  let head='';
+  switch(L.head){
+    case 'koruna': head=`<path d="M33 26 L35 12 L42 20 L50 8 L58 20 L65 12 L67 26Z" fill="#e0b43a" stroke="#a37b1c" stroke-width="1.5"/><circle cx="50" cy="19" r="2.5" fill="#c33"/>`; break;
+    case 'prilba': head=`<path d="M29 40 Q29 16 50 16 Q71 16 71 40 L66 40 Q64 26 50 26 Q36 26 34 40Z" fill="#9aa3ab"/><rect x="48" y="26" width="4" height="20" fill="#7d868e"/>`; break;
+    case 'chochol': head=`<path d="M52 18 Q58 0 74 4 Q64 8 60 20Z" fill="#b3261e"/><path d="M29 40 Q29 16 50 16 Q71 16 71 40 L66 40 Q64 26 50 26 Q36 26 34 40Z" fill="#c9ced3"/><rect x="48" y="26" width="4" height="20" fill="#9aa3ab"/><path d="M34 28 H66" stroke="#e0b43a" stroke-width="2"/>`; break;
+    case 'klobouk': head=`<ellipse cx="50" cy="26" rx="27" ry="6" fill="#3b2a1d"/><path d="M36 26 Q37 10 50 10 Q63 10 64 26Z" fill="#4a3526"/><path d="M60 14 Q76 2 80 10 Q70 12 62 20Z" fill="#c33"/>`; break;
+    case 'venec': head=[30,38,46,54,62,70].map((x,i)=>`<circle cx="${x}" cy="${26-(i===0||i===5?-4:i===1||i===4?0:2)}" r="4.5" fill="${['#e46a8a','#f2c14e','#fff','#e46a8a','#f2c14e','#fff'][i]}"/>`).join(''); break;
+    case 'masle': head=`<path d="M60 22 L50 14 L50 30Z M60 22 L70 14 L70 30Z" fill="#e0457b"/><circle cx="60" cy="22" r="3" fill="#b8325e"/>`; break;
+    case 'capka': head=`<path d="M30 32 Q30 12 50 12 Q70 12 70 32Z" fill="#b3261e"/><rect x="29" y="28" width="42" height="7" rx="3" fill="#8e1b14"/><circle cx="50" cy="10" r="5" fill="#fff"/>`; break;
+    case 'celenka': head=`<path d="M30 30 Q50 22 70 30" stroke="#2a4f8a" stroke-width="4" fill="none"/><circle cx="50" cy="25.5" r="2.5" fill="#e0b43a"/>`; break;
+    case 'satek': head=`<path d="M28 38 Q28 14 50 14 Q72 14 72 38 Q64 28 50 28 Q36 28 28 38Z" fill="#c0392b"/><path d="M70 34 L82 42 L74 46Z" fill="#c0392b"/>${[[40,20],[50,18],[60,20],[46,25],[56,25]].map(([x,y])=>`<circle cx="${x}" cy="${y}" r="1.4" fill="#fff"/>`).join('')}`; break;
+    case 'bereta': head=`<ellipse cx="46" cy="22" rx="22" ry="8" fill="#26262b" transform="rotate(-10 46 22)"/><circle cx="44" cy="13" r="2" fill="#26262b"/>`; break;
+    case 'kapuce': head=`<path d="M26 46 Q24 12 50 12 Q76 12 74 46 L70 58 Q72 30 50 26 Q28 30 30 58Z" fill="#5a4a3a"/>`; break;
+    case 'pirat': head=`<path d="M29 34 Q30 16 50 16 Q70 16 71 34Z" fill="#26262b"/><path d="M70 30 L82 36 M70 30 L80 42" stroke="#26262b" stroke-width="3.5"/><circle cx="50" cy="25" r="3.5" fill="#fff"/><path d="M47 29 L53 29" stroke="#fff" stroke-width="1.2"/>`; break;
+    case 'knizeci': head=`<path d="M34 24 Q36 6 50 6 Q64 6 66 24Z" fill="#b3261e"/><rect x="30" y="22" width="40" height="9" rx="4" fill="#8a6a44"/><path d="M34 26h4M42 25h4M50 26h4M58 25h4" stroke="#5e4630" stroke-width="1.4"/><circle cx="50" cy="6" r="2.5" fill="#e0b43a"/>`; break;
+    case 'carodej': head=`<ellipse cx="50" cy="26" rx="26" ry="5.5" fill="#3d2a6b"/><path d="M36 26 L56 -6 L64 26Z" fill="#5b3d9a"/><path d="M52 8l1 2 2 .3-1.5 1.4.4 2.1L52 12.8l-1.9 1 .4-2.1L49 10.3l2-.3z" fill="#f2c14e"/><circle cx="58" cy="18" r="1.3" fill="#f2c14e"/>`; break;
+    case 'diadem': head=`<path d="M34 28 Q50 20 66 28" stroke="#e0b43a" stroke-width="2.5" fill="none"/><path d="M50 22 L47 17 L50 12 L53 17Z" fill="#2bb8b0" stroke="#e0b43a" stroke-width="1"/><circle cx="41" cy="24.5" r="1.8" fill="#e0457b"/><circle cx="59" cy="24.5" r="1.8" fill="#e0457b"/>`; break;
+  }
+
+  /* ----- v ruce ----- */
+  let hand='';
+  switch(L.hand){
+    case 'mec': hand=`<g transform="rotate(-20 75 95)"><rect x="73" y="52" width="5" height="40" rx="1" fill="#c9ced3"/><rect x="67" y="90" width="17" height="4" rx="2" fill="#7a5533"/><rect x="73.5" y="94" width="4" height="9" fill="#4a3526"/></g>`; break;
+    case 'kniha': hand=`<rect x="66" y="86" width="18" height="14" rx="2" fill="#6b4226"/><rect x="68" y="88" width="14" height="10" fill="#efe6d4"/>`; break;
+    case 'kvetina': hand=`<path d="M76 95 Q78 82 76 72" stroke="#3d7a3f" stroke-width="2" fill="none"/><path d="M77 84 q6 -4 8 0 q-4 3 -8 0Z" fill="#3d7a3f"/>${[0,72,144,216,288].map(a=>`<circle cx="${76+5*Math.cos(a*Math.PI/180)}" cy="${70+5*Math.sin(a*Math.PI/180)}" r="3.5" fill="#e46a8a"/>`).join('')}<circle cx="76" cy="70" r="2.8" fill="#f2c14e"/>`; break;
+    case 'hul': hand=`<path d="M77 60 L75 134" stroke="#7a5533" stroke-width="3.5" stroke-linecap="round"/><path d="M77 60 Q84 54 80 50" stroke="#7a5533" stroke-width="3.5" fill="none" stroke-linecap="round"/>`; break;
+    case 'lucerna': hand=`<path d="M75 95 V100" stroke="#2a1d16" stroke-width="1.5"/><rect x="69" y="100" width="12" height="16" rx="2" fill="#f2c14e" stroke="#2a1d16" stroke-width="1.8"/><path d="M69 104 H81 M69 112 H81" stroke="#2a1d16" stroke-width="1.2"/><circle cx="75" cy="108" r="2.5" fill="#fff5c0"/>`; break;
+    case 'pochoden': hand=`<path d="M76 104 L79 74" stroke="#7a5533" stroke-width="4" stroke-linecap="round"/><path d="M79 76 Q70 66 78 54 Q80 62 84 60 Q88 70 79 76Z" fill="#f08a24"/><path d="M79 74 Q75 68 79 62 Q82 68 79 74Z" fill="#f2c14e"/>`; break;
+    case 'cep': hand=`<path d="M75 100 L79 70" stroke="#7a5533" stroke-width="4" stroke-linecap="round"/><path d="M79 70 Q84 64 86 60" stroke="#6b6b6b" stroke-width="1.6" stroke-dasharray="2 1.2" fill="none"/><rect x="83" y="44" width="6" height="18" rx="2" fill="#8a6a44" transform="rotate(18 86 53)"/>${[48,54].map(y=>`<circle cx="${88.5+(y-48)*.3}" cy="${y}" r="1.2" fill="#555"/>`).join('')}`; break;
+    case 'stit': hand=`<path d="M12 80 H38 V96 Q38 110 25 116 Q12 110 12 96Z" fill="#2a4f8a" stroke="#e0b43a" stroke-width="2"/><path d="M25 82 V112 M14 94 H36" stroke="#e0b43a" stroke-width="3"/>`; break;
+    case 'luk': hand=`<path d="M80 64 Q96 95 80 126" stroke="#7a5533" stroke-width="3" fill="none"/><path d="M80 64 L80 126" stroke="#e8e4da" stroke-width="1"/>`; break;
+    case 'sekera': hand=`<path d="M75 102 L80 62" stroke="#7a5533" stroke-width="3.5" stroke-linecap="round"/><path d="M79 64 Q92 60 92 72 Q86 70 78 74Z" fill="#9aa3ab" stroke="#6b737a" stroke-width="1"/>`; break;
+    case 'prapor': hand=`<path d="M77 134 L77 30" stroke="#5a3f28" stroke-width="3"/><path d="M78 32 L104 38 L96 46 L104 54 L78 56Z" fill="#b3261e"/><path d="M84 40 l2 4 4 .5-3 2.5 1 4-4-2-4 2 1-4-3-2.5 4-.5z" fill="#fff"/>`; break;
+    case 'zezlo': hand=`<path d="M76 104 L80 62" stroke="#e0b43a" stroke-width="3.5" stroke-linecap="round"/><circle cx="80.5" cy="58" r="5" fill="#e0b43a" stroke="#a37b1c" stroke-width="1.2"/><path d="M80.5 50 v-6 M77.5 47 h6" stroke="#e0b43a" stroke-width="2"/><circle cx="80.5" cy="58" r="2" fill="#c33"/>`; break;
+  }
+
+  /* ----- mazlíček ----- */
+  let pet='';
+  switch(L.pet){
+    case 'pes': pet=`<ellipse cx="2" cy="124" rx="13" ry="7" fill="#9b6a3c"/><rect x="-8" y="126" width="4" height="10" rx="2" fill="#9b6a3c"/><rect x="8" y="126" width="4" height="10" rx="2" fill="#9b6a3c"/><path d="M14 120 Q22 112 20 108" stroke="#9b6a3c" stroke-width="3.5" fill="none" stroke-linecap="round"/><circle cx="-11" cy="114" r="7.5" fill="#9b6a3c"/><ellipse cx="-16" cy="112" rx="3" ry="6" fill="#6b4226"/><circle cx="-13" cy="113" r="1.2" fill="#111"/><circle cx="-18" cy="117" r="1.6" fill="#111"/>`; break;
+    case 'kocka': pet=`<path d="M12 128 Q26 120 18 108" stroke="#8a8f96" stroke-width="3.5" fill="none" stroke-linecap="round"/><ellipse cx="2" cy="126" rx="12" ry="8" fill="#8a8f96"/><circle cx="-8" cy="114" r="7" fill="#8a8f96"/><path d="M-14 110 L-13 102 L-8 108Z M-2 110 L-3 102 L-8 108Z" fill="#8a8f96"/><circle cx="-11" cy="114" r="1.2" fill="#2bb84a"/><circle cx="-5" cy="114" r="1.2" fill="#2bb84a"/><path d="M-9 117 l1 1 1-1" stroke="#e46a8a" stroke-width="1" fill="none"/>`; break;
+    case 'sova': pet=`<ellipse cx="0" cy="122" rx="10" ry="13" fill="#8a6a44"/><ellipse cx="0" cy="126" rx="6" ry="8" fill="#e8d7a8"/><circle cx="-4" cy="115" r="4" fill="#fff"/><circle cx="4" cy="115" r="4" fill="#fff"/><circle cx="-4" cy="115" r="2" fill="#111"/><circle cx="4" cy="115" r="2" fill="#111"/><path d="M-1 118 L1 118 L0 121Z" fill="#e0b43a"/><path d="M-8 110 L-6 105 L-3 110Z M8 110 L6 105 L3 110Z" fill="#8a6a44"/>`; break;
+    case 'kralik': pet=`<ellipse cx="2" cy="128" rx="11" ry="8" fill="#f4f1ea"/><circle cx="-7" cy="118" r="6.5" fill="#f4f1ea"/><ellipse cx="-10" cy="104" rx="2.5" ry="8" fill="#f4f1ea"/><ellipse cx="-4" cy="104" rx="2.5" ry="8" fill="#f4f1ea"/><ellipse cx="-10" cy="104" rx="1" ry="5" fill="#f2b8c6"/><ellipse cx="-4" cy="104" rx="1" ry="5" fill="#f2b8c6"/><circle cx="-9" cy="117" r="1.1" fill="#111"/><circle cx="-12" cy="120" r="1.1" fill="#e46a8a"/><circle cx="13" cy="126" r="3" fill="#fff"/>`; break;
+    case 'liska': pet=`<path d="M12 126 Q30 120 22 106 Q18 116 10 120Z" fill="#e8742a"/><path d="M22 106 Q24 110 20 112 Q19 108 22 106Z" fill="#fff"/><ellipse cx="2" cy="126" rx="12" ry="7" fill="#e8742a"/><path d="M-16 112 L-8 108 L-2 114 L-8 122Z" fill="#e8742a"/><path d="M-12 110 L-11 102 L-7 108Z M-5 111 L-3 103 L-2 110Z" fill="#e8742a"/><path d="M-16 112 L-10 118 L-8 122Z" fill="#fff"/><circle cx="-8" cy="113" r="1.1" fill="#111"/><circle cx="-16" cy="112" r="1.2" fill="#111"/>`; break;
+    case 'kure': pet=`<ellipse cx="0" cy="124" rx="10" ry="9" fill="#fff"/><path d="M8 118 Q16 112 14 122Z" fill="#fff"/><circle cx="-6" cy="113" r="5.5" fill="#fff"/><path d="M-9 108 q1 -4 3 -1 q1 -4 3 0 q2 -3 2 2" fill="#d6336c"/><path d="M-11 113 L-15 114.5 L-11 116Z" fill="#e0b43a"/><circle cx="-7" cy="112" r="1" fill="#111"/><path d="M-10 118 q-1 3 1 4" stroke="#d6336c" stroke-width="1.8" fill="none"/><path d="M-3 132 v5 M3 132 v5" stroke="#e0b43a" stroke-width="1.8"/>`; break;
+    case 'drak': pet=`<path d="M10 126 Q26 132 24 116" stroke="#3a9a4a" stroke-width="4" fill="none" stroke-linecap="round"/><path d="M-2 116 Q-12 98 6 104 Q2 110 4 116Z" fill="#7fd08a"/><ellipse cx="2" cy="125" rx="11" ry="8" fill="#3a9a4a"/><circle cx="-9" cy="113" r="7" fill="#3a9a4a"/><path d="M-12 107 L-10 101 L-7 106 M-6 106 L-3 101 L-2 107" fill="#3a9a4a" stroke="#2d7a3a" stroke-width="1"/><circle cx="-11" cy="112" r="1.4" fill="#fff"/><circle cx="-11" cy="112" r=".7" fill="#111"/><path d="M-16 115 q-4 -1 -6 1 q3 1 5 0" fill="#f08a24"/><path d="M-4 118 q4 6 10 0" stroke="#2d7a3a" stroke-width="1" fill="none"/>`; break;
+  }
+
+  return `<svg viewBox="-24 -8 148 146" aria-hidden="true">${defs.replace('</defs>',chain+'</defs>')}${back}${hb}${legs}${shoes}${body}${arms}<rect x="45" y="55" width="10" height="7" fill="${s}"/>${neck}
+    <circle cx="50" cy="40" r="20" fill="${s}"/>${eyes}${mouth}<circle cx="38" cy="47" r="3" fill="#e27a6a" opacity=".3"/><circle cx="62" cy="47" r="3" fill="#e27a6a" opacity=".3"/>${face}${hf}${head}${hand}${pet}</svg>`;
+}
+const coinSvg=(col)=>`<svg class="coin" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10.5" fill="${col}" stroke="#00000033" stroke-width="1.5"/><circle cx="12" cy="12" r="6.5" fill="none" stroke="#ffffff88" stroke-width="1.5"/></svg>`;
+
+/* ================= OBCHOD ================= */
+const HEALS=[
+  {id:'obvaz',ic:'🩹',n:'Obvaz',d:'+20 životů',p:8,v:20},
+  {id:'lektvar',ic:'🧪',n:'Léčivý lektvar',d:'+50 životů',p:18,v:50},
+  {id:'elixir',ic:'✨',n:'Zázračný elixír',d:'Doplní všechny životy',p:35,v:999}];
+const UPG=[
+  {id:'srdce',ic:'❤️',n:'Srdce navíc',d:'Maximum životů +20',p:()=>[40,100,150,200,250,300,350,500][S.up.srdce]||500,max:8},
+  {id:'mesec',ic:'👝',n:'Větší měšec',d:'Za každou správnou odpověď +5 navíc',p:()=>60+S.up.mesec*40,max:4},
+  {id:'zbroj',ic:'🛡️',n:'Kožená zbroj',d:'Chybná odpověď ubere jen polovinu životů',p:()=>80,max:1},
+  {id:'amulet',ic:'🧿',n:'Amulet ochrany',d:'První chyba v každém kole otázek tě nic nestojí',p:()=>120,max:1},
+  {id:'napoveda',ic:'🦉',n:'Sova rádkyně',d:'Nápověda: zmizí dvě špatné odpovědi',p:()=>15,max:99}];
+
+/* ================= STAV ================= */
+const KEY='cesta-dejinami-v1';
+let S=null;
+let UI={screen:'create',look:{...DEFLOOK},name:''};
+const rnd=(a,b)=>Math.floor(Math.random()*(b-a+1))+a;
+const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=rnd(0,i);[a[i],a[j]]=[a[j],a[i]];}return a;};
+const E=()=>ERAS[S.era];
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){}}
+function load(){try{const r=localStorage.getItem(KEY);const s=r?JSON.parse(r):null;if(!s)return null;
+  delete s.dead; delete s.food; delete s.drink;
+  const L=s.look||{};
+  if(typeof L.hc==='number') L.hc='hc'+L.hc; if(typeof L.eye==='number'){ L.eyec='ec'+L.eye; delete L.eye; } if(typeof L.cloth==='number') L.cloth='c'+L.cloth;
+  if(s.worn){ for(const k of ['head','back','hand']) if(s.worn[k]) L[k]=s.worn[k]; for(const id in (s.owned||{})){ const x=CATALOG.find(y=>y.id===id); if(x) s.owned[id+'@'+x.cat]=1; } delete s.worn; }
+  s.look={...DEFLOOK,...L}; s.up={srdce:0,mesec:0,zbroj:0,amulet:0,napoveda:0,...s.up}; s.owned=s.owned||{};
+  return s;}catch(e){return null;}}
+function wipe(){try{localStorage.removeItem(KEY);}catch(e){}}
+function money(n){ const c=E().cur; const w=n===1?c[2]:(n>=2&&n<=4)?c[0]:c[1]; return `${n} ${w}`; }
+function prog(id){ return S.prog[id]||(S.prog[id]={facts:0,order:false,quiz:false,done:false}); }
+
+function toast(t){ UI.toast=t; clearTimeout(UI.tt); UI.tt=setTimeout(()=>{UI.toast=null;const x=document.querySelector('.toast');if(x)x.remove();},2600); }
+
+function start(){
+  S={name:UI.name.trim()||'Poutník',look:{...DEFLOOK,...UI.look},hp:100,maxHp:100,money:25,era:0,unlocked:0,prog:{},up:{srdce:0,mesec:0,zbroj:0,amulet:0,napoveda:1},owned:{},streak:0,ok:0,bad:0};
+  UI.screen='era'; save(); render();
+}
+function tire(){}
+function heal(){}
+function hurt(){
+  if(S.up.amulet&&UI.screen==='quiz'&&UI.q&&!UI.q.amu){ UI.q.amu=true; S.streak=0; S.bad++; return 0; }
+  const d=S.up.zbroj?10:20; S.hp=Math.max(0,S.hp-d); S.streak=0; S.bad++; UI.shake=true;
+  if(S.hp<=0){ UI.screen='faint'; }
+  return d;
+}
+function reward(base){
+  let g=base+S.up.mesec*5; S.streak++; S.ok++;
+  if(S.streak>0&&S.streak%3===0){ g+=10; toast(`Tři správně za sebou! Bonus +10`); }
+  S.money+=g; UI.pop=true; return g;
+}
+function checkEraDone(){
+  const p=prog(E().id);
+  if(!p.done && p.facts>=E().facts.length+1 && p.order && p.quiz){
+    p.done=true; S.money+=50;
+    if(S.unlocked<ERAS.length-1 && S.unlocked===S.era) S.unlocked++;
+    UI.screen=S.era>=ERAS.length-1?'victory':'eraDone';
+  }
+}
+function goEra(i){
+  if(i>S.unlocked) return;
+  const from=E(); S.era=i; const to=E();
+  if(from.cur[0]!==to.cur[0]) toast(`Směnárna: tvé peníze jsou teď ${to.cur[0]}`);
+  UI.screen='era'; if(from!==to) tire(8,10); save(); render();
+}
+
+/* ================= GENERÁTOR OTÁZEK ================= */
+const GAPS={premyslovci:1,ceskoslovensko:1};
+const KIND={keltove:'doby',husite:'events',ceskoslovensko:'pres',cesko:'pres'};
+function parseItems(e){
+  return e.order.items.map((it,i)=>{
+    const o={...it,i}; const y=it.y;
+    if(/asi|přestávkou|nejstarší|století/.test(y)){ o.approx=true; }
+    let m=y.match(/^(\d{3,4})–(\d{4})$/); if(m&&!o.approx){ o.s=+m[1]; o.e=+m[2]; o.d=o.e-o.s; }
+    m=y.match(/^(\d{4})$/); if(m){ o.s=+m[1]; }
+    m=y.match(/^od (\d{4})$/); if(m){ o.s=+m[1]; }
+    o.f=/Marie Terezie/.test(it.n);
+    return o;
+  });
+}
+const yrs=n=>n===1?'1 rok':n<5?`${n} roky`:`${n} let`;
+function pick3(correct,pool){ return shuffle([...new Set(pool.filter(x=>x!==correct))]).slice(0,3); }
+function fakeDur(d,have){ const set=new Set(have.filter(x=>x!==d&&x>0)); const deltas=shuffle([3,5,7,10,12,15,20,-3,-5,-7,-10]); for(const k of deltas){ if(set.size>=3) break; const v=d+k; if(v>0&&v!==d) set.add(v);} return shuffle([...set]).slice(0,3); }
+function genQs(e){
+  const K=KIND[e.id]||'rulers', it=parseItems(e), out=[], names=it.map(x=>x.n);
+  const V=x=>K==='pres'?(x.f?'byla prezidentkou':'byl prezidentem'):(x.f?'vládla':'vládl');
+  const Kdo=K==='pres'?'Kdo byl prezidentem':'Kdo vládl';
+  const on=x=>x.f?'ní':'něm';
+  const when=x=>/^od (\d{4})$/.test(x.y)?`od roku ${x.y.slice(3)}`:/^(asi )?\d/.test(x.y)?`v letech ${x.y}`:`v době: ${x.y}`;
+  it.forEach((x,k)=>{
+    if(K==='rulers'||K==='pres'){
+      // délka vlády
+      if(x.d){ const others=it.filter(z=>z.d).map(z=>z.d); const w=fakeDur(x.d,others); if(w.length===3) out.push({q:`Jak dlouho ${V(x)} ${x.n}?`,a:[yrs(x.d),...w.map(yrs)],x:`${x.n} ${V(x)} ${when(x)}, tedy ${yrs(x.d)}.`}); }
+      // kdo v letech
+      const w=pick3(x.n,names); if(w.length>=1) out.push({q:`${Kdo} ${when(x)}?`,a:[x.n,...w],x:`${when(x)[0].toUpperCase()+when(x).slice(1)} ${V(x)} ${x.n}.`});
+      // po / před
+      if(k<it.length-1&&!GAPS[e.id]){ const nx=it[k+1]; const w2=pick3(nx.n,names.filter(n=>n!==x.n)); if(w2.length) out.push({q:`${x.n} ${V(x)} ${when(x)}. ${Kdo} hned po ${on(x)}?`,a:[nx.n,...w2],x:`Po ${x.f?'ní':'něm'} ${nx.f?'přišla':'přišel'} ${nx.n} (${nx.y}).`}); }
+      if(k>0&&!GAPS[e.id]){ const pv=it[k-1]; const w2=pick3(pv.n,names.filter(n=>n!==x.n)); if(w2.length) out.push({q:`${x.n} ${V(x)} ${when(x)}. ${Kdo} těsně před ${x.f?'ní':'ním'}?`,a:[pv.n,...w2],x:`Před ${x.f?'ní':'ním'} ${V(pv)} ${pv.n} (${pv.y}).`}); }
+      // rok nástupu
+      if(x.s&&!x.approx){ const ys=it.filter(z=>z.s&&z.s!==x.s).map(z=>String(z.s)); const extra=[x.s-10,x.s+10,x.s-25,x.s+25].map(String); const w3=pick3(String(x.s),ys.concat(extra)); out.push({q:`V jakém roce začal${x.f?'a':''} ${K==='pres'?'být prezidentem':'vládnout'} ${x.n}?`,a:[String(x.s),...w3],x:`${x.n}: ${x.y}.`}); }
+    }
+    if(K==='events'){
+      const w=pick3(String(x.s),it.map(z=>String(z.s)).concat([String(x.s-3),String(x.s+2)]));
+      out.push({q:`Ve kterém roce se stalo: ${x.n}?`,a:[String(x.s),...w],x:`${x.n}: roku ${x.s}.`});
+      out.push({q:`Co se stalo roku ${x.s}?`,a:[x.n,...pick3(x.n,names)],x:`Roku ${x.s}: ${x.n}.`});
+    }
+    if(K==='doby'&&k<it.length-1){ const nx=it[k+1]; out.push({q:`Co přišlo hned po tomhle období: ${x.n}?`,a:[nx.n,...pick3(nx.n,names.filter(n=>n!==x.n))],x:`Po období ${x.n} přišlo: ${nx.n}.`}); }
+  });
+  // co bylo dřív
+  for(let t=0;t<3;t++){ const [a,b]=shuffle(it).slice(0,2); if(!a||!b) break; const first=a.i<b.i?a:b, second=first===a?b:a;
+    out.push({q:K==='rulers'?`Kdo vládl dřív?`:K==='pres'?'Kdo byl prezidentem dřív?':'Co bylo dřív?',a:[first.n,second.n],x:`Nejdřív: ${first.n} (${first.y}). Potom: ${second.n} (${second.y}).`}); }
+  // nejdéle
+  const withD=it.filter(z=>z.d); if(withD.length>=3){ const c=shuffle(withD).slice(0,Math.min(4,withD.length)); const best=c.reduce((m,z)=>z.d>m.d?z:m); if(c.filter(z=>z.d===best.d).length===1) out.push({q:K==='pres'?'Kdo z nich byl prezidentem nejdéle?':'Kdo z nich vládl nejdéle?',a:[best.n,...c.filter(z=>z!==best).map(z=>z.n)],x:c.map(z=>`${z.n}: ${yrs(z.d)}`).join(', ')+'.'}); }
+  return out;
+}
+function buildQuiz(e){
+  const st=shuffle(e.qs).slice(0,4), gen=shuffle(genQs(e));
+  const seen=new Set(); const g=[]; for(const q of gen){ if(seen.has(q.q)) continue; seen.add(q.q); g.push(q); if(g.length>=3) break; }
+  const list=shuffle(st.slice(0,6-g.length).concat(g));
+  return list;
+}
+
+/* ================= ZAJÍMAVOSTI ================= */
+const factsLocked=()=>{ const p=prog(E().id); return p.facts>=E().facts.length+1 && !p.quiz; };
+function openFacts(){ if(factsLocked()){ toast('🔒 Zajímavosti už máš přečtené. Znovu se otevřou, až zvládneš otázky.'); return render(); } UI.fi=0; UI.screen='facts'; render(); }
+function nextFact(){
+  const p=prog(E().id);
+  if(UI.fi+1>p.facts){ p.facts=UI.fi+1; S.money+=2; toast(`Za přečtení +2 ${E().cur[1]}`); }
+  UI.fi++;
+  if(UI.fi>=E().facts.length+1){ UI.screen='era'; tire(4,5); checkEraDone(); }
+  save(); render();
+}
+
+/* ================= ŘAZENÍ ================= */
+function openOrder(){ const it=E().order.items; const n=it.length; const size=n>4?rnd(4,n):n; const sub=shuffle(it.map((_,i)=>i)).slice(0,size).sort((a,b)=>a-b); const rev=Math.random()<.5; const target=rev?sub.slice().reverse():sub;
+  UI.ord={pool:shuffle(sub),slots:Array(size).fill(null),checked:false,rev,target}; UI.screen='order'; render(); }
+function pickPool(i){ const o=UI.ord; if(o.checked) return; const k=o.slots.indexOf(null); if(k<0) return; o.slots[k]=i; o.pool=o.pool.filter(x=>x!==i); render(); }
+function unSlot(k){ const o=UI.ord; if(o.checked||o.slots[k]===null) return; o.pool.push(o.slots[k]); o.slots[k]=null; render(); }
+function checkOrder(){
+  const o=UI.ord; o.checked=true; const p=prog(E().id);
+  o.okAll=o.slots.every((v,k)=>v===o.target[k]);
+  if(o.okAll){ const g=reward(p.order?10:15); o.msg=`Výborně, všechno sedí! Dostáváš ${money(g)}.`; p.order=true; }
+  else { const d=hurt(); o.msg=`Některé nejsou na správném místě. Přicházíš o ${d} životů. Podívej se na roky a zkus to znovu.`; }
+  heal(); tire(5,6); save(); render();
+}
+
+/* ================= OTÁZKY ================= */
+function openQuiz(){ const list=buildQuiz(E()); UI.q={list,i:0,ok:0,ans:null,hidden:[],opts:shuffle(list[0].a.map((_,i)=>i))}; UI.screen='quiz'; render(); }
+function answer(j){
+  const Q=UI.q; if(Q.ans!==null) return; Q.ans=j;
+  if(j===0){ Q.ok++; Q.gain=reward(10); } else { Q.dmg=hurt(); }
+  heal(); save(); render();
+}
+function useHint(){ const Q=UI.q; if(S.up.napoveda<1||Q.ans!==null||Q.hidden.length) return; const q=Q.list[Q.i]; if(q.a.length<3) return; S.up.napoveda--; Q.hidden=shuffle(q.a.map((_,i)=>i).slice(1)).slice(0,Math.min(2,q.a.length-2)); save(); render(); }
+function nextQ(){
+  const Q=UI.q; Q.i++; Q.ans=null; Q.hidden=[]; if(Q.i<Q.list.length) Q.opts=shuffle(Q.list[Q.i].a.map((_,i)=>i));
+  if(Q.i>=Q.list.length){ Q.done=true; tire(12,15); const need=Math.ceil(Q.list.length*0.6); Q.pass=Q.ok>=need; Q.need=need; if(Q.pass){ prog(E().id).quiz=true; } }
+  save(); render();
+}
+
+/* ================= OBCHOD ================= */
+function buyHeal(id){ const f=HEALS.find(x=>x.id===id); if(S.money<f.p) return; if(S.hp>=S.maxHp){ toast('Máš plné životy'); return render(); } S.money-=f.p; S.hp=Math.min(S.maxHp,S.hp+f.v); toast(`${f.n}: životy doplněny`); save(); render(); }
+function buyUpg(id){ const u=UPG.find(x=>x.id===id); const p=u.p(); if(S.money<p||S.up[id]>=u.max) return; S.money-=p; S.up[id]=(S.up[id]||0)+1; if(id==='srdce'){ S.maxHp+=20; S.hp+=20; } toast(`Koupeno: ${u.n}`); save(); render(); }
+const owns=x=>x.p===0||S.owned[x.id+'@'+x.cat]||S.owned[x.id];
+function tapItem(cat,id){
+  if(id===null){ S.look[cat]=null; UI.try=null; save(); return render(); }
+  const x=ITEM[cat+':'+id];
+  if(owns(x)){ S.look[cat]=id; UI.try=null; save(); return render(); }
+  UI.try={cat,id}; render();
+}
+function buyTry(){
+  const t=UI.try; if(!t) return; const x=ITEM[t.cat+':'+t.id];
+  if(S.money<x.p) return;
+  S.money-=x.p; S.owned[x.id+'@'+x.cat]=1; S.look[t.cat]=t.id; UI.try=null; toast(`Koupeno: ${x.n}`); save(); render();
+}
+function shopView(e){
+  const tab=UI.tab||'upg';
+  const tabs=[['upg','⭐ Vylepšení']].concat(CATS).map(([k,n])=>`<button class="chip" aria-pressed="${tab===k}" onclick="UI.tab='${k}';UI.try=null;render()">${n}</button>`).join('');
+  const t=UI.try, tx=t&&ITEM[t.cat+':'+t.id];
+  const prev=avatar(S.look,t?{[t.cat]:t.id}:{});
+  const ownedN=CATALOG.filter(x=>x.p>0&&owns(x)).length;
+  let body='';
+  if(tab==='upg'){
+    body=`<h3 class="sect" style="margin-top:0">Léčení</h3><p class="muted" style="margin:-4px 0 10px">Životy ztrácíš za chybné odpovědi. Tady si je doplníš.</p>
+    <div class="shopgrid">${HEALS.map(f=>`<div class="item"><span class="ic">${f.ic}</span><b>${f.n}</b><span class="d">${f.d}</span><div class="buy"><span>${money(f.p)}</span><button ${S.money<f.p?'disabled':''} onclick="buyHeal('${f.id}')">Koupit</button></div></div>`).join('')}</div>
+    <h3 class="sect">Vylepšení</h3><div class="shopgrid">${UPG.map(u=>{const p=u.p(),lv=S.up[u.id]||0,mx=lv>=u.max;return `<div class="item"><span class="ic">${u.ic}</span><b>${u.n}</b><span class="d">${u.d}${u.id==='napoveda'?` (máš ${lv})`:u.max>1?` (úroveň ${lv}/${u.max})`:''}</span><div class="buy"><span>${mx?'':money(p)}</span><button ${mx||S.money<p?'disabled':''} onclick="buyUpg('${u.id}')">${mx?'Máš':'Koupit'}</button></div></div>`;}).join('')}</div>`;
+  } else {
+    const list=CATALOG.filter(x=>x.cat===tab);
+    const cards=(OPT.has(tab)?[{cat:tab,id:null,n:'Nic',p:0}]:[]).concat(list).map(x=>{
+      const on=S.look[tab]===x.id, own=x.id===null||owns(x), trying=t&&t.cat===tab&&t.id===x.id;
+      return `<button class="ward ${on?'on':''} ${trying?'try':''}" onclick="tapItem('${tab}',${x.id===null?'null':`'${x.id}'`})">
+        <span class="mini">${avatar(S.look,{[tab]:x.id})}</span><b>${x.n}</b>
+        <span class="tag ${own?'':'price'}">${on?'✓ máš na sobě':own?'obléknout':money(x.p)}</span></button>`;}).join('');
+    body=`<div class="wardgrid">${cards}</div>`;
+  }
+  return `<div class="shop">
+    <aside class="preview"><div class="pv">${prev}</div>
+      ${tx?`<div class="trybox"><b>${tx.n}</b><span>${money(tx.p)}</span>
+        ${S.money>=tx.p?`<button class="primary" onclick="buyTry()">Koupit</button>`:`<span class="muted" style="font-size:15px">Chybí ti ${money(tx.p-S.money)}</span>`}
+        <button class="ghost" onclick="UI.try=null;render()">Zrušit</button></div>`
+        :`<p class="muted" style="margin:6px 0 0;font-size:15px;text-align:center">Klikni na věc a vyzkoušej si ji. Koupeno máš ${ownedN} z ${PAID} věcí.</p>`}
+      <button class="ghost" style="width:100%;margin-top:10px" onclick="UI.try=null;UI.screen='era';render()">Zpět do doby</button>
+    </aside>
+    <div><h2 style="font-size:40px">Tržiště</h2><p class="muted" style="margin:4px 0 12px">Utrať ${e.cur[0]}, které sis vydělal správnými odpověďmi, za vylepšení a nové oblečení.</p>
+      <div class="chips tabs">${tabs}</div>${body}</div>
+  </div>`;
+}
+
+/* ================= BONUSOVÉ ÚKOLY ================= */
+const bonusOpen=()=>prog(E().id).quiz;
+function lockToast(){ toast('🔒 Bonusové úkoly se otevřou, až zvládneš otázky.'); render(); }
+
+// Pexeso
+/* ---- obrázky pod pexesem ---- */
+const PIC={
+ keltove:['Keltské oppidum a duhovka',`<rect width="300" height="200" fill="#bfe0ef"/><path d="M20 150 A130 130 0 0 1 280 150" stroke="#e74c3c" stroke-width="8" fill="none"/><path d="M32 150 A118 118 0 0 1 268 150" stroke="#f1c40f" stroke-width="8" fill="none"/><path d="M44 150 A106 106 0 0 1 256 150" stroke="#2ecc71" stroke-width="8" fill="none"/><path d="M56 150 A94 94 0 0 1 244 150" stroke="#3498db" stroke-width="8" fill="none"/><circle cx="150" cy="70" r="24" fill="#e0b43a" stroke="#a37b1c" stroke-width="3"/><circle cx="150" cy="70" r="13" fill="none" stroke="#fff5c0" stroke-width="3"/><path d="M0 150 Q150 110 300 150 V200 H0Z" fill="#6a8f43"/>${[40,70,100,130,160,190,220,250].map(x=>`<rect x="${x}" y="126" width="6" height="30" fill="#7a5533"/><path d="M${x} 126 l3 -6 3 6" fill="#7a5533"/>`).join('')}<path d="M90 170 L110 146 L130 170Z M170 172 L192 144 L214 172Z" fill="#b08a4a"/><rect x="96" y="170" width="28" height="16" fill="#8a6a44"/><rect x="176" y="172" width="32" height="16" fill="#8a6a44"/>`],
+ morava:['Velkomoravská rotunda',`<rect width="300" height="200" fill="#f3dca4"/><circle cx="240" cy="50" r="22" fill="#f6b73c"/><path d="M0 160 H300 V200 H0Z" fill="#7a9a4a"/><rect x="110" y="90" width="80" height="70" fill="#e8e0cc" stroke="#8a7a5a" stroke-width="2"/><path d="M106 92 A44 40 0 0 1 194 92Z" fill="#b8573a"/><rect x="138" y="124" width="24" height="36" rx="12" fill="#5a3f28"/><path d="M150 58 V36 M141 44 H159" stroke="#5a3f28" stroke-width="4"/><path d="M30 60 Q55 50 80 60 V100 Q55 90 30 100Z M80 60 Q105 50 130 60 V100 Q105 90 80 100Z" fill="#fff8e6" stroke="#8a5a2b" stroke-width="2"/><path d="M40 70 h28 M40 78 h24 M40 86 h28 M90 70 h28 M90 78 h24 M90 86 h28" stroke="#8a5a2b" stroke-width="2"/>`],
+ premyslovci:['Knížecí hrad',`<rect width="300" height="200" fill="#9fc7e6"/><path d="M0 170 Q150 100 300 170 V200 H0Z" fill="#5f8a3a"/><rect x="80" y="80" width="140" height="60" fill="#c9bfa8"/><path d="M80 80 h14 v-10 h14 v10 h14 v-10 h14 v10 h14 v-10 h14 v10 h14 v-10 h14 v10 h14 v-10 h14 v10" fill="#c9bfa8"/><rect x="60" y="50" width="34" height="90" fill="#b3a88e"/><rect x="206" y="50" width="34" height="90" fill="#b3a88e"/><path d="M56 50 L77 24 L98 50Z M202 50 L223 24 L244 50Z" fill="#a8322d"/><rect x="136" y="104" width="28" height="36" rx="14" fill="#4a3526"/><path d="M223 24 V8 L246 14 L223 20" fill="#a8322d" stroke="#5a3f28" stroke-width="2"/><path d="M130 40 l6 -14 8 9 6 -13 6 13 8 -9 6 14Z" fill="#e0b43a"/>`],
+ lucemburkove:['Karlův most',`<rect width="300" height="200" fill="#f0c98a"/><circle cx="60" cy="50" r="20" fill="#fff0c0"/><path d="M0 150 H300 V200 H0Z" fill="#3b6f9a"/><path d="M0 120 H300 V132 H0Z" fill="#8a7a64"/>${[30,95,160,225].map(x=>`<path d="M${x} 132 h50 v28 a25 18 0 0 0 -50 0Z" fill="#8a7a64"/>`).join('')}<rect x="250" y="60" width="36" height="72" fill="#6b5b48"/><path d="M246 60 L268 30 L290 60Z" fill="#3a3a3a"/><rect x="262" y="100" width="12" height="32" fill="#2a1d16"/>${[50,100,150,200].map(x=>`<rect x="${x}" y="100" width="6" height="20" fill="#3a3a3a"/><circle cx="${x+3}" cy="96" r="5" fill="#3a3a3a"/>`).join('')}`],
+ husite:['Kalich a vozová hradba',`<rect width="300" height="200" fill="#e6d7c0"/><rect x="100" y="20" width="100" height="100" fill="#26262b"/><path d="M125 40 H175 Q175 76 150 80 Q125 76 125 40Z" fill="#c0392b"/><rect x="146" y="80" width="8" height="18" fill="#c0392b"/><rect x="132" y="96" width="36" height="8" rx="3" fill="#c0392b"/><path d="M0 170 H300 V200 H0Z" fill="#7a8a4a"/>${[20,80,140,200,260].map(x=>`<rect x="${x-18}" y="140" width="40" height="20" fill="#8a6a44"/><circle cx="${x-8}" cy="164" r="8" fill="#4a3526"/><circle cx="${x+14}" cy="164" r="8" fill="#4a3526"/>`).join('')}`],
+ jagellonci:['Vladislavský sál a tolar',`<rect width="300" height="200" fill="#e8dfcf"/>${[0,75,150,225].map(x=>`<path d="M${x} 200 V70 Q${x+37} 10 ${x+75} 70 V200" fill="none" stroke="#b7a88a" stroke-width="5"/><path d="M${x} 70 Q${x+37} 110 ${x+75} 70 M${x+37} 30 Q${x+20} 60 ${x} 70 M${x+37} 30 Q${x+55} 60 ${x+75} 70" fill="none" stroke="#b7a88a" stroke-width="3"/>`).join('')}<circle cx="150" cy="140" r="34" fill="#d7dde3" stroke="#8f979e" stroke-width="4"/><text x="150" y="150" text-anchor="middle" font-size="28" font-weight="900" fill="#6b737a" font-family="serif">T</text>`],
+ habsburkove:['Hvězdná obloha Keplera',`<rect width="300" height="200" fill="#1b2338"/>${Array.from({length:30},(_,i)=>`<circle cx="${(i*67)%300}" cy="${(i*41)%200}" r="${i%3?1.2:2}" fill="#f3ead6"/>`).join('')}<ellipse cx="150" cy="100" rx="110" ry="55" fill="none" stroke="#e0b43a" stroke-width="2" stroke-dasharray="6 5"/><circle cx="150" cy="100" r="18" fill="#f6b73c"/><circle cx="258" cy="92" r="9" fill="#5b8fd6"/><path d="M40 190 L90 130" stroke="#8a6a44" stroke-width="12" stroke-linecap="round"/><path d="M60 190 L75 160 L90 190" stroke="#5a3f28" stroke-width="4" fill="none"/>`],
+ terezie:['Škola pro všechny děti',`<rect width="300" height="200" fill="#cfe6d8"/><path d="M0 170 H300 V200 H0Z" fill="#7aa45a"/><rect x="70" y="80" width="160" height="90" fill="#f1e2c4"/><path d="M60 82 L150 30 L240 82Z" fill="#b0436e"/><rect x="138" y="120" width="24" height="50" fill="#6b4226"/>${[88,196].map(x=>`<rect x="${x}" y="100" width="22" height="22" fill="#9fc7e6" stroke="#6b4226" stroke-width="3"/>`).join('')}<rect x="140" y="88" width="20" height="14" fill="#fff" stroke="#6b4226"/><text x="150" y="99" text-anchor="middle" font-size="11" font-weight="900" fill="#6b4226">1</text><path d="M150 30 V14" stroke="#6b4226" stroke-width="3"/><path d="M144 14 Q150 4 156 14Z" fill="#e0b43a"/>`],
+ obrozeni:['Národní divadlo',`<rect width="300" height="200" fill="#d8e3ef"/><path d="M0 170 H300 V200 H0Z" fill="#5a6f8a"/><rect x="60" y="90" width="180" height="80" fill="#e8dcc0"/>${[76,106,136,166,196,220].map(x=>`<rect x="${x}" y="104" width="10" height="50" rx="3" fill="#c9bfa0"/>`).join('')}<path d="M110 90 Q150 30 190 90Z" fill="#6b7f95"/><path d="M110 90 Q150 30 190 90" fill="none" stroke="#e0b43a" stroke-width="4"/><circle cx="150" cy="44" r="5" fill="#e0b43a"/><rect x="70" y="160" width="160" height="10" fill="#c9bfa0"/><text x="150" y="100" text-anchor="middle" font-size="10" font-weight="900" fill="#6b4226" font-family="serif">NÁROD SOBĚ</text>`],
+ ceskoslovensko:['Vlajka a lípa',`<rect width="300" height="200" fill="#fff"/><rect y="100" width="300" height="100" fill="#d7141a"/><path d="M0 0 L150 100 L0 200Z" fill="#11457e"/>${[[230,50],[250,30],[270,55],[240,75]].map(([x,y])=>`<path d="M${x} ${y} q-14 -4 -12 -18 q10 2 12 18 q4 -14 14 -12 q0 12 -14 12Z" fill="#3d7a3f"/>`).join('')}`],
+ cesko:['Pražský hrad',`<rect width="300" height="200" fill="#f2b98a"/><circle cx="240" cy="44" r="18" fill="#fff0c0"/><path d="M0 170 H300 V200 H0Z" fill="#5a6f8a"/><rect x="30" y="120" width="240" height="50" fill="#e8dcc0"/>${Array.from({length:14},(_,i)=>`<rect x="${40+i*16}" y="130" width="8" height="12" fill="#6b5b48"/>`).join('')}<rect x="130" y="60" width="26" height="60" fill="#6b6b6b"/><path d="M126 60 L143 16 L160 60Z" fill="#3a3a3a"/><rect x="170" y="80" width="18" height="40" fill="#6b6b6b"/><path d="M166 80 L179 50 L192 80Z" fill="#3a3a3a"/><path d="M60 120 V70" stroke="#3a3a3a" stroke-width="2"/><rect x="60" y="70" width="36" height="12" fill="#fff"/><rect x="60" y="82" width="36" height="12" fill="#d7141a"/><path d="M60 70 L78 82 L60 94Z" fill="#11457e"/>`]
+};
+function pexPool(e){
+  const it=parseItems(e), pool=[];
+  it.forEach(x=>pool.push([x.n,x.y]));
+  e.qs.forEach(q=>{ if(q.q.length<=70) pool.push([q.q,q.a[0]]); });
+  return pool;
+}
+function pexBoard(){
+  const P=UI.pex, pool=shuffle(pexPool(E())), pairs=[], used=new Set();
+  for(const [a,b] of pool){ if(pairs.length>=6) break; if(used.has(a)||used.has(b)) continue; used.add(a); used.add(b); pairs.push([a,b]); }
+  const cards=[]; pairs.forEach(([a,b],k)=>{ cards.push({k,t:a,side:0}); cards.push({k,t:b,side:1}); });
+  P.cards=shuffle(cards).map(c=>({...c,done:false,bad:false})); P.sel=null; P.boardDone=false; P.n=pairs.length;
+}
+function openPex(){ if(!bonusOpen()) return lockToast();
+  const e=E(); const others=shuffle(Object.keys(PIC).filter(k=>k!==e.id));
+  UI.pex={board:0,pics:[e.id,...others].slice(0,6),wrong:0,fin:false,lock:false,earned:0};
+  pexBoard(); UI.screen='pex'; render(); }
+function pexTap(i){
+  const P=UI.pex, c=P.cards[i]; if(P.lock||c.done||P.boardDone) return;
+  if(P.sel===null){ P.sel=i; return render(); }
+  if(P.sel===i){ P.sel=null; return render(); }
+  const a=P.cards[P.sel];
+  if(a.k===c.k&&a.side!==c.side){ a.done=c.done=true; P.sel=null;
+    if(P.cards.every(x=>x.done)){ P.boardDone=true; P.earned+=reward(5);
+      if(P.board>=5){ P.fin=true; const p=prog(E().id); P.earned+=reward(p.pex?5:20); p.pex=true; } save(); }
+  } else { P.wrong++; a.bad=c.bad=true; P.lock=true; setTimeout(()=>{ a.bad=c.bad=false; P.sel=null; P.lock=false; render(); },700); }
+  render();
+}
+function pexNext(){ const P=UI.pex; P.board++; pexBoard(); render(); }
+
+// Pravda, nebo lež
+function genTF(e){
+  const it=parseItems(e), K=KIND[e.id]||'rulers', out=[];
+  const V=x=>K==='pres'?'byl prezidentem':(x.f?'vládla':'vládl');
+  it.forEach((x,k)=>{
+    if(K==='rulers'||K==='pres'){
+      out.push({t:`${x.n} ${V(x)} v letech ${x.y}.`,ok:true,x:`Ano, ${x.n}: ${x.y}.`});
+      const o=shuffle(it.filter(z=>z!==x))[0]; if(o) out.push({t:`${x.n} ${V(x)} v letech ${o.y}.`,ok:false,x:`Ne. ${x.n}: ${x.y}. V letech ${o.y} ${V(o)} ${o.n}.`});
+      if(x.d){ const w=x.d+shuffle([5,8,10,-5,15])[0]; if(w>0&&w!==x.d) out.push({t:`${x.n} ${V(x)} ${yrs(w)}.`,ok:false,x:`Ne, ${yrs(x.d)} (${x.y}).`}); }
+    } else {
+      out.push({t:`${x.n}: ${x.y}.`,ok:true,x:`Ano, ${x.n}: ${x.y}.`});
+      const o=shuffle(it.filter(z=>z!==x))[0]; if(o) out.push({t:`${x.n}: ${o.y}.`,ok:false,x:`Ne. ${x.n}: ${x.y}.`});
+    }
+  });
+  for(let t=0;t<4;t++){ const [a,b]=shuffle(it).slice(0,2); if(!a||!b) break; const tr=a.i<b.i;
+    out.push({t:`${a.n} ${K==='rulers'||K==='pres'?'byl'+(a.f?'a':'')+' dřív než':'bylo dřív než'} ${b.n}.`,ok:tr,x:`${tr?'Ano':'Ne'}. ${a.n} (${a.y}), ${b.n} (${b.y}).`}); }
+  out.push({t:`V době ${e.n} se platilo: ${e.cur[0]}.`,ok:true,x:e.coin});
+  const oe=shuffle(ERAS.filter(z=>z.cur[0]!==e.cur[0]))[0]; out.push({t:`V době ${e.n} se platilo: ${oe.cur[0]}.`,ok:false,x:`Ne, platilo se: ${e.cur[0]}. ${oe.cur[0][0].toUpperCase()+oe.cur[0].slice(1)} patří do doby ${oe.n}.`});
+  e.qs.forEach(q=>{ out.push({t:`${q.q} ${q.a[0]}.`,ok:true,x:q.x}); out.push({t:`${q.q} ${q.a[rnd(1,q.a.length-1)]}.`,ok:false,x:`Ne, správně je: ${q.a[0]}. ${q.x}`}); });
+  return out;
+}
+function openTF(){ if(!bonusOpen()) return lockToast(); const all=shuffle(genTF(E())); const tr=all.filter(x=>x.ok).slice(0,4), fl=all.filter(x=>!x.ok).slice(0,4);
+  UI.tf={list:shuffle(tr.concat(fl)),i:0,ok:0,ans:null}; UI.screen='tf'; render(); }
+function tfAnswer(b){ const T=UI.tf; if(T.ans!==null) return; const it=T.list[T.i]; T.ans=b; if(b===it.ok){ T.ok++; T.gain=reward(5); T.right=true; } else { T.dmg=hurt(); T.right=false; } save(); render(); }
+function tfNext(){ const T=UI.tf; T.i++; T.ans=null; if(T.i>=T.list.length){ T.done=true; if(T.ok>=6) prog(E().id).tf=true; } save(); render(); }
+
+// Doplň, co chybí
+function genBlanks(e){
+  const out=[], caps=/[A-ZÁČĎÉĚÍŇÓŘŠŤÚŮÝŽ][a-záčďéěíňóřšťúůýž]{3,}/g;
+  const allCaps=[...new Set(e.facts.join(' ').match(caps)||[])];
+  e.facts.forEach(f=>{
+    const nums=[...f.matchAll(/\b\d{2,4}\b/g)];
+    if(nums.length){ const m=shuffle(nums)[0], v=+m[0];
+      const d=v>=100?[1,2,5,10,20,50]:[2,4,6,10];
+      const opts=[...new Set(shuffle(d).flatMap(k=>[v+k,v-k]).filter(z=>z>0&&z!==v))].slice(0,3).map(String);
+      if(opts.length===3) out.push({t:f.slice(0,m.index)+'_____'+f.slice(m.index+m[0].length),a:[m[0],...opts]}); }
+    const ws=[...f.matchAll(caps)].filter(m=>m.index>0);
+    if(ws.length){ const m=shuffle(ws)[0]; const d=shuffle(allCaps.filter(w=>!f.includes(w))).slice(0,3);
+      if(d.length===3) out.push({t:f.slice(0,m.index)+'_____'+f.slice(m.index+m[0].length),a:[m[0],...d]}); }
+  });
+  return out;
+}
+function openBlank(){ if(!bonusOpen()) return lockToast(); const list=shuffle(genBlanks(E())).slice(0,5);
+  UI.bl={list,i:0,ok:0,ans:null,opts:shuffle([0,1,2,3])}; UI.screen='blank'; render(); }
+function blAnswer(j){ const B=UI.bl; if(B.ans!==null) return; B.ans=j; if(j===0){ B.ok++; B.gain=reward(5); } else B.dmg=hurt(); save(); render(); }
+function blNext(){ const B=UI.bl; B.i++; B.ans=null; B.opts=shuffle([0,1,2,3]); if(B.i>=B.list.length){ B.done=true; if(B.ok>=3) prog(E().id).blank=true; } save(); render(); }
+
+function bonusScreens(e){
+  if(UI.screen==='pex'){ const P=UI.pex, pic=PIC[P.pics[P.board]]||PIC.cesko;
+    return `<div class="card"><div class="prog">${[0,1,2,3,4,5].map(k=>`<i class="${k<P.board||(k===P.board&&P.boardDone)?'on':''}"></i>`).join('')}</div>
+      <h2>Pexeso: obrázek ${P.board+1} z 6</h2><p class="muted" style="margin:0 0 12px">Klikni na dvě kartičky, které patří k sobě, třeba panovníka a roky, kdy vládl. Správná dvojice zmizí a odkryje kousek obrázku.</p>
+      ${P.boardDone?`<div class="fb g"><b>Obrázek ${P.board+1} hotový: ${pic[0]}!</b>${P.fin?` Máš odkryté všechny obrázky. Chyb: ${P.wrong}. Celkem jsi získal ${money(P.earned)}.`:''}</div>`:''}
+      <div class="pexboard"><svg class="pexpic" viewBox="0 0 300 200" preserveAspectRatio="xMidYMid slice" aria-hidden="true">${pic[1]}</svg>
+        <div class="pex">${P.cards.map((c,i)=>`<button class="pc up ${c.done?'done':''} ${c.bad?'wrong':''} ${P.sel===i?'sel':''}" ${c.done||P.boardDone?'disabled':''} onclick="pexTap(${i})">${c.done?'':`<span>${esc(c.t)}</span>`}</button>`).join('')}</div></div>
+      <div class="row" style="margin-top:14px">${P.fin?`<button class="primary" onclick="openPex()">Hrát znovu</button><button class="ghost" onclick="UI.screen='era';render()">Zpět do doby</button>`
+        :P.boardDone?`<button class="primary" onclick="pexNext()">Další obrázek (${P.board+2} z 6)</button>`:`<button class="ghost" onclick="UI.screen='era';render()">Odejít</button>`}</div></div>`; }
+  if(UI.screen==='tf'){ const T=UI.tf;
+    if(T.done) return `<div class="card"><h2>${T.ok>=6?'Výborně!':'Dobrý pokus'}</h2><p class="big">Správně ${T.ok} z ${T.list.length}.${T.ok>=6?'':' Na splnění potřebuješ aspoň 6.'}</p><div class="row"><button class="primary" onclick="openTF()">Hrát znovu</button><button class="ghost" onclick="UI.screen='era';render()">Zpět do doby</button></div></div>`;
+    const it=T.list[T.i];
+    return `<div class="card ${UI.shake?'shake':''}"><div class="prog">${T.list.map((_,i)=>`<i class="${i<=T.i?'on':''}"></i>`).join('')}</div><p class="muted" style="margin:0">Pravda, nebo lež? ${T.i+1} z ${T.list.length}</p>
+      <p class="big" style="font-weight:700;margin-top:8px">${esc(it.t)}</p>
+      ${T.ans===null?`<div class="answers"><button class="ans tfy" onclick="tfAnswer(true)">✔ Pravda</button><button class="ans tfn" onclick="tfAnswer(false)">✘ Lež</button></div><div class="row" style="margin-top:14px"><button class="ghost" onclick="UI.screen='era';render()">Odejít</button></div>`
+      :`<div class="fb ${T.right?'g':'b'}"><b>${T.right?`Správně! +${money(T.gain)}`:`Špatně, −${T.dmg} životů.`}</b> Je to ${it.ok?'pravda':'lež'}. ${esc(it.x)}</div><button class="primary" onclick="tfNext()">${T.i+1<T.list.length?'Další':'Výsledek'}</button>`}</div>`; }
+  if(UI.screen==='blank'){ const B=UI.bl;
+    if(!B.list.length) return `<div class="card"><h2>Doplň, co chybí</h2><p class="big">V této době není co doplňovat.</p><button class="primary" onclick="UI.screen='era';render()">Zpět</button></div>`;
+    if(B.done) return `<div class="card"><h2>${B.ok>=3?'Výborně!':'Dobrý pokus'}</h2><p class="big">Správně ${B.ok} z ${B.list.length}.${B.ok>=3?'':' Na splnění potřebuješ aspoň 3.'}</p><div class="row"><button class="primary" onclick="openBlank()">Hrát znovu</button><button class="ghost" onclick="UI.screen='era';render()">Zpět do doby</button></div></div>`;
+    const q=B.list[B.i];
+    return `<div class="card ${UI.shake?'shake':''}"><div class="prog">${B.list.map((_,i)=>`<i class="${i<=B.i?'on':''}"></i>`).join('')}</div><p class="muted" style="margin:0">Doplň, co chybí. ${B.i+1} z ${B.list.length}</p>
+      <p class="big" style="margin-top:8px">${esc(q.t).replace('_____','<span class="gap">'+(B.ans!==null?esc(q.a[0]):'?')+'</span>')}</p>
+      <div class="answers">${B.opts.map(j=>`<button class="ans ${B.ans!==null?(j===0?'good':j===B.ans?'bad':''):''}" ${B.ans!==null?'disabled':''} onclick="blAnswer(${j})">${esc(q.a[j])}</button>`).join('')}</div>
+      ${B.ans===null?`<div class="row" style="margin-top:14px"><button class="ghost" onclick="UI.screen='era';render()">Odejít</button></div>`:`<div class="fb ${B.ans===0?'g':'b'}"><b>${B.ans===0?`Správně! +${money(B.gain)}`:`Špatně, −${B.dmg} životů. Správně je: ${esc(q.a[0])}.`}</b></div><button class="primary" onclick="blNext()">${B.i+1<B.list.length?'Další':'Výsledek'}</button>`}</div>`; }
+  return null;
+}
+
+/* ================= VYKRESLENÍ ================= */
+function topbar(){
+  const e=E();
+  return `<div class="top">
+    <div class="me">${avatar(S.look)}<b>${esc(S.name)}</b></div>
+    <div class="hp"><div class="lbl">❤️ Životy ${S.hp}/${S.maxHp}</div><div class="track"><div class="fill" style="width:${S.hp/S.maxHp*100}%"></div></div></div>
+    <div class="money ${UI.pop?'pop':''}">${coinSvg(e.c)} ${money(S.money)}</div>
+    <button class="ghost" onclick="UI.screen='shop';render()">Tržiště</button>
+    <button class="ghost" onclick="UI.screen='map';render()">Mapa dob</button>
+  </div>`;
+}
+
+function render(){
+  const app=document.getElementById('app');
+  if(!S||UI.screen==='create'){ UI.screen='create'; app.innerHTML=creator(); return; }
+  document.documentElement.style.setProperty('--c',E().c);
+  let m='';
+  const e=E(), p=prog(e.id);
+  if(UI.screen==='map'){
+    m=`<h2 style="font-size:40px">Mapa dob</h2><p class="muted" style="margin:4px 0 0">Dokonči dobu, aby se ti otevřela další. Peníze se mění podle doby.</p>
+    <div class="timeline">${ERAS.map((x,i)=>{const pp=S.prog[x.id]; const lock=i>S.unlocked; return `<button class="era ${i===S.era?'cur':''}" style="--c:${x.c}" ${lock?'disabled':''} onclick="goEra(${i})">
+      ${coinSvg(x.c)}<div><div class="yr">${x.y}</div><h3>${x.n}</h3><div class="yr">Platidlo: ${x.cur[0]}</div></div>
+      <span class="st">${lock?'🔒 zamčeno':pp&&pp.done?'✓ hotovo':i===S.era?'právě tady':'otevřeno'}</span></button>`;}).join('')}</div>`;
+  }
+  else if(UI.screen==='era'){
+    const nF=e.facts.length+1;
+    m=`<div class="band"><div class="yr">${e.y}</div><h2>${e.n}</h2><p>${e.intro}</p></div>
+    <div class="cur-note">${coinSvg(e.c)}<div><b>Platidlo: ${e.cur[0]}</b><br>${e.coin}</div></div>
+    <div class="tasks">
+      <button class="task ${p.facts>=nF?'done':''} ${factsLocked()?'locked':''}" onclick="openFacts()"><span class="ic">${factsLocked()?'🔒':'📜'}</span><h3>Zajímavosti</h3><span class="muted">${factsLocked()?'Přečteno. Zamčeno, dokud nezvládneš otázky, takže si odpovědi nemůžeš dohledat.':'Přečti si, co se v této době dělo. Po přečtení se zamknou.'}</span><span class="s">${p.facts>=nF?(factsLocked()?'✓ přečteno, zamčeno':'✓ přečteno, můžeš číst znovu'):`${p.facts} z ${nF}`}</span></button>
+      <button class="task ${p.order?'done':''}" onclick="openOrder()"><span class="ic">👑</span><h3>${e.order.t}</h3><span class="muted">Poskládej je ve správném pořadí.</span><span class="s">${p.order?'✓ hotovo':'odměna 15, pokaždé jinak'}</span></button>
+      <button class="task ${p.quiz?'done':''}" onclick="openQuiz()"><span class="ic">❓</span><h3>Otázky</h3><span class="muted">Vyber správnou odpověď. Za chybu přijdeš o životy.</span><span class="s">${p.quiz?'✓ splněno':'6 otázek, pokaždé jiné'}</span></button>
+      ${[['pex','🃏','Pexeso','Spoj kartičky, které patří k sobě, a odkryj 6 obrázků.','5 za obrázek + 20'],['tf','⚖️','Pravda, nebo lež?','Rozhodni, jestli věta platí.','5 za každou'],['blank','✏️','Doplň, co chybí','Doplň chybějící slovo nebo rok do věty.','5 za každou']].map(([k,ic,n,d,r])=>{const lk=!p.quiz,dn=p[k];return `<button class="task bonus ${dn?'done':''} ${lk?'locked':''}" onclick="${k==='pex'?'openPex':k==='tf'?'openTF':'openBlank'}()"><span class="ic">${lk?'🔒':ic}</span><h3>${n}</h3><span class="muted">${lk?'Bonus. Otevře se, až zvládneš otázky.':d}</span><span class="s">${dn?'✓ splněno, hraj znovu':lk?'zamčeno':'bonus, '+r}</span></button>`;}).join('')}
+    </div>
+    ${p.done&&S.era<ERAS.length-1?`<div class="row" style="margin-top:20px"><button class="primary" onclick="goEra(${S.era+1})">Pokračovat do další doby: ${ERAS[S.era+1].n}</button></div>`:''}
+    ${S.era===ERAS.length-1&&!p.done?`<div class="cur-note" style="border-style:solid;margin-top:18px"><span style="font-size:40px">🏆</span><div><b>Tohle je poslední doba!</b><br>Když ji dokončíš, čeká tě velká výhra.</div></div>`:''}
+    <p class="muted" style="margin-top:18px;font-size:16px">Tip: nejdřív si pořádně přečti zajímavosti. Po přečtení se zamknou a otevřou se znovu, až zvládneš otázky.</p>`;
+  }
+  else if(UI.screen==='facts'){
+    const n=e.facts.length+1, last=UI.fi>=e.facts.length;
+    const K=KIND[e.id]||'rulers', its=parseItems(e);
+    m=`<div class="card"><div class="prog">${Array.from({length:n},(_,i)=>`<i class="${i<=UI.fi?'on':''}"></i>`).join('')}</div>
+      ${last?`<h2>${K==='rulers'?'Přehled: kdo kdy vládl':K==='pres'?'Přehled prezidentů':K==='events'?'Přehled událostí':'Přehled dob'}</h2><p class="muted" style="margin-top:0">Tohle se ti bude hodit v otázkách i při řazení. Dobře si to prohlédni.</p>
+        <div class="slots">${its.map((x,k)=>`<div class="slot full"><span class="n">${k+1}.</span><span><b>${x.n}</b></span><span class="y">${x.y}${x.d?` · ${yrs(x.d)}`:''}</span></div>`).join('')}</div>`
+      :`<h2>Víš, že…?</h2><p class="big">${e.facts[UI.fi]}</p>`}
+      <div class="row"><button class="primary" onclick="nextFact()">${UI.fi+1<n?'Další zajímavost':'Hotovo'}</button><button class="ghost" onclick="UI.screen='era';render()">Zpět</button></div></div>`;
+  }
+  else if(UI.screen==='order'){
+    const o=UI.ord, it=e.order.items;
+    m=`<div class="card ${UI.shake?'shake':''}"><h2>${e.order.t}</h2><p class="fb g" style="margin:6px 0 10px;font-weight:800">${o.rev?'⬆ Pozor, tentokrát od nejnovějšího po nejstarší!':'⬇ Od nejstaršího po nejnovější.'}</p><p class="muted" style="margin:0 0 14px">Klikej na jména dole. Kliknutím na řádek ho vrátíš zpět.</p>
+      <div class="slots">${o.slots.map((v,k)=>`<button class="slot ${v!==null?'full':''} ${o.checked?(v===o.target[k]?'ok':'no'):''}" onclick="unSlot(${k})"><span class="n">${k+1}.</span><span>${v!==null?it[v].n:'…'}</span>${o.checked&&v!==null?`<span class="y">${it[v].y} ${v===o.target[k]?'✓':'✗'}</span>`:''}</button>`).join('')}</div>
+      ${!o.checked?`<div class="pool">${o.pool.map(i=>`<button onclick="pickPool(${i})">${it[i].n}</button>`).join('')}</div>
+      <div class="row"><button class="primary" ${o.slots.includes(null)?'disabled':''} onclick="checkOrder()">Zkontrolovat</button><button class="ghost" onclick="UI.screen='era';render()">Zpět</button></div>`
+      :`<div class="fb ${o.okAll?'g':'b'}">${o.msg}</div>
+      ${!o.okAll?`<p><b>Správné pořadí:</b> ${o.target.map(i=>`${it[i].n} (${it[i].y})`).join(', ')}</p>`:''}
+      <div class="row">${o.okAll?`<button class="primary" onclick="UI.screen='era';checkEraDone();save();render()">Pokračovat</button>`:`<button class="primary" onclick="openOrder()">Zkusit znovu</button><button class="ghost" onclick="UI.screen='era';render()">Zpět</button>`}</div>`}
+    </div>`;
+  }
+  else if(UI.screen==='quiz'){
+    const Q=UI.q;
+    if(Q.done){
+      m=`<div class="card"><h2>${Q.pass?'Otázky zvládnuty!':'Ještě to nebylo ono'}</h2>
+      <p class="big">Správně jsi odpověděl na ${Q.ok} z ${Q.list.length} otázek. ${Q.pass?'Úkol je splněný.':`Potřebuješ aspoň ${Q.need}. ${factsLocked()?'Zajímavosti jsou zamčené, tak si vzpomeň, co sis přečetl, a zkus to znovu. Dostaneš jiné otázky.':'Přečti si zajímavosti a zkus to ještě jednou.'}`}</p>
+      <div class="row">${Q.pass?`<button class="primary" onclick="UI.screen='era';checkEraDone();save();render()">Pokračovat</button>`:`<button class="primary" onclick="openQuiz()">Zkusit znovu</button>${factsLocked()?'':`<button class="ghost" onclick="openFacts()">Číst zajímavosti</button>`}`}</div></div>`;
+    } else {
+      const q=Q.list[Q.i];
+      m=`<div class="card ${UI.shake?'shake':''}"><div class="prog">${Q.list.map((_,i)=>`<i class="${i<=Q.i?'on':''}"></i>`).join('')}</div>
+      <p class="muted" style="margin:0">Otázka ${Q.i+1} z ${Q.list.length}</p><h2>${q.q}</h2>
+      <div class="answers">${Q.opts.map(j=>`<button class="ans ${Q.ans!==null?(j===0?'good':j===Q.ans?'bad':''):''} ${Q.hidden.includes(j)?'gone':''}" ${Q.ans!==null?'disabled':''} onclick="answer(${j})">${q.a[j]}</button>`).join('')}</div>
+      ${Q.ans===null?`<div class="row" style="margin-top:16px"><button class="ghost" ${S.up.napoveda<1||Q.hidden.length||q.a.length<3?'disabled':''} onclick="useHint()">🦉 Nápověda (${S.up.napoveda})</button><button class="ghost" onclick="UI.screen='era';render()">Odejít</button></div>`
+      :`<div class="fb ${Q.ans===0?'g':'b'}"><b>${Q.ans===0?`Správně! +${money(Q.gain)}`:(Q.dmg?`Špatně, −${Q.dmg} životů.`:'Špatně, ale amulet tě ochránil.')+` Správně je: ${q.a[0]}.`}</b><br>${q.x}</div>
+      <button class="primary" onclick="nextQ()">${Q.i+1<Q.list.length?'Další otázka':'Výsledek'}</button>`}</div>`;
+    }
+  }
+  else if(UI.screen==='shop'){ m=shopView(e); }
+  else if(['pex','tf','blank'].includes(UI.screen)){ m=bonusScreens(e); }
+  else if(UI.screen==='faint'){
+    const lost=Math.floor(S.money*.3);
+    m=`<div class="card"><h2>Došly ti životy!</h2><p class="big">Omdlel jsi. Probudí tě bylinkářka a dá ti napít. ${lost?`Za péči si vezme ${money(lost)}.`:''}</p>
+    <p class="muted">Příště si včas kup na tržišti obvaz, lektvar nebo elixír, doplníš si tím životy.</p>
+    <button class="primary" onclick="S.money-=${lost};S.hp=Math.round(S.maxHp/2);UI.screen='era';save();render()">Vstát a pokračovat</button></div>`;
+  }
+  else if(UI.screen==='victory'){
+    const cols=['#e0b43a','#a8322d','#2f6d8a','#3f7d4a','#b0436e','#c0582b'];
+    const conf=Array.from({length:70},(_,i)=>`<i style="left:${rnd(0,100)}%;background:${cols[i%6]};animation-delay:${(Math.random()*3).toFixed(2)}s;animation-duration:${(3+Math.random()*3).toFixed(2)}s;transform:rotate(${rnd(0,360)}deg)"></i>`).join('');
+    const worn={head:'koruna',back:'plast_k'};
+    const d=new Date(); const date=`${d.getDate()}. ${d.getMonth()+1}. ${d.getFullYear()}`;
+    m=`<div class="confetti" aria-hidden="true">${conf}</div>
+    <div class="win">
+      <div class="trophy" aria-hidden="true"><svg viewBox="0 0 120 120"><path d="M34 14h52v26c0 20-12 34-26 34S34 60 34 40Z" fill="#e0b43a" stroke="#a37b1c" stroke-width="3"/><path d="M34 22H18c0 18 8 28 18 30M86 22h16c0 18-8 28-18 30" fill="none" stroke="#e0b43a" stroke-width="6"/><rect x="54" y="74" width="12" height="16" fill="#c9962e"/><rect x="38" y="90" width="44" height="12" rx="3" fill="#7a5533"/><path d="M60 28l4 9 10 1-7 7 2 10-9-5-9 5 2-10-7-7 10-1z" fill="#fff5d6"/></svg></div>
+      <h2 class="wintitle">Vyhrál jsi!</h2>
+      <p class="big" style="margin:0 auto 20px">Prošel jsi celé české dějiny: od keltských duhovek až po dnešní koruny.</p>
+      <div class="diploma">
+        <div class="dav">${avatar(S.look,worn)}</div>
+        <div>
+          <div class="dl">Diplom</div>
+          <h3>Znalec českých dějin</h3>
+          <p>Uděluje se <b>${esc(S.name)}</b> za úspěšnou cestu všemi ${ERAS.length} dobami, od Keltů až po Českou republiku.</p>
+          <div class="dstats"><span><b>${S.ok}</b> správných odpovědí</span><span><b>${ERAS.length}</b> dob</span><span><b>${money(S.money)}</b></span></div>
+          <p class="muted" style="margin:10px 0 0;font-size:15px">Dne ${date}</p>
+        </div>
+      </div>
+      <div class="row" style="justify-content:center;margin-top:22px"><button class="primary" onclick="UI.screen='map';render()">Mapa dob</button><button class="ghost" onclick="if(confirm('Začít celou cestu znovu?')){UI.look={...S.look};UI.name=S.name;wipe();S=null;UI.editing=false;UI.screen='create';render()}">Hrát znovu od začátku</button></div>
+    </div>`;
+  }
+  else if(UI.screen==='eraDone'){
+    const last=S.era>=ERAS.length-1;
+    m=`<div class="card" style="text-align:center"><div style="display:flex;justify-content:center"><div style="width:160px">${avatar(S.look)}</div></div>
+    <h2>Doba ${e.n} je hotová!</h2><p class="big" style="margin-inline:auto">Bonus za dokončení: ${money(50)}. ${last?'Prošel jsi celé české dějiny od Keltů až po dnešek. Jsi skutečný znalec!':`Otevřela se ti další doba: <b>${ERAS[S.era+1].n}</b>. Tam se platí ${ERAS[S.era+1].cur[0]}.`}</p>
+    <div class="row" style="justify-content:center">${last?`<button class="primary" onclick="UI.screen='map';render()">Mapa dob</button>`:`<button class="primary" onclick="goEra(${S.era+1})">Cestovat do další doby</button><button class="ghost" onclick="UI.screen='shop';render()">Nejdřív na tržiště</button>`}</div></div>`;
+  }
+  app.innerHTML=topbar()+m+`${UI.toast?`<div class="toast" role="status">${esc(UI.toast)}</div>`:''}<div class="foot"><span>Hra se ukládá automaticky. Správně ${S.ok}, špatně ${S.bad}.</span><button onclick="if(confirm('Opravdu začít úplně od začátku?')){wipe();S=null;UI.editing=false;UI.screen='create';render()}">Nová hra</button></div>`;
+  UI.shake=false; UI.pop=false; UI.healed=0;
+}
+
+function creator(){
+  const L=UI.look, saved=load();
+  const free=cat=>CATALOG.filter(x=>x.cat===cat&&x.p===0);
+  const chips=cat=>free(cat).map(x=>`<button class="chip" aria-pressed="${L[cat]===x.id}" onclick="UI.look.${cat}='${x.id}';render()">${x.n}</button>`).join('');
+  const sw=cat=>free(cat).map(x=>`<button class="sw" style="background:${x.v}" aria-label="${x.n}" aria-pressed="${L[cat]===x.id}" onclick="UI.look.${cat}='${x.id}';render()"></button>`).join('');
+  const skin=SKIN.map((c,i)=>`<button class="sw" style="background:${c}" aria-label="Pleť ${i+1}" aria-pressed="${L.skin===i}" onclick="UI.look.skin=${i};render()"></button>`).join('');
+  return `<div class="hero">
+    <div class="stage">${avatar(L)}</div>
+    <div>
+      <h1 class="title">Cesta dějinami</h1>
+      <p class="lead">Vyrob si postavičku a projdi české dějiny od Keltů až po dnešek. Za správné odpovědi dostaneš peníze a na tržišti si koupíš vylepšení a přes ${Math.floor(PAID/10)*10} kusů oblečení a výbavy.</p>
+      ${saved?`<div class="row" style="margin-bottom:22px"><button class="primary" onclick="S=load();UI.screen='era';render()">Pokračovat za postavu ${esc(saved.name)}</button></div>`:''}
+      <div class="opt"><h3>Jméno</h3><input type="text" maxlength="20" value="${esc(UI.name)}" placeholder="Jak se jmenuješ?" oninput="UI.name=this.value"></div>
+      <div class="opt"><h3>Barva pleti</h3><div class="chips">${skin}</div></div>
+      <div class="opt"><h3>Účes</h3><div class="chips">${chips('hair')}</div></div>
+      <div class="opt"><h3>Barva vlasů</h3><div class="chips">${sw('hc')}</div></div>
+      <div class="opt"><h3>Barva očí</h3><div class="chips">${sw('eyec')}</div></div>
+      <div class="opt"><h3>Oblečení</h3><div class="chips">${chips('outfit')}</div></div>
+      <div class="opt"><h3>Barva oblečení</h3><div class="chips">${sw('cloth')}</div></div>
+      <p class="muted" style="font-size:15px">Další účesy, barvy, oblečení, pokrývky hlavy, zbraně i mazlíčky si koupíš na tržišti.</p>
+      <div class="row" style="margin-top:14px"><button class="primary" onclick="start()">Vyrazit do dějin</button></div>
+    </div></div>`;
+}
+render();
+</script>
+</body>
+</html>
