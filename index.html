@@ -111,7 +111,12 @@ header{display:flex;align-items:center;gap:20px;padding:6px 0 16px;margin-bottom
 /* menu her */
 .games h2{font-size:34px;margin-bottom:14px;color:var(--green)}
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px;list-style:none;margin:0;padding:0}
-.card{display:flex;flex-direction:column;gap:6px;height:100%;text-decoration:none;background:var(--panel);border:2px solid var(--line);border-top:6px solid var(--blue);border-radius:16px;padding:18px 20px;transition:border-color .15s,transform .15s}
+.card{display:flex;flex-direction:column;height:100%;overflow:hidden;text-decoration:none;background:var(--panel);border:2px solid var(--line);border-top:6px solid var(--blue);border-radius:16px;transition:border-color .15s,transform .15s}
+.card .thumb{position:relative;aspect-ratio:16/10;overflow:hidden;background:var(--blueSoft);border-bottom:2px solid var(--line)}
+.card .thumb img{display:block;width:100%;height:100%;object-fit:cover;object-position:top;transition:transform .3s}
+.card:hover .thumb img{transform:scale(1.04)}
+.card .thumb iframe{position:absolute;top:0;left:0;width:1200px;height:750px;border:0;transform-origin:0 0;pointer-events:none;background:#fff}
+.card .body{display:flex;flex-direction:column;gap:6px;flex:1;padding:14px 20px 16px}
 .grid li:nth-child(even) .card{border-top-color:var(--green)}
 .card:hover{border-color:var(--blue);transform:translateY(-3px)}
 .card b{font-family:"Baloo 2","Nunito",sans-serif;font-size:26px;line-height:1.1}
@@ -277,6 +282,41 @@ async function fromGitHub() {
     .map(f => f.name);
 }
 
+// Náhled hry: obrázek z hry/nahledy/<název-bez-diakritiky>.jpg.
+// Když obrázek chybí (nová hra), ukáže se místo něj živá zmenšená hra.
+function slug(file) {
+  return file.replace(/\.html$/, '').normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+}
+
+const fitPreview = new ResizeObserver(entries => {
+  for (const e of entries) {
+    const frame = e.target.querySelector('iframe');
+    if (frame) frame.style.transform = 'scale(' + e.contentRect.width / 1200 + ')';
+  }
+});
+
+function preview(file, href) {
+  const box = document.createElement('div');
+  box.className = 'thumb';
+  const img = document.createElement('img');
+  img.src = FOLDER + '/nahledy/' + slug(file) + '.jpg';
+  img.alt = '';
+  img.loading = 'lazy';
+  img.onerror = () => {
+    const frame = document.createElement('iframe');
+    frame.src = href;
+    frame.loading = 'lazy';
+    frame.tabIndex = -1;
+    frame.setAttribute('aria-hidden', 'true');
+    frame.setAttribute('sandbox', 'allow-scripts allow-same-origin');
+    img.replaceWith(frame);
+    fitPreview.observe(box);
+  };
+  box.append(img);
+  return box;
+}
+
 function prettyName(file) {
   const s = file.replace(/\.html$/, '').replace(/[-_]+/g, ' ');
   return s.charAt(0).toUpperCase() + s.slice(1);
@@ -288,9 +328,9 @@ async function describe(file) {
     const res = await fetch(href);
     const doc = new DOMParser().parseFromString(await res.text(), 'text/html');
     const desc = doc.querySelector('meta[name="description"]');
-    return { href, title: doc.title.trim() || prettyName(file), desc: desc ? desc.content : '' };
+    return { file, href, title: doc.title.trim() || prettyName(file), desc: desc ? desc.content : '' };
   } catch {
-    return { href, title: prettyName(file), desc: '' };
+    return { file, href, title: prettyName(file), desc: '' };
   }
 }
 
@@ -303,7 +343,8 @@ async function buildMenu() {
     try { files = await fromGitHub(); }
     catch { status.textContent = 'Seznam her se nepodařilo načíst.'; return; }
   }
-  files = [...new Set(files)];
+  // Stejný název uložený jinak (např. „č“ jako c + háček) se počítá jen jednou.
+  files = [...new Map(files.map(f => [f.normalize("NFC"), f])).values()];
   if (!files.length) { status.textContent = 'Zatím tu nejsou žádné hry.'; return; }
 
   const games = await Promise.all(files.map(describe));
@@ -313,9 +354,12 @@ async function buildMenu() {
     const a = document.createElement('a');
     a.className = 'card';
     a.href = g.href;
-    const b = document.createElement('b'); b.textContent = g.title; a.append(b);
-    if (g.desc) { const s = document.createElement('span'); s.textContent = g.desc; a.append(s); }
-    const go = document.createElement('span'); go.className = 'go'; go.textContent = 'Hrát →'; a.append(go);
+    a.append(preview(g.file, g.href));
+    const body = document.createElement('div'); body.className = 'body';
+    const b = document.createElement('b'); b.textContent = g.title; body.append(b);
+    if (g.desc) { const s = document.createElement('span'); s.textContent = g.desc; body.append(s); }
+    const go = document.createElement('span'); go.className = 'go'; go.textContent = 'Hrát →'; body.append(go);
+    a.append(body);
     li.append(a); list.append(li);
   }
   status.remove();
