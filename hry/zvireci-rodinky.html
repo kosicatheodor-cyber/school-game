@@ -1,0 +1,471 @@
+<!doctype html>
+<html lang="cs">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Zvířecí rodinky</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;800&family=Nunito:wght@500;700;800&display=swap">
+<style>
+/* Layout: a picture-book farmyard — sky header over a grass hill, family "stáje" (stalls) as cards, a sticky tray of animals at the bottom. Single bright look by choice. */
+:root{
+  --sky:#dff1fb; --sky2:#bfe3f6;
+  --grass:#3c9a4b; --grass-d:#2b7638; --grass-l:#dcefd5;
+  --ink:#1f2a44; --ink-soft:#56607a;
+  --sun:#ffc83a; --sun-d:#e9a400;
+  --barn:#d4473a; --barn-l:#fde3df;
+  --wood:#c08a52; --wood-l:#f6ead9;
+  --paper:#ffffff;
+  --display:"Baloo 2", "Comic Sans MS", system-ui, sans-serif;
+  --body:"Nunito", system-ui, -apple-system, "Segoe UI", sans-serif;
+  color-scheme: light;
+}
+*{box-sizing:border-box}
+html,body{background:var(--sky)}
+body{font-family:var(--body);color:var(--ink);font-size:17px;line-height:1.45;padding-inline:16px;padding-block:0 24px;min-height:100%}
+.wrap{max-width:980px;margin:0 auto}
+button{font:inherit;color:inherit;cursor:pointer;border:0;background:none}
+button:focus-visible{outline:3px solid var(--ink);outline-offset:3px}
+
+/* header */
+header{position:relative;padding-block:22px 54px;display:flex;flex-wrap:wrap;gap:12px 20px;align-items:center;justify-content:space-between}
+header::after{content:"";position:absolute;left:-16px;right:-16px;bottom:0;height:46px;background:var(--grass);border-radius:50% 50% 0 0/100% 100% 0 0;z-index:0}
+header>*{position:relative;z-index:1}
+h1{font-family:var(--display);font-weight:800;font-size:clamp(2rem,6vw,3.1rem);line-height:1;margin:0;letter-spacing:-.01em;text-wrap:balance}
+h1 small{display:block;font-family:var(--body);font-weight:700;font-size:1rem;color:var(--ink-soft);letter-spacing:0;margin-top:6px}
+.hud{display:flex;gap:10px;align-items:center}
+.stars{background:var(--paper);border:3px solid var(--ink);border-radius:999px;padding:4px 14px 4px 10px;font-weight:800;display:flex;gap:6px;align-items:center;font-variant-numeric:tabular-nums;box-shadow:0 3px 0 var(--ink)}
+.stars b{color:var(--sun-d);font-size:1.3rem;line-height:1}
+.iconbtn{width:44px;height:44px;border-radius:50%;background:var(--paper);border:3px solid var(--ink);box-shadow:0 3px 0 var(--ink);font-size:1.2rem;display:grid;place-items:center}
+
+/* tabs */
+nav{background:var(--grass);margin-inline:-16px;padding:0 16px 14px}
+.tabs{max-width:980px;margin:0 auto;display:flex;gap:8px;flex-wrap:wrap}
+.tab{font-family:var(--display);font-weight:800;font-size:1.1rem;padding:8px 18px 6px;border-radius:14px;background:var(--grass-d);color:#fff;border:3px solid transparent}
+.tab[aria-selected="true"]{background:var(--sun);color:var(--ink);border-color:var(--ink);box-shadow:0 3px 0 var(--ink)}
+.tab.locked{opacity:.55;cursor:not-allowed}
+.picker.locked{opacity:.55}
+.picker.locked summary{cursor:not-allowed}
+
+main{padding-top:18px}
+.intro{display:flex;flex-wrap:wrap;gap:8px 16px;align-items:baseline;justify-content:space-between;margin-bottom:14px}
+.intro p{margin:0;max-width:62ch;color:var(--ink-soft);font-weight:700}
+.msg{min-height:1.6em;font-weight:800;font-size:1.05rem;margin:0 0 12px;padding:8px 14px;border-radius:12px;background:var(--paper);border:2px dashed var(--ink-soft)}
+.msg.good{background:var(--grass-l);border:2px solid var(--grass)}
+.msg.bad{background:var(--barn-l);border:2px solid var(--barn)}
+
+/* puzzle board */
+.board{display:grid;grid-template-columns:repeat(auto-fit,minmax(270px,1fr));gap:14px}
+.fam{background:var(--wood-l);border:3px solid var(--wood);border-radius:18px;padding:10px 12px 12px;transition:background .3s,border-color .3s}
+.fam h3{margin:0 0 8px;font-family:var(--display);font-weight:800;font-size:1.35rem;display:flex;align-items:center;gap:8px}
+.fam h3 .tag{margin-left:auto;font-family:var(--body);font-size:.8rem;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:var(--grass-d)}
+.fam.done{background:var(--grass-l);border-color:var(--grass)}
+.slots{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.slot{min-height:104px;border-radius:14px;border:3px dashed var(--wood);background:var(--paper);display:flex;flex-direction:column;align-items:center;justify-content:flex-end;padding:6px 4px;gap:2px;position:relative}
+.slot .lbl{position:absolute;top:5px;left:0;right:0;text-align:center;font-size:.72rem;font-weight:800;text-transform:uppercase;letter-spacing:.07em;color:var(--wood)}
+.slot.filled{border-style:solid;border-color:var(--grass);cursor:default}
+.slot.filled .lbl{color:var(--grass-d)}
+.slot.ready{border-color:var(--ink);background:#fffbe9}
+.fact{margin:8px 2px 0;font-size:.92rem;font-weight:700;color:var(--grass-d)}
+
+.animal{display:flex;flex-direction:column;align-items:center;gap:0}
+.animal .e{font-size:calc(2.3rem * var(--s,1));line-height:1.1;display:block}
+.animal .n{font-weight:800;font-size:1rem;line-height:1.15;text-align:center}
+
+/* tray */
+.tray{position:sticky;bottom:0;margin:18px -16px 0;padding:12px 16px calc(12px + env(safe-area-inset-bottom,0px));background:var(--grass);border-top:4px solid var(--grass-d);z-index:5}
+.tray h4{margin:0 auto 8px;max-width:980px;color:#fff;font-family:var(--display);font-weight:800;font-size:1.05rem}
+.cards{max-width:980px;margin:0 auto;display:flex;gap:8px;overflow-x:auto;padding:4px 2px 8px}
+.card{flex:0 0 auto;width:96px;min-height:100px;background:var(--paper);border:3px solid var(--ink);border-radius:14px;box-shadow:0 4px 0 var(--ink);display:flex;align-items:center;justify-content:center;padding:6px 4px;transition:transform .12s}
+.card:hover{transform:translateY(-2px)}
+.card.sel{background:var(--sun);transform:translateY(-6px);box-shadow:0 8px 0 var(--ink)}
+.tray .empty{color:#fff;font-weight:800;margin:0 auto;max-width:980px}
+
+.shake{animation:shake .4s}
+@keyframes shake{20%{transform:translateX(-7px)}40%{transform:translateX(7px)}60%{transform:translateX(-4px)}80%{transform:translateX(4px)}}
+.pop{animation:pop .35s}
+@keyframes pop{0%{transform:scale(.6)}70%{transform:scale(1.12)}100%{transform:scale(1)}}
+
+/* quiz */
+.quiz{background:var(--paper);border:3px solid var(--ink);border-radius:22px;box-shadow:0 6px 0 var(--ink);padding:20px;max-width:640px;margin:0 auto}
+.qtop{display:flex;justify-content:space-between;font-weight:800;color:var(--ink-soft);font-variant-numeric:tabular-nums}
+.progress{height:10px;border-radius:99px;background:var(--grass-l);margin:8px 0 16px;overflow:hidden}
+.progress i{display:block;height:100%;background:var(--grass);border-radius:99px;transition:width .3s}
+.qpic{font-size:4.2rem;text-align:center;line-height:1.1}
+.qtext{font-family:var(--display);font-weight:800;font-size:clamp(1.35rem,4.5vw,1.8rem);text-align:center;line-height:1.2;margin:8px 0 16px;text-wrap:balance}
+.opts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.opt{padding:14px 10px;border-radius:14px;border:3px solid var(--ink);background:var(--sky);font-weight:800;font-size:1.15rem;box-shadow:0 4px 0 var(--ink)}
+.opt:disabled{cursor:default}
+.opt.right{background:var(--grass);color:#fff}
+.opt.wrong{background:var(--barn);color:#fff}
+.explain{margin:14px 0 0;font-weight:700;text-align:center;min-height:1.5em}
+.big{display:block;margin:16px auto 0;font-family:var(--display);font-weight:800;font-size:1.25rem;padding:10px 26px 8px;border-radius:16px;background:var(--sun);border:3px solid var(--ink);box-shadow:0 4px 0 var(--ink)}
+.big:active{transform:translateY(3px);box-shadow:0 1px 0 var(--ink)}
+
+/* picker */
+.picker{background:var(--paper);border:3px solid var(--ink);border-radius:16px;padding:10px 14px;margin-bottom:12px}
+.picker summary{font-family:var(--display);font-weight:800;font-size:1.1rem;cursor:pointer}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.chip{display:flex;align-items:center;gap:6px;padding:6px 12px;border-radius:999px;border:2px solid var(--wood);background:var(--wood-l);font-weight:800}
+.chip[aria-pressed="true"]{background:var(--sun);border-color:var(--ink)}
+.big.small{font-size:1.05rem;padding:8px 18px 6px;margin:12px 0 0}
+.big:disabled{opacity:.45;cursor:default}
+
+/* atlas */
+.atlas{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:14px}
+.acard{background:var(--paper);border:3px solid var(--wood);border-radius:18px;padding:12px}
+.acard h3{margin:0 0 6px;font-family:var(--display);font-weight:800;font-size:1.35rem}
+.trio{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+.member{border-radius:12px;background:var(--wood-l);padding:6px 2px 8px;display:flex;flex-direction:column;align-items:center}
+.member .r{font-size:.7rem;font-weight:800;letter-spacing:.07em;text-transform:uppercase;color:var(--wood)}
+.acard p{margin:8px 0 0;font-size:.92rem;color:var(--ink-soft);font-weight:700}
+
+/* result overlay */
+.overlay{position:fixed;inset:0;background:rgba(31,42,68,.45);display:grid;place-items:center;padding:16px;z-index:20}
+.panel{background:var(--paper);border:4px solid var(--ink);border-radius:24px;box-shadow:0 8px 0 var(--ink);padding:24px 22px;max-width:420px;width:100%;text-align:center}
+.panel h2{font-family:var(--display);font-weight:800;font-size:2rem;margin:0;line-height:1.1}
+.panel .bigstars{font-size:2.6rem;letter-spacing:6px;margin:8px 0;color:var(--sun-d)}
+.panel .bigstars .off{color:#d9dde6}
+.panel p{margin:6px 0;font-weight:700}
+canvas#fx{position:fixed;inset:0;pointer-events:none;z-index:30;width:100%;height:100%}
+
+@media (max-width:520px){
+  .slot{min-height:92px}
+  .animal .e{font-size:calc(2rem * var(--s,1))}
+  .animal .n{font-size:.9rem}
+  .card{width:84px}
+  .opts{grid-template-columns:1fr}
+}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Zvířecí rodinky<small>Kdo je táta, kdo máma a kdo mládě?</small></h1>
+    <div class="hud">
+      <div class="stars" title="Hvězdičky celkem"><b>★</b><span id="total">0</span></div>
+      <button class="iconbtn" id="sound" aria-label="Vypnout zvuk" title="Zvuk">🔊</button>
+    </div>
+  </header>
+</div>
+<nav><div class="tabs" role="tablist">
+  <button class="tab" role="tab" id="t-puzzle" aria-selected="true">Poskládej rodiny</button>
+  <button class="tab" role="tab" id="t-quiz" aria-selected="false">Kvíz</button>
+  <button class="tab" role="tab" id="t-atlas" aria-selected="false">Atlas rodin</button>
+</div></nav>
+
+<main class="wrap">
+  <section id="v-puzzle">
+    <div class="intro">
+      <p>Vyber zvířátko dole a pak klepni na správné místo v jeho rodině.</p>
+      <span id="roundlbl" style="font-weight:800"></span>
+    </div>
+    <details class="picker" id="picker">
+      <summary>Vyber si, se kterými zvířátky chceš hrát</summary>
+      <div class="chips" id="chips"></div>
+      <button class="big small" id="playChosen" disabled>Hrát s vybranými</button>
+    </details>
+    <div class="msg" id="msg" aria-live="polite">Začni třeba tím nejmenším — mláďátkem.</div>
+    <div class="board" id="board"></div>
+  </section>
+
+  <section id="v-quiz" hidden>
+    <div class="quiz" id="quiz"></div>
+  </section>
+
+  <section id="v-atlas" hidden>
+    <div class="intro"><p>Tady si můžeš všechny rodinky prohlédnout. Klepni na zvířátko a uslyšíš jeho jméno.</p></div>
+    <div class="atlas" id="atlas"></div>
+  </section>
+</main>
+
+<div class="tray" id="tray">
+  <h4>Zvířátka, která hledají rodinu</h4>
+  <div class="cards" id="cards"></div>
+</div>
+
+<div class="overlay" id="overlay" hidden><div class="panel" id="panel"></div></div>
+<canvas id="fx"></canvas>
+
+<script>
+const FAM = [
+  {id:'kun',   name:'Koně',    dad:['hřebec','🐎'], mom:['klisna','🐴'], kid:['hříbě','🐴'],   fact:'Hříbě se postaví na nožičky už chvilku po narození.'},
+  {id:'skot',  name:'Krávy',   dad:['býk','🐂'],    mom:['kráva','🐄'],  kid:['tele','🐮'],    fact:'Kráva dává mléko, protože krmí své tele.'},
+  {id:'prase', name:'Prasata', dad:['kanec','🐖'],  mom:['prasnice','🐖'], kid:['sele','🐷'],  fact:'Prasnice může mít najednou i deset selátek.'},
+  {id:'ovce',  name:'Ovce',    dad:['beran','🐏'],  mom:['ovce','🐑'],   kid:['jehně','🐑'],   fact:'Beran má velké zatočené rohy. Z ovčí vlny se plete svetr.'},
+  {id:'koza',  name:'Kozy',    dad:['kozel','🐐'],  mom:['koza','🐐'],   kid:['kůzle','🐐'],   fact:'Kůzlata moc ráda skáčou a šplhají po kamenech.'},
+  {id:'slep',  name:'Slepice', dad:['kohout','🐓'], mom:['slepice','🐔'], kid:['kuře','🐥'],   fact:'Kohout ráno kokrhá a slepice snáší vajíčka.'},
+  {id:'kach',  name:'Kachny',  dad:['kačer','🦆'],  mom:['kachna','🦆'], kid:['káčátko','🐤'], fact:'Káčátka umí plavat hned, jak se vylíhnou.'},
+  {id:'husa',  name:'Husy',    dad:['houser','🪿'], mom:['husa','🪿'],   kid:['house','🐣'],   fact:'Husy hlídají dvůr a na cizí lidi hlasitě syčí.'},
+  {id:'kruta', name:'Krůty',   dad:['krocan','🦃'], mom:['krůta','🦃'],  kid:['krůtě','🐣'],   fact:'Krocan se nafukuje a dělá „hudly hudly“.'},
+  {id:'pes',   name:'Psi',     dad:['pes','🐕'],    mom:['fena','🐕'],   kid:['štěně','🐶'],   fact:'Štěňátka se rodí slepá a oči otevřou až po pár dnech.'},
+  {id:'kocka', name:'Kočky',   dad:['kocour','🐈'], mom:['kočka','🐈'],  kid:['kotě','🐱'],    fact:'Kočka nosí svá koťata v tlamičce za kůži na krku.'},
+  {id:'kralik',name:'Králíci', dad:['králík','🐇'], mom:['králice','🐇'], kid:['králíče','🐰'], fact:'Králíčata se rodí holá a bez srsti.'},
+  {id:'osel',  name:'Osli',    dad:['osel','🫏'],   mom:['oslice','🫏'], kid:['oslátko','🫏'], fact:'Osel umí hlasitě hýkat: „í-á, í-á!“'},
+  {id:'holub', name:'Holubi',  dad:['holub','🕊️'], mom:['holubice','🕊️'], kid:['holoubě','🐣'], fact:'Poštovní holub najde cestu domů i z velké dálky.'}
+];
+const ROLES = [['dad','táta'],['mom','máma'],['kid','mládě']];
+const ROLE_NAME = {dad:'táta',mom:'máma',kid:'mládě'};
+const SCALE = {dad:1,mom:1,kid:1};
+const $ = s => document.querySelector(s);
+const shuffle = a => { a=[...a]; for(let i=a.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[a[i],a[j]]=[a[j],a[i]]} return a; };
+const cap = s => s[0].toUpperCase()+s.slice(1);
+const famById = id => FAM.find(f=>f.id===id);
+const animalHTML = (name,emoji,role) => `<span class="animal" style="--s:${SCALE[role]}"><span class="e" aria-hidden="true">${emoji}</span><span class="n">${name}</span></span>`;
+
+/* ---------- storage, sound, speech ---------- */
+let total = 0, soundOn = true;
+try { total = +localStorage.getItem('zr_total') || 0; soundOn = localStorage.getItem('zr_sound') !== '0'; } catch(e){}
+function addStars(n){ total += n; $('#total').textContent = total; try{localStorage.setItem('zr_total',total)}catch(e){} }
+$('#total').textContent = total;
+function setSoundBtn(){ $('#sound').textContent = soundOn ? '🔊' : '🔈'; $('#sound').setAttribute('aria-label', soundOn ? 'Vypnout zvuk' : 'Zapnout zvuk'); }
+setSoundBtn();
+$('#sound').onclick = () => { soundOn = !soundOn; setSoundBtn(); try{localStorage.setItem('zr_sound',soundOn?'1':'0')}catch(e){} };
+
+let ac;
+function tones(list, type='triangle'){
+  if(!soundOn) return;
+  try{
+    ac = ac || new (window.AudioContext||window.webkitAudioContext)();
+    let t = ac.currentTime;
+    list.forEach(([f,d])=>{
+      const o=ac.createOscillator(), g=ac.createGain();
+      o.type=type; o.frequency.value=f; g.gain.setValueAtTime(.0001,t);
+      g.gain.exponentialRampToValueAtTime(.22,t+.02); g.gain.exponentialRampToValueAtTime(.0001,t+d);
+      o.connect(g).connect(ac.destination); o.start(t); o.stop(t+d+.02); t+=d*.8;
+    });
+  }catch(e){}
+}
+const sGood = () => tones([[523,.12],[659,.12],[784,.2]]);
+const sBad  = () => tones([[262,.15],[196,.25]],'sine');
+const sWin  = () => tones([[523,.12],[659,.12],[784,.12],[1047,.35]]);
+function say(t){
+  if(!soundOn) return;
+  try{ const u=new SpeechSynthesisUtterance(t); u.lang='cs-CZ'; u.rate=.9; speechSynthesis.cancel(); speechSynthesis.speak(u);}catch(e){}
+}
+
+/* ---------- confetti ---------- */
+const cv = $('#fx'), cx = cv.getContext('2d');
+function confetti(){
+  if(matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  cv.width = innerWidth; cv.height = innerHeight;
+  const cols=['#ffc83a','#3c9a4b','#d4473a','#5bb7e6','#c08a52'];
+  const ps = Array.from({length:140},()=>({x:Math.random()*cv.width,y:-20-Math.random()*cv.height*.5,vx:(Math.random()-.5)*3,vy:2+Math.random()*3,r:Math.random()*6.3,s:6+Math.random()*6,c:cols[Math.random()*5|0]}));
+  const t0=performance.now();
+  (function frame(t){
+    cx.clearRect(0,0,cv.width,cv.height);
+    ps.forEach(p=>{p.x+=p.vx;p.y+=p.vy;p.vy+=.04;p.r+=.1;cx.save();cx.translate(p.x,p.y);cx.rotate(p.r);cx.fillStyle=p.c;cx.fillRect(-p.s/2,-p.s/4,p.s,p.s/2);cx.restore();});
+    if(t-t0<3200) requestAnimationFrame(frame); else cx.clearRect(0,0,cv.width,cv.height);
+  })(t0);
+}
+
+/* ---------- overlay ---------- */
+function showResult(title, stars, lines, btnText, onNext){
+  $('#panel').innerHTML = `<h2>${title}</h2>
+    <div class="bigstars" aria-label="${stars} ze 3 hvězdiček">${[0,1,2].map(i=>`<span class="${i<stars?'':'off'}">★</span>`).join('')}</div>
+    ${lines.map(l=>`<p>${l}</p>`).join('')}
+    <button class="big" id="nextbtn">${btnText}</button>`;
+  $('#overlay').hidden = false;
+  $('#nextbtn').focus();
+  $('#nextbtn').onclick = () => { $('#overlay').hidden = true; onNext(); };
+}
+
+/* ---------- puzzle ---------- */
+let P = {};
+let round = 0, deck = [], chosen = new Set();
+function newRound(custom){
+  round++;
+  let fams;
+  if(custom && custom.length){ fams = shuffle(custom); deck = shuffle(FAM.filter(f=>!custom.includes(f))); }
+  else {
+    const n = round < 3 ? 3 : 4;
+    if(deck.length < n) deck = [...deck, ...shuffle(FAM.filter(f=>!deck.includes(f)))];
+    fams = deck.splice(0,n);
+  }
+  const cards = shuffle(fams.flatMap(f=>ROLES.map(([r])=>({id:f.id+'-'+r, fid:f.id, role:r}))));
+  P = {fams, cards, placed:{}, sel:null, mistakes:0, err:{}};
+  $('#roundlbl').textContent = `Kolo ${round}`;
+  setMsg('Vyber zvířátko dole a najdi mu rodinu.', '');
+  renderPuzzle();
+}
+function setMsg(t, cls){ const m=$('#msg'); m.textContent=t; m.className='msg '+(cls||''); }
+function renderPuzzle(){
+  $('#board').innerHTML = P.fams.map(f=>{
+    const done = ROLES.every(([r])=>P.placed[f.id+'-'+r]);
+    return `<div class="fam ${done?'done':''}" id="fam-${f.id}">
+      <h3>${f.name}${done?'<span class="tag">Hotovo ✓</span>':''}</h3>
+      <div class="slots">${ROLES.map(([r,l])=>{
+        const key=f.id+'-'+r, filled=P.placed[key];
+        return `<button class="slot ${filled?'filled':''} ${!filled&&P.sel?'ready':''}" data-key="${key}" aria-label="${f.name}: ${l}${filled?' – '+f[r][0]:''}">
+          <span class="lbl">${l}</span>${filled?animalHTML(f[r][0],f[r][1],r):''}</button>`;
+      }).join('')}</div>
+      ${done?`<p class="fact">${f.fact}</p>`:''}
+    </div>`;
+  }).join('');
+  const left = P.cards.filter(c=>!P.placed[c.id]);
+  $('#cards').innerHTML = left.length ? left.map(c=>{
+    const f=famById(c.fid);
+    return `<button class="card ${P.sel===c.id?'sel':''}" data-id="${c.id}" aria-pressed="${P.sel===c.id}">${animalHTML(f[c.role][0],f[c.role][1],c.role)}</button>`;
+  }).join('') : '';
+  $('#board').querySelectorAll('.slot').forEach(b=>b.onclick=()=>placeAt(b));
+  updateLock();
+  $('#cards').querySelectorAll('.card').forEach(b=>b.onclick=()=>{
+    P.sel = P.sel===b.dataset.id ? null : b.dataset.id;
+    if(P.sel){ const c=P.cards.find(x=>x.id===P.sel); say(famById(c.fid)[c.role][0]); setMsg(`Kam patří ${famById(c.fid)[c.role][0]}?`,''); }
+    renderPuzzle();
+  });
+}
+function placeAt(btn){
+  const key = btn.dataset.key;
+  if(P.placed[key]) return;
+  if(!P.sel){ setMsg('Nejdřív dole vyber zvířátko.', 'bad'); return; }
+  const card = P.cards.find(c=>c.id===P.sel);
+  const [fid, role] = key.split('-');
+  const f = famById(card.fid), name = f[card.role][0], slotFam = famById(fid);
+  if(card.id === key){
+    P.placed[key] = true; P.sel = null; sGood();
+    const famDone = ROLES.every(([r])=>P.placed[fid+'-'+r]);
+    setMsg(famDone ? `Rodina ${slotFam.name.toLowerCase()} je pohromadě!` : `Ano! ${cap(name)} je ${ROLE_NAME[role]}.`, 'good');
+    renderPuzzle();
+    const placedEl = document.querySelector(`.slot[data-key="${key}"]`); placedEl && placedEl.classList.add('pop');
+    if(famDone){ const fe=$('#fam-'+fid); fe && fe.classList.add('pop'); }
+    if(P.cards.every(c=>P.placed[c.id])) setTimeout(finishRound, 700);
+    return;
+  }
+  P.mistakes++; P.err[card.id]=(P.err[card.id]||0)+1; sBad();
+  if(card.fid === fid){
+    setMsg(`Rodina je správně! Ale ${name} není ${ROLE_NAME[role]} — je to ${ROLE_NAME[card.role]}.`, 'bad');
+  } else if(P.err[card.id] >= 2){
+    setMsg(`Nápověda: ${name} patří k rodině „${f.name}“ a je to ${ROLE_NAME[card.role]}.`, 'bad');
+  } else {
+    setMsg(`${cap(name)} do rodiny „${slotFam.name}“ nepatří. Zkus to jinde.`, 'bad');
+  }
+  btn.classList.remove('shake'); void btn.offsetWidth; btn.classList.add('shake');
+}
+function finishRound(){
+  const m = P.mistakes, stars = m===0?3 : m<=2?2 : 1;
+  addStars(stars); sWin(); confetti();
+  const f = P.fams[Math.random()*P.fams.length|0];
+  showResult(stars===3?'Bez jediné chyby!':'Výborně!', stars,
+    [m===0?'Všechny rodinky jsou pohromadě.':`Všechny rodinky jsou pohromadě. Chyb: ${m}.`, `Víš, že… ${f.fact}`],
+    'Další kolo', newRound);
+}
+
+/* ---------- quiz ---------- */
+let Q = {};
+function pickOthers(role, notId, n){ return shuffle(FAM.filter(f=>f.id!==notId)).slice(0,n).map(f=>f[role][0]); }
+function makeQuestion(){
+  const f = FAM[Math.random()*FAM.length|0];
+  const t = Math.random()*4|0;
+  if(t===0) return {f, pic:f.mom[1], text:`Máma je ${f.mom[0]}. Jak se jmenuje její mládě?`, ans:f.kid[0], opts:shuffle([f.kid[0],...pickOthers('kid',f.id,3)])};
+  if(t===1) return {f, pic:f.dad[1], text:`Táta je ${f.dad[0]}. Kdo je máma?`, ans:f.mom[0], opts:shuffle([f.mom[0],...pickOthers('mom',f.id,3)])};
+  if(t===2) return {f, pic:f.kid[1], text:`Mládě se jmenuje ${f.kid[0]}. Kdo je jeho táta?`, ans:f.dad[0], opts:shuffle([f.dad[0],...pickOthers('dad',f.id,3)])};
+  const g = shuffle(FAM.filter(x=>x.id!==f.id))[0], gr = ROLES[Math.random()*3|0][0];
+  return {f, g, pic:'🏠', text:'Tři zvířátka jsou z jedné rodiny. Kdo k nim nepatří?', ans:g[gr][0], opts:shuffle([f.dad[0],f.mom[0],f.kid[0],g[gr][0]])};
+}
+function newQuiz(){
+  const qs=[]; const seen=new Set();
+  while(qs.length<10){ const q=makeQuestion(); const k=q.text+q.f.id; if(!seen.has(k)){seen.add(k); qs.push(q);} }
+  Q = {qs, i:0, score:0, answered:false};
+  renderQuiz();
+}
+function famLine(f){ return `${f.name}: táta ${f.dad[0]}, máma ${f.mom[0]}, mládě ${f.kid[0]}.`; }
+function renderQuiz(){
+  const q = Q.qs[Q.i];
+  $('#quiz').innerHTML = `
+    <div class="qtop"><span>Otázka ${Q.i+1} z 10</span><span>Správně: ${Q.score}</span></div>
+    <div class="progress"><i style="width:${Q.i*10}%"></i></div>
+    <div class="qpic" aria-hidden="true">${q.pic}</div>
+    <div class="qtext">${q.text}</div>
+    <div class="opts">${q.opts.map(o=>`<button class="opt" data-o="${o}">${o}</button>`).join('')}</div>
+    <p class="explain" id="explain"></p>`;
+  $('#quiz').querySelectorAll('.opt').forEach(b=>b.onclick=()=>answer(b));
+}
+function answer(b){
+  if(Q.answered) return; Q.answered = true;
+  const q = Q.qs[Q.i], ok = b.dataset.o === q.ans;
+  $('#quiz').querySelectorAll('.opt').forEach(x=>{ x.disabled=true; if(x.dataset.o===q.ans) x.classList.add('right'); });
+  if(ok){ Q.score++; sGood(); } else { b.classList.add('wrong'); sBad(); }
+  say(q.ans);
+  const ex = q.g ? `${cap(q.ans)} patří k rodině „${q.g.name}“. ${famLine(q.f)}` : famLine(q.f);
+  $('#explain').innerHTML = `${ok?'Správně! ':'Skoro! '}${ex}`;
+  const nb = document.createElement('button'); nb.className='big'; nb.textContent = Q.i<9?'Další otázka':'Výsledek';
+  nb.onclick = () => { Q.i++; Q.answered=false; if(Q.i<10) renderQuiz(); else finishQuiz(); };
+  $('#quiz').appendChild(nb); nb.focus();
+}
+function finishQuiz(){
+  const s=Q.score, stars = s===10?3 : s>=7?2 : s>=4?1 : 0;
+  if(stars) addStars(stars);
+  sWin(); if(stars>=2) confetti();
+  showResult(s>=7?'Skvělá práce!':'Dobrý pokus!', stars,
+    [`Správně ${s} z 10 otázek.`, stars<3?'V Atlasu rodin si můžeš zvířátka zopakovat.':'Znáš všechny rodinky!'],
+    'Hrát znovu', newQuiz);
+}
+
+/* ---------- atlas ---------- */
+function renderAtlas(){
+  $('#atlas').innerHTML = FAM.map(f=>`<div class="acard"><h3>${f.name}</h3><div class="trio">${
+    ROLES.map(([r,l])=>`<button class="member" data-say="${f[r][0]}"><span class="r">${l}</span>${animalHTML(f[r][0],f[r][1],r)}</button>`).join('')
+  }</div><p>${f.fact}</p></div>`).join('');
+  $('#atlas').querySelectorAll('.member').forEach(b=>b.onclick=()=>say(b.dataset.say));
+}
+
+/* ---------- tabs ---------- */
+const views = {puzzle:'#v-puzzle', quiz:'#v-quiz', atlas:'#v-atlas'};
+/* Atlas is locked while a puzzle round is in progress (after the first placed animal, until the round is done) */
+function roundLocked(){
+  if(!P.cards) return false;
+  const n = Object.keys(P.placed).length;
+  return n > 0 && n < P.cards.length;
+}
+function updateLock(){
+  const locked = roundLocked(), t = $('#t-atlas');
+  t.classList.toggle('locked', locked);
+  t.setAttribute('aria-disabled', locked);
+  t.textContent = locked ? '🔒 Atlas rodin' : 'Atlas rodin';
+  const pk = $('#picker');
+  pk.classList.toggle('locked', locked);
+  if(locked) pk.open = false;
+}
+$('#picker').addEventListener('click', e => {
+  if(roundLocked() && e.target.closest('summary')){
+    e.preventDefault();
+    setMsg('Nejdřív dokonči tohle kolo, pak si můžeš vybrat jiná zvířátka.', 'bad');
+  }
+});
+function show(v){
+  if(v==='atlas' && roundLocked()){
+    v = 'puzzle';
+    setMsg('Atlas rodin se otevře, až poskládáš všechny rodinky v tomhle kole.', 'bad');
+  }
+  Object.entries(views).forEach(([k,sel])=>{ $(sel).hidden = k!==v; $('#t-'+k).setAttribute('aria-selected', k===v); });
+  $('#tray').hidden = v!=='puzzle';
+  if(v==='quiz' && !Q.qs) newQuiz();
+}
+Object.keys(views).forEach(k=>$('#t-'+k).onclick=()=>show(k));
+
+function renderChips(){
+  $('#chips').innerHTML = FAM.map(f=>`<button class="chip" data-id="${f.id}" aria-pressed="${chosen.has(f.id)}"><span aria-hidden="true">${f.kid[1]}</span>${f.name}</button>`).join('');
+  $('#chips').querySelectorAll('.chip').forEach(b=>b.onclick=()=>{
+    const id=b.dataset.id;
+    if(chosen.has(id)) chosen.delete(id); else if(chosen.size<5) chosen.add(id);
+    renderChips();
+  });
+  const n=chosen.size, btn=$('#playChosen');
+  btn.disabled = n<2;
+  btn.textContent = n<2 ? 'Vyber aspoň 2 rodinky' : `Hrát s vybranými (${n})`;
+}
+$('#playChosen').onclick = () => {
+  newRound(FAM.filter(f=>chosen.has(f.id)));
+  $('#picker').open = false;
+};
+renderChips();
+renderAtlas();
+newRound([famById('koza'), famById('prase'), famById('slep')]);
+const h = (location.hash||'').slice(1); if(views[h]) show(h);
+</script>
+
+</body>
+</html>
