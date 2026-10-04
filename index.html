@@ -66,6 +66,46 @@ header{display:flex;align-items:center;gap:20px;padding:6px 0 16px;margin-bottom
 @keyframes pant{to{transform:scaleY(1.25)}}
 @keyframes bob{50%{transform:translateY(-2px)}}
 @media (max-width:600px){.bart{width:100px}}
+.bart{border:0;background:none;padding:0;cursor:pointer;font:inherit;color:inherit}
+.bart:focus-visible{outline:3px solid var(--green);outline-offset:4px;border-radius:12px}
+.bart:focus-visible .bubble{opacity:1;transform:none}
+.sr{position:absolute!important;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+/* nápady na hry */
+.ideas{margin-top:52px}
+.ideas h2{font-size:34px;color:var(--blue)}
+.ideas .hint{margin:2px 0 16px;color:var(--muted)}
+.ideas form{display:flex;flex-direction:column;gap:14px;max-width:640px}
+.ideas .two{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media (max-width:560px){.ideas .two{grid-template-columns:1fr}}
+.ideas label{display:flex;flex-direction:column;gap:4px;font-weight:800;font-size:16px}
+.ideas small{font-weight:600;color:var(--muted)}
+.ideas input,.ideas textarea,.chat-form input{font:inherit;font-weight:400;color:var(--ink);background:var(--panel);border:2px solid var(--line);border-radius:12px;padding:10px 12px;resize:vertical}
+.ideas input:focus,.ideas textarea:focus,.chat-form input:focus{outline:none;border-color:var(--blue)}
+.ideas .actions{display:flex;align-items:center;justify-content:flex-end;gap:14px}
+.send,.chat-form button{font:inherit;font-weight:800;border-radius:999px;padding:10px 22px;cursor:pointer;background:var(--green);border:2px solid var(--green);color:#fff}
+.send:disabled{opacity:.5;cursor:wait}
+.result{margin:0 auto 0 0;font-weight:700}
+.result.ok{color:var(--green)}
+.result.err{color:#c0392b}
+
+/* chat s Bartem */
+.chat{width:min(420px,calc(100% - 32px));height:min(560px,calc(100% - 32px));border:0;border-radius:20px;padding:0;background:var(--panel);color:var(--ink);box-shadow:0 20px 60px rgba(10,30,60,.35);flex-direction:column;overflow:hidden}
+.chat[open]{display:flex}
+.chat::backdrop{background:rgba(13,26,46,.55)}
+.chat-head{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;background:var(--blue);color:#fff}
+.chat-head h2{font-size:26px}
+.chat .close{border:0;background:none;color:#fff;font-size:30px;line-height:1;cursor:pointer;padding:0 4px}
+.log{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px}
+.log p{margin:0;max-width:80%;padding:8px 14px;border-radius:16px;line-height:1.4}
+.log .bot{align-self:flex-start;background:var(--greenSoft);border-bottom-left-radius:4px}
+.log .me{align-self:flex-end;background:var(--blue);color:#fff;border-bottom-right-radius:4px}
+.log .typing{color:var(--muted);font-style:italic}
+.chips{display:flex;flex-wrap:wrap;gap:6px;padding:0 16px 10px}
+.chips button{font:inherit;font-size:14px;font-weight:700;border:2px solid var(--line);background:none;color:var(--blue);border-radius:999px;padding:4px 10px;cursor:pointer}
+.chips button:hover{border-color:var(--blue)}
+.chat-form{display:flex;gap:8px;padding:12px 16px 16px;border-top:2px solid var(--line)}
+.chat-form input{flex:1;min-width:0}
 @media (prefers-reduced-motion:reduce){.bart,.bart *{animation:none!important}}
 
 /* menu her */
@@ -117,11 +157,28 @@ header{display:flex;align-items:center;gap:20px;padding:6px 0 16px;margin-bottom
     <p class="status" id="status">Načítám hry…</p>
     <ul class="grid" id="games"></ul>
   </section>
+
+  <section class="ideas" aria-labelledby="ideas-title">
+    <h2 id="ideas-title">Máš nápad na hru?</h2>
+    <p class="hint">Napiš mi ho a třeba ho naprogramuju!</p>
+    <form id="idea-form" novalidate>
+      <div class="two">
+        <label>Jméno<input name="name" required maxlength="60" autocomplete="name"></label>
+        <label><span>E-mail <small>(nepovinný)</small></span><input name="email" type="email" maxlength="100" autocomplete="email"></label>
+      </div>
+      <label>Nápad na hru<textarea name="message" required maxlength="2000" rows="4" placeholder="O čem by hra byla a co by se v ní dělalo?"></textarea></label>
+      <input type="checkbox" name="botcheck" class="sr" tabindex="-1" autocomplete="off" aria-hidden="true">
+      <div class="actions">
+        <p class="result" id="idea-result" role="status"></p>
+        <button type="submit" class="send">Poslat nápad</button>
+      </div>
+    </form>
+  </section>
 </div>
 
-<div class="bart" title="Bart">
-  <span class="bubble">Haf! Já jsem Bart</span>
-  <svg viewBox="0 0 170 160" aria-label="Pes Bart na skateboardu" role="img">
+<button type="button" class="bart" aria-haspopup="dialog" aria-controls="chat">
+  <span class="bubble">Haf! Napiš mi!</span>
+  <svg viewBox="0 0 170 160" aria-hidden="true">
     <g class="dog">
       <!-- ocas -->
       <path class="tail" d="M116 114c18-2 34-18 38-42c-6-2-12 2-14 6c-8 12-16 18-28 22z" fill="#b8742c"/>
@@ -164,7 +221,26 @@ header{display:flex;align-items:center;gap:20px;padding:6px 0 16px;margin-bottom
     <g class="wheel"><circle cx="44" cy="152" r="7" fill="#14315e"/><rect x="43" y="146" width="2" height="12" fill="#ffffff"/></g>
     <g class="wheel"><circle cx="126" cy="152" r="7" fill="#14315e"/><rect x="125" y="146" width="2" height="12" fill="#ffffff"/></g>
   </svg>
-</div>
+  <span class="sr">Chat s Bartem</span>
+</button>
+
+<dialog id="chat" class="chat" aria-labelledby="chat-title">
+  <div class="chat-head">
+    <h2 id="chat-title">Chat s Bartem</h2>
+    <button type="button" class="close" id="chat-close" aria-label="Zavřít">×</button>
+  </div>
+  <div class="log" id="chat-log" role="log" aria-live="polite"></div>
+  <div class="chips" id="chat-chips">
+    <button type="button">Ahoj Barte!</button>
+    <button type="button">Co rád jíš?</button>
+    <button type="button">Hraješ fotbal?</button>
+    <button type="button">Kdo je Theo?</button>
+  </div>
+  <form id="chat-form" class="chat-form">
+    <input id="chat-input" autocomplete="off" maxlength="200" placeholder="Napiš Bartovi…" aria-label="Zpráva pro Barta">
+    <button type="submit">Poslat</button>
+  </form>
+</dialog>
 
 <script>
 // Menu se skládá automaticky ze všech .html stránek ve složce hry/.
@@ -250,6 +326,103 @@ buildMenu();
 // Bart po příjezdu na chvíli řekne „Haf!“
 const bart = document.querySelector('.bart');
 setTimeout(() => { bart.classList.add('say'); setTimeout(() => bart.classList.remove('say'), 2500); }, 1900);
+
+// Chat s Bartem – Bart odpovídá podle klíčových slov, nic se nikam neposílá.
+const BART = [
+  [/ahoj|čau|cau|nazdar|zdravím|dobr[ýy] den|hello|hi\b/, ['Haf haf! Ahoj! 🐾', 'Ahoj! Vrtím ocasem, vidíš?', 'Čau! Hodíš mi míček?']],
+  [/jak se m[aá]š|jak je/, ['Skvěle! Právě jsem dojedl a teď bych si dal šlofíka.', 'Mám se psí… teda báječně! Haf!']],
+  [/j[ií]dl|j[ií]š|žer|granul|hlad|ma?s[oa]|pamlsk|buřt/, ['Nejradši mám maso. A pamlsky. A Theovu svačinu, když se nedívá. 🍖', 'Granule jsou fajn, ale buřt je lepší!']],
+  [/fotbal|m[ií]č|gól|gol|afk|nehvizd/, ['Fotbal miluju! Jen mi pořád říkají, že se míč nesmí kousat. ⚽', 'Fandím Theovi a AFK Nehvizdy! Haf, gól!']],
+  [/bub|bic[ií]|hudb|muzik/, ['Když Theo bubnuje, schovám se pod stůl… ale tajně mu fandím! 🥁', 'Bum bum bum! To je Theo a jeho bubny.']],
+  [/theo|theodor|p[aá]n[ií]?[čc]ek|kamar[aá]d/, ['Theo je můj nejlepší kamarád! Chodí do 5. třídy v Mochově.', 'Theo dělá hry na počítači a hraje fotbal. A drbe mě za ušima!']],
+  [/leonberger|plemen|velk[ýy]|v[aá]ž[ií]š|kolik m[aá]š/, ['Jsem leonberger – velký, huňatý a hodný jako medvídek. 🐻', 'Leonbergeři jsou obři s dobrým srdcem. To jsem já!']],
+  [/hr[auy]|hraj|hrac|počítač|pocitac/, ['Hry jsou nahoře na stránce. Zkus „Cestu dějinami“!', 'Já si hraju hlavně s klackem. Ale Theovy hry jsou taky super!']],
+  [/proch[aá]zk|ven|venku|běh|beh|klac|aport/, ['Ven?! VEN?! Už nesu vodítko! 🦮', 'Klacky jsou nejlepší hračky na světě.']],
+  [/kočk|kocic|kocour/, ['Kočky… hmm. Radši o nich nemluvme. 🐈', 'Grrr… teda, kočky jsou určitě milé. Z dálky.']],
+  [/kolik.*let|věk|vek|star[ýy]/, ['Kolik mi je? Psi nepočítají roky, jen pamlsky!']],
+  [/hodn[ýy]|šikovn|sikovn|miluj|m[aá]m t[eě] r[aá]d|hezk|kr[aá]sn/, ['Haf! To mě moc těší! *vrtí ocasem jako vrtule*', 'Ty jsi taky hodný! Dostanu za to pamlsek?']],
+  [/sk[aá]k|skate/, ['Na skateboardu jezdím nejrychleji v celém Mochově!']],
+  [/pa\b|ahoj.*pa|nashle|čau čau|dobrou/, ['Pa pa! Přijď zase! 🐾', 'Haf! Měj se a nezapomeň na pamlsek.']],
+];
+const BART_FALLBACK = ['Haf? Tomu nerozumím, ale vrtím ocasem!', 'Hmm… *nakloní hlavu* Zkus se zeptat na jídlo, fotbal nebo Thea.', 'Haf haf! (To znamená: povídej dál!)', 'Promiň, zrovna jsem honil vlastní ocas. Co jsi říkal?'];
+const pick = arr => arr[Math.floor(Math.random() * arr.length)];
+function bartReply(text) {
+  const t = text.toLowerCase();
+  for (const [re, answers] of BART) if (re.test(t)) return pick(answers);
+  return pick(BART_FALLBACK);
+}
+
+const chat = document.getElementById('chat');
+const log = document.getElementById('chat-log');
+const chatInput = document.getElementById('chat-input');
+function say(text, who) {
+  const p = document.createElement('p');
+  p.className = who; p.textContent = text;
+  log.append(p); log.scrollTop = log.scrollHeight;
+  return p;
+}
+function ask(text) {
+  text = text.trim();
+  if (!text) return;
+  say(text, 'me');
+  const typing = say('Bart píše…', 'bot typing');
+  setTimeout(() => { typing.remove(); say(bartReply(text), 'bot'); }, 600 + Math.random() * 600);
+}
+bart.addEventListener('click', () => {
+  if (!log.children.length) say('Haf! Ahoj, já jsem Bart, Theův leonberger. Na co se chceš zeptat?', 'bot');
+  chat.showModal();
+  chatInput.focus();
+});
+document.getElementById('chat-close').addEventListener('click', () => chat.close());
+chat.addEventListener('click', e => { if (e.target === chat) chat.close(); });
+document.getElementById('chat-form').addEventListener('submit', e => {
+  e.preventDefault(); ask(chatInput.value); chatInput.value = '';
+});
+document.getElementById('chat-chips').addEventListener('click', e => {
+  if (e.target.matches('button')) { ask(e.target.textContent); chatInput.focus(); }
+});
+
+// Nápady na hry chodí Theovi e-mailem přes Web3Forms.
+// Klíč se získá zdarma na https://web3forms.com (zadáš e-mail a klíč přijde do schránky).
+const WEB3FORMS_KEY = 'SEM_VLOZ_KLIC';
+// Dokud není klíč vyplněný, sekce s nápady se neukazuje.
+if (WEB3FORMS_KEY === 'SEM_VLOZ_KLIC') document.querySelector('.ideas').hidden = true;
+const form = document.getElementById('idea-form');
+const result = document.getElementById('idea-result');
+const sendBtn = form.querySelector('.send');
+form.addEventListener('submit', async e => {
+  e.preventDefault();
+  if (!form.name.value.trim() || !form.message.value.trim()) {
+    result.className = 'result err'; result.textContent = 'Vyplň prosím jméno a nápad.'; return;
+  }
+  if (form.email.value && !form.email.checkValidity()) {
+    result.className = 'result err'; result.textContent = 'E-mail nevypadá správně.'; return;
+  }
+  sendBtn.disabled = true; result.className = 'result'; result.textContent = 'Odesílám…';
+  try {
+    const res = await fetch('https://api.web3forms.com/submit', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+      body: JSON.stringify({
+        access_key: WEB3FORMS_KEY,
+        subject: 'Nový nápad na hru z theodorek.cz',
+        from_name: 'theodorek.cz',
+        name: form.name.value.trim(),
+        email: form.email.value.trim(),
+        message: form.message.value.trim(),
+        botcheck: form.botcheck.checked,
+      }),
+    });
+    const data = await res.json();
+    if (!data.success) throw new Error(data.message);
+    form.reset();
+    result.className = 'result ok'; result.textContent = 'Díky! Nápad mi dorazil.';
+  } catch {
+    result.className = 'result err'; result.textContent = 'Nápad se nepodařilo odeslat. Zkus to prosím později.';
+  } finally {
+    sendBtn.disabled = false;
+  }
+});
 </script>
 </body>
 </html>
