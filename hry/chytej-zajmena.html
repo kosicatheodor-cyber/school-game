@@ -1,0 +1,474 @@
+<!doctype html>
+<html lang="cs">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Chytej zájmena</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;800&family=Nunito:wght@600;800&display=swap">
+<style>
+/* Layout: one column. HUD, sentence card, orchard playfield where pronoun apples fall into a basket. Single bright daytime look. */
+:root{
+  --sky:#cfeeff; --sky-deep:#8fcdf4; --leaf:#3f9b4a; --leaf-dark:#2b7436; --grass:#93d36c;
+  --bark:#8a5a32; --ink:#22314a; --paper:#fffbf2; --sun:#ffc93c; --good:#23874a; --good-bg:#dff5e5;
+  --bad:#c93a30; --bad-bg:#fde4e1; --muted:#566580; --line:#e6dcc6;
+  --display:"Baloo 2","Trebuchet MS",system-ui,sans-serif;
+  --body:"Nunito","Segoe UI",system-ui,sans-serif;
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;background:linear-gradient(180deg,var(--sky) 0%,#eaf7ff 60%,#f4fbef 100%);color:var(--ink);font-family:var(--body);font-size:16px}
+.wrap{max-width:760px;margin:0 auto;padding-inline:16px;padding-block:14px 24px;display:flex;flex-direction:column;gap:12px}
+header{display:flex;align-items:center;justify-content:space-between;gap:10px 16px;flex-wrap:wrap}
+h1{font-family:var(--display);font-weight:800;font-size:clamp(1.6rem,5vw,2.2rem);line-height:1;margin:0;color:var(--leaf-dark);letter-spacing:.2px}
+h1 span{color:#d7392e}
+.hud{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.chip{background:var(--paper);border:2px solid var(--line);border-radius:999px;padding:4px 12px;font-weight:800;font-variant-numeric:tabular-nums;display:flex;gap:6px;align-items:center;white-space:nowrap}
+.chip small{font-weight:700;color:var(--muted);font-size:.78rem;text-transform:uppercase;letter-spacing:.06em}
+.hearts{color:var(--bad);letter-spacing:2px;font-size:1.05rem}
+.hearts .lost{color:#d9cfc0}
+.iconbtn{font:inherit;font-weight:800;background:var(--paper);border:2px solid var(--line);border-radius:999px;padding:4px 12px;cursor:pointer;color:var(--ink)}
+.iconbtn:hover{border-color:var(--leaf)}
+:focus-visible{outline:3px solid #1f6fd1;outline-offset:2px}
+
+.card{background:var(--paper);border:2px solid var(--line);border-radius:18px;padding:14px 18px;display:flex;flex-direction:column;gap:4px;min-width:0;transition:background .25s,border-color .25s}
+.card.ok{background:var(--good-bg);border-color:#9fd8b1}
+.card.no{background:var(--bad-bg);border-color:#f2b0a9}
+.progress{font-size:.8rem;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;display:flex;justify-content:space-between;gap:8px}
+.sentence{font-family:var(--display);font-weight:800;font-size:clamp(1.35rem,4.6vw,2rem);line-height:1.2;text-wrap:balance;margin:2px 0}
+.gap{display:inline-block;min-width:3.2em;text-align:center;border-bottom:4px dashed var(--muted);color:var(--muted);padding:0 .15em;line-height:1}
+.gap.filled{border-bottom:4px solid var(--good);color:var(--good);animation:pop .35s ease-out}
+.cz{color:var(--muted);font-weight:600}
+.feedback{min-height:1.5em;font-weight:800}
+.feedback.good{color:var(--good)} .feedback.bad{color:var(--bad)}
+@keyframes pop{0%{transform:scale(.6)}70%{transform:scale(1.15)}100%{transform:scale(1)}}
+
+.field{position:relative;width:100%;height:clamp(340px,60vh,540px);border-radius:20px;overflow:hidden;border:3px solid var(--leaf-dark);background:var(--sky-deep);touch-action:none;user-select:none;-webkit-user-select:none}
+.field.shake{animation:shake .35s}
+@keyframes shake{20%{transform:translateX(-8px)}40%{transform:translateX(7px)}60%{transform:translateX(-5px)}80%{transform:translateX(3px)}}
+canvas{display:block;width:100%;height:100%;cursor:none}
+.overlay{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:16px;background:rgba(34,49,74,.42)}
+.panel{background:var(--paper);border-radius:20px;padding:20px;max-width:440px;width:100%;display:flex;flex-direction:column;gap:12px;text-align:center;box-shadow:0 10px 30px rgba(20,40,30,.25);max-height:100%;overflow:auto}
+.panel h2{font-family:var(--display);font-weight:800;font-size:1.7rem;margin:0;line-height:1.1;text-wrap:balance}
+.panel p{margin:0;color:var(--muted);font-weight:600;line-height:1.4}
+.levels{display:flex;flex-direction:column;gap:8px}
+.lvl{font:inherit;text-align:left;cursor:pointer;background:#fff;border:2px solid var(--line);border-radius:14px;padding:10px 14px;display:grid;grid-template-columns:1fr auto;gap:2px 10px;align-items:center;color:var(--ink)}
+.lvl:hover{border-color:var(--leaf);background:#f3fbef}
+.lvl b{font-family:var(--display);font-size:1.15rem;line-height:1.1}
+.lvl span{color:var(--muted);font-size:.88rem;font-weight:700;grid-column:1}
+.lvl .best{grid-row:1/3;grid-column:2;color:#e0a100;font-size:1.1rem;letter-spacing:1px}
+.big{font:inherit;font-family:var(--display);font-weight:800;font-size:1.25rem;cursor:pointer;background:var(--leaf);color:#fff;border:0;border-radius:14px;padding:10px 18px;box-shadow:0 4px 0 var(--leaf-dark)}
+.big:hover{filter:brightness(1.06)} .big:active{transform:translateY(2px);box-shadow:0 2px 0 var(--leaf-dark)}
+.big.alt{background:#fff;color:var(--ink);border:2px solid var(--line);box-shadow:none}
+.row{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
+.stars{font-size:2.4rem;color:#e0a100;letter-spacing:4px;line-height:1}
+.stars .off{color:#e2d9c8}
+.howto{font-size:.92rem}
+.cheat{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:6px 12px;background:#fff;border:2px solid var(--line);border-radius:16px;padding:12px 14px}
+.cheat h3{grid-column:1/-1;margin:0;font-family:var(--display);font-size:1.1rem;color:var(--leaf-dark)}
+.cheat div{display:flex;justify-content:space-between;gap:8px;font-weight:700;border-bottom:1px dashed var(--line);padding-bottom:3px}
+.cheat div b{font-family:var(--display);font-size:1.05rem}
+.cheat div span{color:var(--muted)}
+.foot{color:var(--muted);font-size:.85rem;font-weight:600;text-align:center}
+@media (prefers-reduced-motion:reduce){.field.shake,.gap.filled{animation:none}}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header>
+    <h1>Chytej <span>zájmena</span></h1>
+    <div class="hud" aria-live="polite">
+      <div class="chip"><small>Body</small><span id="score">0</span></div>
+      <div class="chip hearts" id="hearts" aria-label="Životy">♥♥♥</div>
+      <button class="iconbtn" id="pauseBtn" type="button">Pauza</button>
+      <button class="iconbtn" id="soundBtn" type="button" aria-pressed="true">Zvuk: zap</button>
+    </div>
+  </header>
+
+  <section class="card" id="card">
+    <div class="progress"><span id="lvlName">Vyber úroveň</span><span id="prog"></span></div>
+    <div class="sentence" id="sentence">Tom is my friend. <span class="gap">?</span> likes football.</div>
+    <div class="cz" id="cz">Tom je můj kamarád. Má rád fotbal.</div>
+    <div class="feedback" id="feedback"></div>
+  </section>
+
+  <div class="field" id="field">
+    <canvas id="cv" aria-label="Herní plocha: padající jablka se zájmeny a košík"></canvas>
+    <div class="overlay" id="overlay">
+      <div class="panel" id="panel"></div>
+    </div>
+  </div>
+
+  <section class="cheat" aria-label="Tahák">
+    <h3>Tahák</h3>
+    <div><b>I</b><span>já</span></div><div><b>my</b><span>můj</span></div>
+    <div><b>you</b><span>ty / vy</span></div><div><b>your</b><span>tvůj / váš</span></div>
+    <div><b>he</b><span>on</span></div><div><b>his</b><span>jeho (muže)</span></div>
+    <div><b>she</b><span>ona</span></div><div><b>her</b><span>její</span></div>
+    <div><b>it</b><span>ono (věc, zvíře)</span></div><div><b>its</b><span>jeho (věci)</span></div>
+    <div><b>we</b><span>my</span></div><div><b>our</b><span>náš</span></div>
+    <div><b>they</b><span>oni</span></div><div><b>their</b><span>jejich</span></div>
+  </section>
+  <p class="foot">Ovládání: táhni prstem nebo myší po sadu, nebo šipky ← →. Mezerník = pauza.</p>
+</div>
+
+<script>
+(() => {
+const MEAN = {I:'já',you:'ty / vy',he:'on',she:'ona',it:'ono (věc, zvíře)',we:'my',they:'oni',
+  my:'můj',your:'tvůj / váš',his:"jeho",her:'její',its:'jeho (věci, zvířete)',our:'náš',their:'jejich'};
+const SUBJ = ['I','you','he','she','it','we','they'];
+const POSS = ['my','your','his','her','its','our','their'];
+const TWIN = {I:'my',my:'I',you:'your',your:'you',he:'his',his:'he',she:'her',her:'she',it:'its',its:'it',we:'our',our:'we',they:'their',their:'they'};
+
+const L1 = [
+  ['___ am nine years old.','I','Je mi devět let.'],
+  ['Tom is my friend. ___ likes football.','he','Tom je můj kamarád. Má rád fotbal.'],
+  ['Anna is tall. ___ has a red bike.','she','Anna je vysoká. Má červené kolo.'],
+  ['Look at the cat! ___ is black.','it','Podívej na kočku! Je černá.'],
+  ['My sister and I are at school. ___ are in class four.','we','Moje sestra a já jsme ve škole. Jsme ve čtvrté třídě.'],
+  ['Where are the dogs? ___ are in the garden.','they','Kde jsou psi? Jsou na zahradě.'],
+  ['Petr, ___ are my best friend.','you','Petře, ty jsi můj nejlepší kamarád.'],
+  ['Mum is in the kitchen. ___ is cooking.','she','Máma je v kuchyni. Vaří.'],
+  ['This is my ball. ___ is new.','it','To je můj míč. Je nový.'],
+  ['Jack and Lily are twins. ___ are ten.','they','Jack a Lily jsou dvojčata. Je jim deset.'],
+  ['Dad is a doctor. ___ works in a hospital.','he','Táta je doktor. Pracuje v nemocnici.'],
+  ['Ben and I like pizza. ___ eat it on Fridays.','we','Ben a já máme rádi pizzu. Jíme ji v pátek.'],
+  ['___ like chocolate ice cream.','I','Mám rád čokoládovou zmrzlinu.'],
+  ['Are ___ ready, children?','you','Jste připraveni, děti?'],
+];
+const L2 = [
+  ['I have a dog. ___ dog is brown.','my','Mám psa. Můj pes je hnědý.'],
+  ['Tom has a bike. ___ bike is blue.','his','Tom má kolo. Jeho kolo je modré.'],
+  ['Anna has a cat. ___ cat is white.','her','Anna má kočku. Její kočka je bílá.'],
+  ['We have a house. ___ house is big.','our','Máme dům. Náš dům je velký.'],
+  ['They have a car. ___ car is old.','their','Mají auto. Jejich auto je staré.'],
+  ['Is this ___ pencil, Eva?','your','Je to tvoje tužka, Evo?'],
+  ['The dog is wagging ___ tail.','its','Pes vrtí ocasem (svým ocasem).'],
+  ['Lucy loves ___ grandma.','her','Lucy má ráda svou babičku.'],
+  ['Mr Brown is washing ___ car.','his','Pan Brown myje své auto.'],
+  ['The children are in ___ classroom.','their','Děti jsou ve své třídě.'],
+  ['Hi! ___ name is Eva.','my','Ahoj! Jmenuji se Eva.'],
+  ['We love ___ teacher.','our','Máme rádi naši paní učitelku.'],
+  ['The bird is in ___ nest.','its','Pták je ve svém hnízdě.'],
+  ['Kids, open ___ books, please.','your','Děti, otevřete si prosím knihy.'],
+];
+const LEVELS = [
+  {name:'1. Kdo to dělá?', sub:'I, you, he, she, it, we, they', items:L1, pool:SUBJ, fall:.15, every:1.35},
+  {name:'2. Čí to je?', sub:'my, your, his, her, its, our, their', items:L2, pool:POSS, fall:.17, every:1.25},
+  {name:'3. Mistr zájmen', sub:'všechno dohromady, padá to rychleji', items:L1.concat(L2), pool:SUBJ.concat(POSS), fall:.2, every:1.1, twins:true},
+];
+const PER_ROUND = 10;
+
+const $ = id => document.getElementById(id);
+const cv = $('cv'), ctx = cv.getContext('2d'), field = $('field');
+const store = {
+  get(k){ try{ return JSON.parse(localStorage.getItem(k)); }catch(e){ return null; } },
+  set(k,v){ try{ localStorage.setItem(k, JSON.stringify(v)); }catch(e){} }
+};
+
+let W=0,H=0,dpr=1,bg=null;
+let S = {phase:'menu', lvl:0, queue:[], idx:0, score:0, hearts:3, streak:0, apples:[], parts:[], spawnT:0, sinceCorrect:0, solvedT:0};
+const basket = {x:.5, tx:.5};
+const keys = {l:false,r:false};
+let sound = store.get('zaj-sound'); if (sound===null) sound = true;
+
+/* ---------- audio ---------- */
+let ac=null;
+function tone(f,d,type='sine',vol=.12,delay=0){
+  if(!sound) return;
+  try{
+    if(!ac) ac = new (window.AudioContext||window.webkitAudioContext)();
+    const t = ac.currentTime+delay, o = ac.createOscillator(), g = ac.createGain();
+    o.type=type; o.frequency.setValueAtTime(f,t);
+    g.gain.setValueAtTime(vol,t); g.gain.exponentialRampToValueAtTime(.001,t+d);
+    o.connect(g).connect(ac.destination); o.start(t); o.stop(t+d);
+  }catch(e){}
+}
+const sfx = {
+  good(){ tone(660,.12,'triangle'); tone(880,.12,'triangle',.12,.09); tone(1175,.2,'triangle',.12,.18); },
+  bad(){ tone(220,.25,'square',.06); tone(160,.3,'square',.06,.12); },
+  win(){ [523,659,784,1047].forEach((f,i)=>tone(f,.22,'triangle',.12,i*.13)); },
+  over(){ [392,330,262].forEach((f,i)=>tone(f,.3,'sine',.12,i*.18)); }
+};
+
+/* ---------- sizing & background ---------- */
+function resize(){
+  const r = field.getBoundingClientRect();
+  dpr = Math.min(window.devicePixelRatio||1, 2);
+  W = r.width; H = r.height;
+  cv.width = Math.round(W*dpr); cv.height = Math.round(H*dpr);
+  bg = document.createElement('canvas'); bg.width = cv.width; bg.height = cv.height;
+  const b = bg.getContext('2d'); b.scale(dpr,dpr);
+  const sky = b.createLinearGradient(0,0,0,H);
+  sky.addColorStop(0,'#8fcdf4'); sky.addColorStop(1,'#d8f0ff');
+  b.fillStyle = sky; b.fillRect(0,0,W,H);
+  // sun
+  b.fillStyle='#ffe28a'; b.beginPath(); b.arc(W*.86,H*.3,Math.min(W,H)*.09,0,Math.PI*2); b.fill();
+  b.fillStyle='#ffc93c'; b.beginPath(); b.arc(W*.86,H*.3,Math.min(W,H)*.065,0,Math.PI*2); b.fill();
+  // far hills
+  b.fillStyle='#b5e08f'; b.beginPath(); b.moveTo(0,H*.8);
+  for(let x=0;x<=W;x+=W/40) b.lineTo(x, H*.78 - Math.sin(x/W*Math.PI*2.2)*H*.05);
+  b.lineTo(W,H); b.lineTo(0,H); b.fill();
+  b.fillStyle='#93d36c'; b.fillRect(0,H*.9,W,H*.1);
+  b.fillStyle='#7fc05a';
+  for(let x=4;x<W;x+=11){ b.fillRect(x,H*.9-3,2,5); }
+  // canopy along the top
+  const step = Math.max(38, W/14);
+  for(let i=-1;i<W/step+2;i++){
+    const cx=i*step, cy=-step*.15 + (i%2)*step*.18;
+    b.fillStyle='#2b7436'; b.beginPath(); b.arc(cx,cy+6,step*.85,0,Math.PI*2); b.fill();
+  }
+  for(let i=-1;i<W/step+2;i++){
+    const cx=i*step+step*.4, cy=-step*.3 + ((i+1)%2)*step*.16;
+    b.fillStyle='#3f9b4a'; b.beginPath(); b.arc(cx,cy,step*.7,0,Math.PI*2); b.fill();
+    b.fillStyle='rgba(255,255,255,.08)'; b.beginPath(); b.arc(cx-step*.2,cy-step*.1,step*.35,0,Math.PI*2); b.fill();
+  }
+}
+
+/* ---------- helpers ---------- */
+const rand = (a,b)=>a+Math.random()*(b-a);
+const pick = a => a[Math.floor(Math.random()*a.length)];
+function shuffle(a){ a=a.slice(); for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];} return a; }
+const R = () => Math.max(24, Math.min(40, W*.062));
+const bw = () => Math.max(96, Math.min(170, W*.24));
+const cap = w => w.charAt(0).toUpperCase()+w.slice(1);
+const esc = s => s.replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+
+/* ---------- UI ---------- */
+function renderHud(){
+  $('score').textContent = S.score;
+  let h=''; for(let i=0;i<3;i++) h += i<S.hearts ? '♥' : '<span class="lost">♥</span>';
+  $('hearts').innerHTML = h; $('hearts').setAttribute('aria-label','Životy: '+S.hearts);
+  $('soundBtn').textContent = 'Zvuk: '+(sound?'zap':'vyp'); $('soundBtn').setAttribute('aria-pressed', String(sound));
+  $('pauseBtn').textContent = S.phase==='paused' ? 'Hrát' : 'Pauza';
+  $('pauseBtn').disabled = !(S.phase==='play'||S.phase==='paused'||S.phase==='solved');
+}
+function renderSentence(filled){
+  const it = S.queue[S.idx]; if(!it) return;
+  const [txt, ans, cz] = it;
+  const parts = txt.split('___');
+  const atStart = parts[0].trim()==='';
+  const word = atStart ? cap(ans) : ans;
+  $('sentence').innerHTML = esc(parts[0]) + (filled ? `<span class="gap filled">${word}</span>` : '<span class="gap">?</span>') + esc(parts[1]);
+  $('cz').textContent = cz;
+  $('lvlName').textContent = LEVELS[S.lvl].name;
+  $('prog').textContent = `Věta ${Math.min(S.idx+1,PER_ROUND)} z ${PER_ROUND}`;
+}
+function feedback(msg, kind){
+  const f=$('feedback'); f.textContent=msg; f.className='feedback '+(kind||'');
+  $('card').className = 'card'+(kind==='good'?' ok':kind==='bad'?' no':'');
+}
+function starsHtml(n){ let s=''; for(let i=0;i<3;i++) s += i<n?'★':'<span class="off">★</span>'; return s; }
+
+function showMenu(){
+  S.phase='menu'; renderHud();
+  const rows = LEVELS.map((L,i)=>{
+    const best = store.get('zaj-best-'+i);
+    return `<button class="lvl" type="button" data-l="${i}"><b>${L.name}</b><span>${L.sub}</span><em class="best" aria-label="Nejlepší hodnocení">${best?starsHtml(best.stars):''}</em></button>`;
+  }).join('');
+  $('panel').innerHTML = `<h2>Chytej zájmena!</h2>
+    <p class="howto">Nahoře je věta s mezerou. Z jabloně padají jablka se slovy. Chyť do košíku to jablko, které do věty patří. Za špatné jablko přijdeš o srdíčko.</p>
+    <div class="levels">${rows}</div>`;
+  $('overlay').hidden=false;
+  $('panel').querySelectorAll('.lvl').forEach(b=>b.onclick=()=>start(+b.dataset.l));
+}
+function start(l){
+  S = {phase:'play', lvl:l, queue:shuffle(LEVELS[l].items).slice(0,PER_ROUND), idx:0, score:0, hearts:3, streak:0, apples:[], parts:[], spawnT:.4, sinceCorrect:0, solvedT:0};
+  basket.x = basket.tx = .5;
+  $('overlay').hidden = true;
+  feedback('Chyť správné jablko!');
+  renderSentence(false); renderHud();
+  tone(523,.08,'triangle',.08);
+}
+function endRound(win){
+  S.phase = win?'win':'over'; S.apples=[];
+  const L = LEVELS[S.lvl];
+  if(win){
+    sfx.win();
+    const stars = S.hearts;
+    const prev = store.get('zaj-best-'+S.lvl);
+    const best = {stars:Math.max(stars,prev?prev.stars:0), score:Math.max(S.score,prev?prev.score:0)};
+    store.set('zaj-best-'+S.lvl, best);
+    const next = S.lvl<LEVELS.length-1 ? `<button class="big" type="button" id="nextB">Další úroveň</button>` : '';
+    $('panel').innerHTML = `<h2>${stars===3?'Bez chyby, paráda!':stars===2?'Výborně!':'Hotovo!'}</h2>
+      <div class="stars">${starsHtml(stars)}</div>
+      <p>${L.name}: ${S.score} bodů. Nejlepší výsledek: ${best.score} bodů.</p>
+      <div class="row">${next}<button class="big ${next?'alt':''}" type="button" id="againB">Hrát znovu</button><button class="big alt" type="button" id="menuB">Úrovně</button></div>`;
+  } else {
+    sfx.over();
+    const it = S.queue[S.idx];
+    $('panel').innerHTML = `<h2>Došla srdíčka</h2>
+      <p>Správně bylo <b>${it[1]}</b> = ${MEAN[it[1]]}. Prošel jsi ${S.idx} z ${PER_ROUND} vět a máš ${S.score} bodů.</p>
+      <div class="row"><button class="big" type="button" id="againB">Zkusit znovu</button><button class="big alt" type="button" id="menuB">Úrovně</button></div>`;
+  }
+  $('overlay').hidden=false; renderHud();
+  const n=$('nextB'); if(n) n.onclick=()=>start(S.lvl+1);
+  $('againB').onclick=()=>start(S.lvl);
+  $('menuB').onclick=showMenu;
+  ($('nextB')||$('againB')).focus();
+}
+function togglePause(){
+  if(S.phase==='play'||S.phase==='solved'){ S.prev=S.phase; S.phase='paused';
+    $('panel').innerHTML=`<h2>Pauza</h2><p>Odpočiň si. Hra počká.</p><div class="row"><button class="big" type="button" id="resB">Pokračovat</button><button class="big alt" type="button" id="menuB">Úrovně</button></div>`;
+    $('overlay').hidden=false; $('resB').onclick=togglePause; $('menuB').onclick=showMenu; $('resB').focus();
+  } else if(S.phase==='paused'){ S.phase=S.prev||'play'; $('overlay').hidden=true; last=performance.now(); }
+  renderHud();
+}
+
+/* ---------- game logic ---------- */
+function spawn(){
+  const L = LEVELS[S.lvl], ans = S.queue[S.idx][1];
+  const hasCorrect = S.apples.some(a=>a.word===ans && a.y < H*.6);
+  let word;
+  if(!hasCorrect && (S.sinceCorrect>=2 || Math.random()<.4)) word = ans;
+  else if(L.twins && Math.random()<.4) word = TWIN[ans];
+  else { do{ word = pick(L.pool); } while(word===ans); }
+  if(word===ans) S.sinceCorrect=0; else S.sinceCorrect++;
+  const r = R(); let x, tries=0;
+  do { x = rand(r+6, W-r-6); tries++; } while(tries<12 && S.apples.some(a=>a.y<r*3 && Math.abs(a.x-x)<r*2.3));
+  const hues = ['#e2463a','#d93a52','#f08a24','#9ccc3a','#e2463a'];
+  S.apples.push({word, x, y:-r, r, vy: H*L.fall*(1+S.idx*.035)*rand(.85,1.15), rot:rand(-.3,.3), col:pick(hues)});
+}
+function burst(x,y,col,n=18){
+  for(let i=0;i<n;i++){ const a=rand(0,Math.PI*2), s=rand(60,260);
+    S.parts.push({x,y,vx:Math.cos(a)*s,vy:Math.sin(a)*s-120,life:rand(.5,.9),t:0,col,size:rand(3,7)}); }
+}
+function catchApple(a){
+  const ans = S.queue[S.idx][1];
+  if(a.word===ans){
+    S.streak++; const pts = 10 + Math.min(S.streak-1,5)*2; S.score += pts;
+    burst(a.x,a.y,'#ffd23f',26); sfx.good();
+    S.phase='solved'; S.solvedT=1.1;
+    S.apples.forEach(o=>{ if(o!==a) burst(o.x,o.y,'rgba(255,255,255,.8)',5); });
+    S.apples=[];
+    renderSentence(true);
+    feedback(`Správně! ${a.word} = ${MEAN[a.word]}  +${pts}${S.streak>1?'  (série '+S.streak+')':''}`,'good');
+  } else {
+    S.hearts--; S.streak=0; sfx.bad(); burst(a.x,a.y,'#7a4a2a',12);
+    field.classList.remove('shake'); void field.offsetWidth; field.classList.add('shake');
+    feedback(`Ups, „${a.word}“ znamená ${MEAN[a.word]}. To sem nepatří.`,'bad');
+    if(S.hearts<=0){ renderHud(); setTimeout(()=>endRound(false),450); S.phase='ending'; }
+  }
+  renderHud();
+}
+function update(dt){
+  // basket
+  const speed = 1.4;
+  if(keys.l) basket.tx -= speed*dt;
+  if(keys.r) basket.tx += speed*dt;
+  const half = bw()/2/W;
+  basket.tx = Math.max(half, Math.min(1-half, basket.tx));
+  basket.x += (basket.tx-basket.x)*Math.min(1,dt*16);
+
+  if(S.phase==='play'){
+    const L = LEVELS[S.lvl];
+    S.spawnT -= dt;
+    if(S.spawnT<=0){ spawn(); S.spawnT = L.every*rand(.85,1.15)*Math.max(.7,1-S.idx*.025); }
+    const bx = basket.x*W, top = H*.9 - bw()*.36, ww = bw();
+    for(let i=S.apples.length-1;i>=0;i--){
+      const a=S.apples[i]; a.y += a.vy*dt; a.rot += dt*.4;
+      if(a.y + a.r*.6 >= top && a.y - a.r < top + 18 && Math.abs(a.x-bx) < ww/2 - a.r*.2){
+        S.apples.splice(i,1); catchApple(a); if(S.phase!=='play') break; continue;
+      }
+      if(a.y - a.r > H) S.apples.splice(i,1);
+    }
+  } else if(S.phase==='solved'){
+    S.solvedT -= dt;
+    if(S.solvedT<=0){
+      S.idx++;
+      if(S.idx>=PER_ROUND) endRound(true);
+      else { S.phase='play'; S.spawnT=.35; S.sinceCorrect=0; renderSentence(false); feedback('Chyť správné jablko!'); }
+    }
+  }
+  for(let i=S.parts.length-1;i>=0;i--){ const p=S.parts[i]; p.t+=dt; p.x+=p.vx*dt; p.y+=p.vy*dt; p.vy+=500*dt; if(p.t>p.life) S.parts.splice(i,1); }
+}
+
+/* ---------- drawing ---------- */
+function drawApple(a){
+  const {x,y,r}=a;
+  ctx.save(); ctx.translate(x,y); ctx.rotate(Math.sin(a.rot)*.12);
+  ctx.fillStyle='rgba(0,0,0,.12)'; ctx.beginPath(); ctx.ellipse(3,r*.92,r*.8,r*.16,0,0,Math.PI*2); ctx.fill();
+  ctx.fillStyle=a.col; ctx.beginPath();
+  ctx.moveTo(0,-r*.72);
+  ctx.bezierCurveTo(r*.55,-r*1.08, r*1.12,-r*.55, r*1.02,r*.1);
+  ctx.bezierCurveTo(r*.95,r*.75, r*.45,r*1.0, 0,r*.86);
+  ctx.bezierCurveTo(-r*.45,r*1.0, -r*.95,r*.75, -r*1.02,r*.1);
+  ctx.bezierCurveTo(-r*1.12,-r*.55, -r*.55,-r*1.08, 0,-r*.72);
+  ctx.fill();
+  ctx.fillStyle='rgba(255,255,255,.28)'; ctx.beginPath(); ctx.ellipse(-r*.5,-r*.35,r*.18,r*.3,-.5,0,Math.PI*2); ctx.fill();
+  ctx.strokeStyle='#6b4423'; ctx.lineWidth=Math.max(2,r*.09); ctx.lineCap='round';
+  ctx.beginPath(); ctx.moveTo(0,-r*.7); ctx.quadraticCurveTo(r*.05,-r*1.0,r*.15,-r*1.15); ctx.stroke();
+  ctx.fillStyle='#3f9b4a'; ctx.beginPath(); ctx.ellipse(r*.38,-r*1.0,r*.28,r*.12,-.5,0,Math.PI*2); ctx.fill();
+  ctx.fillStyle='#fff'; ctx.strokeStyle='rgba(60,20,10,.55)'; ctx.lineWidth=Math.max(3,r*.12); ctx.lineJoin='round';
+  ctx.font=`800 ${Math.round(r*.66)}px "Baloo 2","Trebuchet MS",sans-serif`; ctx.textAlign='center'; ctx.textBaseline='middle';
+  ctx.strokeText(a.word,0,r*.1); ctx.fillText(a.word,0,r*.1);
+  ctx.restore();
+}
+function drawBasket(){
+  const ww=bw(), hh=ww*.42, x=basket.x*W, base=H*.9+4, top=base-hh;
+  ctx.save();
+  ctx.fillStyle='rgba(0,0,0,.15)'; ctx.beginPath(); ctx.ellipse(x,base+2,ww*.5,6,0,0,Math.PI*2); ctx.fill();
+  // handle
+  ctx.strokeStyle='#7a4e2a'; ctx.lineWidth=6; ctx.beginPath(); ctx.ellipse(x,top+2,ww*.36,hh*.75,0,Math.PI,0); ctx.stroke();
+  // body
+  ctx.fillStyle='#b97a44'; ctx.beginPath();
+  ctx.moveTo(x-ww/2,top); ctx.lineTo(x+ww/2,top); ctx.lineTo(x+ww*.38,base); ctx.lineTo(x-ww*.38,base); ctx.closePath(); ctx.fill();
+  ctx.save(); ctx.clip();
+  ctx.strokeStyle='#8a5a32'; ctx.lineWidth=3;
+  for(let i=1;i<4;i++){ const yy=top+hh*i/4; ctx.beginPath(); ctx.moveTo(x-ww/2,yy); ctx.lineTo(x+ww/2,yy); ctx.stroke(); }
+  for(let i=-6;i<=6;i++){ ctx.beginPath(); ctx.moveTo(x+i*ww/12,top); ctx.lineTo(x+i*ww/15,base); ctx.stroke(); }
+  ctx.restore();
+  ctx.fillStyle='#8a5a32'; ctx.beginPath(); ctx.roundRect(x-ww/2-4,top-6,ww+8,12,6); ctx.fill();
+  ctx.restore();
+}
+function draw(){
+  ctx.setTransform(1,0,0,1,0,0);
+  if(bg) ctx.drawImage(bg,0,0);
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+  S.apples.forEach(drawApple);
+  drawBasket();
+  S.parts.forEach(p=>{ ctx.globalAlpha=Math.max(0,1-p.t/p.life); ctx.fillStyle=p.col; ctx.beginPath(); ctx.arc(p.x,p.y,p.size,0,Math.PI*2); ctx.fill(); });
+  ctx.globalAlpha=1;
+  if(S.phase==='menu'){ // decorative idle apples
+    const t=performance.now()/1000;
+    ['he','her','my','they'].forEach((w,i)=>drawApple({word:w,x:W*(.18+i*.22),y:H*(.3+.06*Math.sin(t*1.5+i)),r:R(),rot:t+i,col:['#e2463a','#f08a24','#9ccc3a','#d93a52'][i]}));
+  }
+}
+
+let last=performance.now();
+function loop(now){
+  const dt=Math.min(.05,(now-last)/1000); last=now;
+  if(S.phase!=='paused') update(dt);
+  draw();
+  requestAnimationFrame(loop);
+}
+
+/* ---------- input ---------- */
+function setTarget(e){ const r=cv.getBoundingClientRect(); basket.tx=(e.clientX-r.left)/r.width; }
+cv.addEventListener('pointerdown',e=>{ setTarget(e); cv.setPointerCapture?.(e.pointerId); });
+cv.addEventListener('pointermove',e=>{ if(e.pointerType==='mouse'||e.buttons) setTarget(e); });
+addEventListener('keydown',e=>{
+  if(e.key==='ArrowLeft'||e.key==='a'||e.key==='A'){ keys.l=true; e.preventDefault(); }
+  if(e.key==='ArrowRight'||e.key==='d'||e.key==='D'){ keys.r=true; e.preventDefault(); }
+  if(e.key===' ' && e.target.tagName!=='BUTTON'){ e.preventDefault(); togglePause(); }
+  if(e.key==='Escape' && (S.phase==='play'||S.phase==='solved')) togglePause();
+});
+addEventListener('keyup',e=>{
+  if(e.key==='ArrowLeft'||e.key==='a'||e.key==='A') keys.l=false;
+  if(e.key==='ArrowRight'||e.key==='d'||e.key==='D') keys.r=false;
+});
+document.addEventListener('visibilitychange',()=>{ if(document.hidden && (S.phase==='play'||S.phase==='solved')) togglePause(); });
+$('pauseBtn').onclick=togglePause;
+$('soundBtn').onclick=()=>{ sound=!sound; store.set('zaj-sound',sound); renderHud(); };
+new ResizeObserver(resize).observe(field);
+
+resize(); showMenu();
+(document.fonts?.load('800 30px "Baloo 2"')||Promise.resolve()).finally(()=>{ resize(); });
+requestAnimationFrame(loop);
+})();
+</script>
+</body>
+</html>
