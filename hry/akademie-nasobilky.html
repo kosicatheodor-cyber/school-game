@@ -1,0 +1,526 @@
+<!doctype html>
+<html lang="cs">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Akademie násobilky</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700;900&family=Alegreya:ital,wght@0,400;0,600;0,800;1,400&display=swap">
+<style>
+/* Layout: one night-sky hall; a parchment panel holds the menu or the active game. Single dark look by design. */
+:root{
+  --night:#0e1226; --night2:#1a2045; --parch:#f1e4c3; --parch2:#e2cfa2; --ink:#2a1c0c;
+  --gold:#e0b04a; --gold2:#a87a1e; --ember:#d0563f; --mint:#57b895; --mist:#a6aed4; --violet:#7a62c9;
+  --display:'Cinzel', 'Trajan Pro', Georgia, serif;
+  --body:'Alegreya', Georgia, 'Times New Roman', serif;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  background:var(--night);
+  background-image:
+    radial-gradient(1px 1px at 12% 18%, #fff8 50%, transparent 51%),
+    radial-gradient(1px 1px at 72% 9%, #fff9 50%, transparent 51%),
+    radial-gradient(1.5px 1.5px at 40% 30%, #fffa 50%, transparent 51%),
+    radial-gradient(1px 1px at 88% 40%, #fff7 50%, transparent 51%),
+    radial-gradient(1px 1px at 25% 62%, #fff6 50%, transparent 51%),
+    radial-gradient(1.5px 1.5px at 60% 80%, #fff8 50%, transparent 51%),
+    radial-gradient(1px 1px at 92% 75%, #fff6 50%, transparent 51%),
+    radial-gradient(ellipse at 50% -10%, #3a3486 0%, transparent 60%),
+    linear-gradient(var(--night2), var(--night));
+  background-attachment:fixed;
+  color:var(--parch); font-family:var(--body); font-size:18px; line-height:1.5;
+  padding-inline:16px; padding-block:20px 40px;
+}
+.wrap{max-width:860px;margin:0 auto;display:flex;flex-direction:column;gap:20px}
+header.top{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+h1{font-family:var(--display);font-weight:900;letter-spacing:.04em;margin:0;font-size:clamp(28px,6vw,44px);color:var(--gold);
+  text-shadow:0 0 18px #e0b04a55, 0 2px 0 #00000080;text-wrap:balance}
+.sub{color:var(--mist);margin:2px 0 0;font-style:italic}
+.iconbtn{background:transparent;border:1px solid #a6aed455;color:var(--mist);border-radius:999px;padding:6px 14px;font:inherit;font-size:15px;cursor:pointer}
+.iconbtn:hover{border-color:var(--gold);color:var(--gold)}
+button{font-family:inherit}
+button:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+
+.panel{background:linear-gradient(var(--parch),var(--parch2));color:var(--ink);border-radius:6px;padding:22px clamp(16px,4vw,32px);
+  box-shadow:0 0 0 1px #00000040, 0 18px 40px #0008, inset 0 0 60px #a8782a33;position:relative}
+.panel h2{font-family:var(--display);font-size:22px;margin:0 0 4px;letter-spacing:.03em}
+.panel p.hint{margin:0 0 14px;color:#5a4526}
+
+.tables{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:6px}
+.chip{font-family:var(--display);font-weight:700;font-size:18px;width:48px;height:48px;border-radius:50%;border:2px solid var(--gold2);
+  background:transparent;color:var(--ink);cursor:pointer;transition:transform .12s}
+.chip[aria-pressed="true"]{background:var(--ink);color:var(--gold);border-color:var(--ink)}
+.chip:active{transform:scale(.92)}
+.mini{background:none;border:none;color:var(--gold2);text-decoration:underline;cursor:pointer;font-size:15px;padding:4px 6px}
+
+.games{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px}
+.game{display:flex;flex-direction:column;gap:6px;text-align:left;cursor:pointer;border:none;border-radius:6px;padding:16px;
+  background:var(--night2);color:var(--parch);box-shadow:0 6px 18px #0006;transition:transform .15s, box-shadow .15s;min-width:0}
+.game:hover{transform:translateY(-3px);box-shadow:0 10px 24px #000a, 0 0 0 2px var(--gold)}
+.game .ico{font-size:34px;line-height:1}
+.game b{font-family:var(--display);font-size:19px;color:var(--gold);letter-spacing:.03em}
+.game span{font-size:15px;color:var(--mist)}
+.game .best{font-size:14px;color:var(--parch);opacity:.85;margin-top:auto;padding-top:4px;border-top:1px dashed #a6aed440}
+
+/* HUD */
+.hud{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.hud .gname{font-family:var(--display);font-weight:700;color:var(--gold);font-size:20px;flex:1;min-width:120px}
+.stat{font-family:var(--display);font-weight:700;font-size:20px;font-variant-numeric:tabular-nums;color:var(--parch)}
+.stat small{font-family:var(--body);font-weight:400;font-size:14px;color:var(--mist);margin-right:4px}
+.candle{height:12px;background:#ffffff14;border-radius:999px;overflow:hidden;width:100%}
+.candle i{display:block;height:100%;width:100%;background:linear-gradient(90deg,var(--ember),var(--gold));border-radius:999px;transition:width .1s linear}
+.candle.low i{background:var(--ember);animation:blink .5s infinite alternate}
+@keyframes blink{to{opacity:.4}}
+
+.stage{min-height:360px;display:flex;flex-direction:column;align-items:center;gap:16px}
+.qbox{text-align:center}
+.q{font-family:var(--display);font-weight:900;font-size:clamp(44px,12vw,72px);line-height:1.05;color:var(--ink);font-variant-numeric:tabular-nums}
+.ansline{font-family:var(--display);font-weight:700;font-size:40px;min-height:56px;min-width:140px;border-bottom:3px solid var(--gold2);
+  display:inline-block;color:var(--violet);font-variant-numeric:tabular-nums}
+.ansline.good{color:var(--mint)} .ansline.bad{color:var(--ember)}
+.shake{animation:shake .35s}
+@keyframes shake{25%{transform:translateX(-8px)}50%{transform:translateX(8px)}75%{transform:translateX(-4px)}}
+.pop{animation:pop .3s}
+@keyframes pop{50%{transform:scale(1.15)}}
+
+.keypad{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;width:100%;max-width:300px}
+.keypad button{font-family:var(--display);font-weight:700;font-size:26px;height:58px;border-radius:8px;border:none;cursor:pointer;
+  background:var(--ink);color:var(--parch);box-shadow:0 3px 0 #000}
+.keypad button:active{transform:translateY(2px);box-shadow:0 1px 0 #000}
+.keypad .ok{background:var(--gold2);color:#fff}
+.keypad .del{background:#5a4526}
+
+.flash{font-style:italic;color:#5a4526;min-height:1.5em;text-align:center}
+
+/* Potions */
+.shelf{display:flex;justify-content:center;gap:clamp(10px,3vw,28px);flex-wrap:wrap;padding-top:10px}
+.potion{background:none;border:none;cursor:pointer;display:flex;flex-direction:column;align-items:center;padding:0;transition:transform .15s}
+.potion:hover{transform:translateY(-6px) rotate(-3deg)}
+.potion .neck{width:26px;height:28px;background:#ffffff66;border:3px solid var(--ink);border-bottom:none;border-radius:4px 4px 0 0;position:relative}
+.potion .neck::before{content:"";position:absolute;top:-12px;left:2px;width:16px;height:12px;background:#8a5a2b;border-radius:3px}
+.potion .flask{width:86px;height:86px;border-radius:50%;border:3px solid var(--ink);margin-top:-3px;position:relative;overflow:hidden;
+  background:#ffffff55;display:flex;align-items:center;justify-content:center}
+.potion .flask::before{content:"";position:absolute;inset:40% 0 0 0;background:var(--liq)}
+.potion .flask b{position:relative;font-family:var(--display);font-weight:900;font-size:26px;color:#fff;text-shadow:0 2px 3px #000a}
+.potion.broken{opacity:.25;transform:rotate(18deg) translateY(10px);pointer-events:none}
+.potion.right .flask{box-shadow:0 0 0 4px var(--mint),0 0 26px var(--mint)}
+
+/* Dragon */
+.arena{width:100%;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.dragon{font-size:76px;line-height:1;filter:drop-shadow(0 4px 6px #0006);transition:transform .2s}
+.dragon.hit{animation:shake .35s;filter:drop-shadow(0 0 14px var(--gold))}
+.dragon.dead{transform:rotate(90deg) scale(.7);opacity:.5}
+.hpbox{flex:1;min-width:180px}
+.hpbox label{font-family:var(--display);font-weight:700;font-size:14px;letter-spacing:.06em}
+.hp{height:16px;border-radius:999px;background:#2a1c0c33;overflow:hidden;margin-top:4px}
+.hp i{display:block;height:100%;background:linear-gradient(90deg,#8b1e1e,var(--ember));transition:width .25s}
+.hearts{font-size:26px;letter-spacing:4px;color:var(--ember)}
+.fuse{width:100%;max-width:300px;height:8px;background:#2a1c0c22;border-radius:999px;overflow:hidden}
+.fuse i{display:block;height:100%;background:var(--violet)}
+.burn{animation:burn .5s}
+@keyframes burn{0%{box-shadow:inset 0 0 0 0 #d0563f00}40%{box-shadow:inset 0 0 120px 30px #d0563fcc}100%{box-shadow:inset 0 0 0 0 #d0563f00}}
+
+/* Keys */
+.sky{position:relative;width:100%;height:340px;border-radius:6px;overflow:hidden;
+  background:radial-gradient(ellipse at 50% 120%,#3a3486,var(--night) 70%);box-shadow:inset 0 0 0 2px var(--ink)}
+.key{position:absolute;left:0;top:0;cursor:pointer;border:none;background:none;padding:0;width:96px;height:52px;display:flex;align-items:center;justify-content:center}
+.key::before,.key::after{content:"";position:absolute;top:8px;width:30px;height:22px;background:#e9eefc;border-radius:60% 60% 10% 60%;opacity:.85;animation:flap .18s infinite alternate}
+.key::before{left:0;transform-origin:right bottom}
+.key::after{right:0;border-radius:60% 60% 60% 10%;transform-origin:left bottom}
+@keyframes flap{to{transform:scaleY(.45)}}
+.key b{position:relative;z-index:1;font-family:var(--display);font-weight:900;font-size:22px;color:var(--ink);background:var(--gold);
+  border-radius:999px;padding:4px 12px;box-shadow:0 0 12px #e0b04a99;font-variant-numeric:tabular-nums}
+.key.gone{opacity:0;transition:opacity .3s;pointer-events:none}
+
+/* Memory */
+.cards{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;width:100%;max-width:520px}
+@media (max-width:480px){.cards{grid-template-columns:repeat(3,1fr)}}
+.card{aspect-ratio:3/4;max-width:100%;border:none;border-radius:6px;cursor:pointer;perspective:600px;background:none;padding:0}
+.card .in{position:relative;width:100%;height:100%;transition:transform .35s;transform-style:preserve-3d}
+.card.open .in,.card.done .in{transform:rotateY(180deg)}
+.card .f,.card .b{position:absolute;inset:0;border-radius:6px;display:flex;align-items:center;justify-content:center;backface-visibility:hidden}
+.card .f{background:var(--night2);box-shadow:inset 0 0 0 3px var(--gold2);color:var(--gold);font-family:var(--display);font-size:30px}
+.card .b{background:#fff8e6;transform:rotateY(180deg);box-shadow:inset 0 0 0 3px var(--ink);font-family:var(--display);font-weight:900;
+  font-size:clamp(18px,5vw,28px);color:var(--ink);font-variant-numeric:tabular-nums}
+.card.done .b{box-shadow:inset 0 0 0 3px var(--mint);background:#e6f6ee}
+
+/* Result */
+.result{text-align:center;display:flex;flex-direction:column;align-items:center;gap:8px;padding-block:10px}
+.result .big{font-family:var(--display);font-weight:900;font-size:72px;line-height:1;color:var(--ink)}
+.result .rank{font-family:var(--display);font-weight:700;font-size:22px;color:var(--violet)}
+.result .rec{color:var(--mint);font-weight:800}
+.row{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:10px}
+.btn{font-family:var(--display);font-weight:700;font-size:17px;padding:12px 22px;border-radius:999px;border:none;cursor:pointer;
+  background:var(--ink);color:var(--gold)}
+.btn.alt{background:transparent;color:var(--ink);box-shadow:inset 0 0 0 2px var(--ink)}
+.stars{font-size:34px;color:var(--gold2);letter-spacing:6px}
+.foot{color:var(--mist);font-size:14px;text-align:center}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header class="top">
+    <div>
+      <h1>Akademie násobilky</h1>
+      <p class="sub">Kouzla fungují jen tomu, kdo zná násobilku.</p>
+    </div>
+    <button class="iconbtn" id="sound" aria-pressed="true">Zvuk: zapnutý</button>
+  </header>
+
+  <section id="menu">
+    <div class="panel" style="margin-bottom:18px">
+      <h2>Vyber řady násobilky</h2>
+      <p class="hint">Které řady chceš procvičovat? Klepni na čísla.</p>
+      <div class="tables" id="tables"></div>
+      <button class="mini" id="all">Vybrat všechny</button>
+      <button class="mini" id="none">Zrušit výběr</button>
+    </div>
+    <div class="games" id="games"></div>
+  </section>
+
+  <section id="play" hidden>
+    <div class="hud" style="margin-bottom:10px">
+      <button class="iconbtn" id="back">← Zpět</button>
+      <div class="gname" id="gname"></div>
+      <div class="stat" id="scoreStat"><small>body</small><span id="score">0</span></div>
+      <div class="stat"><small id="timeLabel">čas</small><span id="time">60</span></div>
+      <div class="candle" id="candle"><i id="candleFill"></i></div>
+    </div>
+    <div class="panel"><div class="stage" id="stage"></div></div>
+  </section>
+
+  <section id="result" hidden>
+    <div class="panel"><div class="result" id="resBox"></div></div>
+  </section>
+
+  <p class="foot">Tip: na počítači můžeš psát čísla na klávesnici a potvrdit Enterem.</p>
+</div>
+
+<script>
+const $ = s => document.querySelector(s);
+const rnd = n => Math.floor(Math.random()*n);
+const shuffle = a => { for(let i=a.length-1;i>0;i--){const j=rnd(i+1);[a[i],a[j]]=[a[j],a[i]]} return a; };
+const store = {
+  get(k,d){ try{ const v=localStorage.getItem('akn_'+k); return v==null?d:JSON.parse(v);}catch(e){return d} },
+  set(k,v){ try{ localStorage.setItem('akn_'+k, JSON.stringify(v)); }catch(e){} }
+};
+
+/* ---------- Sound ---------- */
+let actx=null, soundOn=store.get('sound',true);
+function tone(freq,dur,type='sine',vol=.15,delay=0){
+  if(!soundOn) return;
+  try{
+    actx = actx || new (window.AudioContext||window.webkitAudioContext)();
+    const o=actx.createOscillator(), g=actx.createGain(), t=actx.currentTime+delay;
+    o.type=type; o.frequency.setValueAtTime(freq,t);
+    g.gain.setValueAtTime(vol,t); g.gain.exponentialRampToValueAtTime(.001,t+dur);
+    o.connect(g).connect(actx.destination); o.start(t); o.stop(t+dur);
+  }catch(e){}
+}
+const sGood=()=>{tone(660,.12,'triangle');tone(990,.18,'triangle',.12,.08)};
+const sBad =()=>{tone(160,.25,'sawtooth',.08)};
+const sWin =()=>{[523,659,784,1047].forEach((f,i)=>tone(f,.25,'triangle',.13,i*.12))};
+function paintSound(){ const b=$('#sound'); b.textContent='Zvuk: '+(soundOn?'zapnutý':'vypnutý'); b.setAttribute('aria-pressed',soundOn); }
+$('#sound').onclick=()=>{soundOn=!soundOn;store.set('sound',soundOn);paintSound()};
+paintSound();
+
+/* ---------- Tables ---------- */
+let tables = new Set(store.get('tables',[1,2,3,4,5,6,7,8,9,10]));
+function paintTables(){
+  const box=$('#tables'); box.innerHTML='';
+  for(let i=1;i<=10;i++){
+    const b=document.createElement('button'); b.className='chip'; b.textContent=i;
+    b.setAttribute('aria-pressed',tables.has(i)); b.setAttribute('aria-label','Řada '+i);
+    b.onclick=()=>{ tables.has(i)?tables.delete(i):tables.add(i); store.set('tables',[...tables]); paintTables(); };
+    box.appendChild(b);
+  }
+}
+$('#all').onclick=()=>{tables=new Set([1,2,3,4,5,6,7,8,9,10]);store.set('tables',[...tables]);paintTables()};
+$('#none').onclick=()=>{tables=new Set();store.set('tables',[]);paintTables()};
+
+let lastQ='';
+function genQ(){
+  const arr = tables.size?[...tables]:[1,2,3,4,5,6,7,8,9,10];
+  let a,b,k,tries=0;
+  do{ a=arr[rnd(arr.length)]; b=1+rnd(10); if(Math.random()<.5)[a,b]=[b,a]; k=a+'x'+b; }while(k===lastQ && tries++<20);
+  lastQ=k; return {a,b,ans:a*b,text:a+' × '+b};
+}
+function choices(q,n=4){
+  const s=new Set([q.ans]);
+  const c=shuffle([q.a*(q.b+1),q.a*(q.b-1),(q.a+1)*q.b,(q.a-1)*q.b,q.ans+1,q.ans-1,q.ans+10,q.ans-10,q.ans+q.a,q.ans-q.b]);
+  for(const v of c){ if(s.size>=n)break; if(v>0) s.add(v); }
+  while(s.size<n) s.add(1+rnd(100));
+  return shuffle([...s]);
+}
+
+/* ---------- Game shell ---------- */
+const GAMES = {
+  spell:{ico:'🪄',name:'Rychlé zaklínadlo',desc:'60 sekund. Napiš co nejvíc výsledků. Série 5 správně dává bonus.',kind:'down',time:60},
+  potion:{ico:'⚗️',name:'Lektvarová dílna',desc:'Vyber lahvičku se správným výsledkem. Špatná lahvička stojí 2 sekundy.',kind:'down',time:60},
+  dragon:{ico:'🐉',name:'Souboj s drakem',desc:'Poraz draka co nejrychleji. Na každý příklad máš 10 sekund a 3 životy.',kind:'up'},
+  keys:{ico:'🗝️',name:'Létající klíče',desc:'Chyť klíč se správným výsledkem dřív, než uletí. Chyba stojí 3 sekundy.',kind:'down',time:60},
+  memory:{ico:'🃏',name:'Kouzelné pexeso',desc:'Najdi dvojice příklad + výsledek. Hraje se na nejkratší čas.',kind:'up'}
+};
+function bestText(id){
+  const b=store.get('best_'+id,null);
+  if(b==null) return 'Zatím bez rekordu';
+  return GAMES[id].kind==='down' ? 'Rekord: '+b+' bodů' : 'Rekord: '+b.toFixed(1)+' s';
+}
+function paintGames(){
+  const box=$('#games'); box.innerHTML='';
+  for(const [id,g] of Object.entries(GAMES)){
+    const b=document.createElement('button'); b.className='game';
+    b.innerHTML=`<div class="ico" aria-hidden="true">${g.ico}</div><b>${g.name}</b><span>${g.desc}</span><div class="best">${bestText(id)}</div>`;
+    b.onclick=()=>start(id); box.appendChild(b);
+  }
+}
+
+let cur=null, raf=0, last=0;
+const S = { score:0, time:0, running:false, keypad:null };
+function show(id){ for(const s of ['menu','play','result']) $('#'+s).hidden = s!==id; window.scrollTo(0,0); }
+function setScore(v){ S.score=v; const e=$('#score'); e.textContent=v; e.classList.remove('pop'); void e.offsetWidth; e.classList.add('pop'); }
+function penalty(sec){ S.time=Math.max(0,S.time-sec); }
+
+function start(id){
+  if(!tables.size){ tables=new Set([1,2,3,4,5,6,7,8,9,10]); paintTables(); }
+  cur={id,...GAMES[id]}; S.score=0; S.running=true; S.keypad=null; lastQ='';
+  $('#gname').textContent=cur.name; $('#score').textContent='0';
+  $('#scoreStat').hidden = cur.kind==='up';
+  $('#candle').hidden = cur.kind==='up';
+  $('#timeLabel').textContent = cur.kind==='up' ? 'čas' : 'zbývá';
+  S.time = cur.kind==='down' ? cur.time : 0;
+  const stage=$('#stage'); stage.innerHTML='';
+  cur.impl = IMPL[id](stage);
+  show('play');
+  last=performance.now(); cancelAnimationFrame(raf); raf=requestAnimationFrame(loop);
+}
+function loop(t){
+  if(!S.running) return;
+  const dt=Math.min(.1,(t-last)/1000); last=t;
+  if(cur.kind==='down'){ S.time-=dt; if(S.time<=0){S.time=0; paint(); return finish(true);} }
+  else S.time+=dt;
+  cur.impl.tick && cur.impl.tick(dt);
+  paint();
+  raf=requestAnimationFrame(loop);
+}
+function paint(){
+  $('#time').textContent = cur.kind==='down' ? Math.ceil(S.time) : S.time.toFixed(1);
+  if(cur.kind==='down'){
+    $('#candleFill').style.width=(S.time/cur.time*100)+'%';
+    $('#candle').classList.toggle('low',S.time<10);
+  }
+}
+function stop(){ S.running=false; cancelAnimationFrame(raf); cur && cur.impl && cur.impl.stop && cur.impl.stop(); S.keypad=null; }
+$('#back').onclick=()=>{ stop(); paintGames(); show('menu'); };
+
+function rankFor(n){
+  if(n>=35) return 'Velmistr kouzel';
+  if(n>=25) return 'Mistr hůlky';
+  if(n>=15) return 'Zkušený kouzelník';
+  if(n>=8)  return 'Mladý kouzelník';
+  return 'Učeň';
+}
+function finish(win){
+  if(!S.running) return; stop();
+  const id=cur.id, box=$('#resBox'); let html='';
+  const prev=store.get('best_'+id,null); let rec=false;
+  if(cur.kind==='down'){
+    if(prev==null || S.score>prev){ store.set('best_'+id,S.score); rec=S.score>0; }
+    const stars = S.score>=25?3:S.score>=12?2:S.score>=5?1:0;
+    html=`<h2>Čas vypršel!</h2><div class="big">${S.score}</div><div>správných kouzel</div>
+      <div class="stars" aria-label="${stars} ze 3 hvězd">${'★'.repeat(stars)}${'☆'.repeat(3-stars)}</div>
+      <div class="rank">${rankFor(S.score)}</div>`;
+  } else if(win){
+    const t=S.time;
+    if(prev==null || t<prev){ store.set('best_'+id,t); rec=true; }
+    html=`<h2>${id==='dragon'?'Drak je poražen!':'Všechny dvojice nalezeny!'}</h2><div class="big">${t.toFixed(1)} s</div>
+      ${cur.impl.extra?'<div>'+cur.impl.extra()+'</div>':''}`;
+  } else {
+    html=`<h2>Drak tentokrát vyhrál</h2><div class="big">🐉</div><div>Zkus to znovu. Drakovi zbývalo ${cur.impl.hpLeft()} životů.</div>`;
+  }
+  if(rec){ html+=`<div class="rec">Nový rekord!</div>`; sWin(); } else if(win) sWin();
+  if(prev!=null && !rec) html+=`<div>${bestText(id)}</div>`;
+  html+=`<div class="row"><button class="btn" id="again">Hrát znovu</button><button class="btn alt" id="home">Vybrat jinou hru</button></div>`;
+  box.innerHTML=html; show('result');
+  $('#again').onclick=()=>start(id);
+  $('#home').onclick=()=>{paintGames();show('menu')};
+  $('#again').focus();
+}
+
+/* ---------- Keypad ---------- */
+function keypad(onSubmit){
+  const el=document.createElement('div'); el.className='keypad';
+  const keys=['7','8','9','4','5','6','1','2','3','⌫','0','✓'];
+  const kp={ val:'', el, onChange:()=>{}, lock:false,
+    press(k){ if(kp.lock) return;
+      if(k==='⌫') kp.val=kp.val.slice(0,-1);
+      else if(k==='✓'){ if(kp.val!=='') onSubmit(+kp.val); return; }
+      else if(kp.val.length<3) kp.val+=k;
+      kp.onChange(kp.val);
+    },
+    clear(){ kp.val=''; kp.onChange(''); }
+  };
+  for(const k of keys){
+    const b=document.createElement('button'); b.textContent=k;
+    if(k==='✓'){b.className='ok';b.setAttribute('aria-label','Potvrdit')}
+    if(k==='⌫'){b.className='del';b.setAttribute('aria-label','Smazat')}
+    b.onclick=()=>kp.press(k); el.appendChild(b);
+  }
+  S.keypad=kp; return kp;
+}
+document.addEventListener('keydown',e=>{
+  if(!S.running || !S.keypad) return;
+  if(/^[0-9]$/.test(e.key)) S.keypad.press(e.key);
+  else if(e.key==='Backspace'){ e.preventDefault(); S.keypad.press('⌫'); }
+  else if(e.key==='Enter'){ e.preventDefault(); S.keypad.press('✓'); }
+});
+function bump(el,cls){ el.classList.remove(cls); void el.offsetWidth; el.classList.add(cls); }
+
+/* ---------- Games ---------- */
+const IMPL = {
+  spell(stage){
+    stage.innerHTML=`<div class="qbox"><div class="q" id="q"></div><div class="ansline" id="a">&nbsp;</div></div>
+      <div class="flash" id="fl">Napiš výsledek a potvrď ✓</div>`;
+    let q, streak=0;
+    const kp=keypad(submit); stage.appendChild(kp.el);
+    const A=$('#a');
+    kp.onChange=v=>{A.textContent=v||' '; A.className='ansline'};
+    function next(){ q=genQ(); $('#q').textContent=q.text+' ='; kp.clear(); kp.lock=false; }
+    function submit(v){
+      if(v===q.ans){ streak++; const bonus=streak%5===0?1:0; setScore(S.score+1+bonus); sGood();
+        $('#fl').textContent = bonus?'Série '+streak+'! Bonusový bod.':(streak>=3?'Série '+streak+'!':'Správně!');
+        A.className='ansline good'; kp.lock=true; setTimeout(()=>S.running&&next(),180);
+      } else { streak=0; sBad(); A.className='ansline bad'; bump(A,'shake');
+        $('#fl').textContent=q.text+' = '+q.ans; kp.lock=true; setTimeout(()=>S.running&&next(),900); }
+    }
+    next(); return {};
+  },
+
+  potion(stage){
+    const cols=['#7a62c9','#d0563f','#57b895','#e0b04a','#3f86d0','#c9629f'];
+    stage.innerHTML=`<div class="qbox"><div class="q" id="q"></div></div><div class="shelf" id="shelf"></div><div class="flash" id="fl">Který lektvar má správný výsledek?</div>`;
+    let q, locked=false;
+    function next(){
+      locked=false; q=genQ(); $('#q').textContent=q.text+' = ?';
+      const sh=$('#shelf'); sh.innerHTML=''; const cs=shuffle(cols.slice());
+      choices(q).forEach((v,i)=>{
+        const b=document.createElement('button'); b.className='potion'; b.style.setProperty('--liq',cs[i]);
+        b.setAttribute('aria-label','Lektvar '+v);
+        b.innerHTML=`<div class="neck"></div><div class="flask"><b>${v}</b></div>`;
+        b.onclick=()=>pick(b,v); sh.appendChild(b);
+      });
+    }
+    function pick(b,v){
+      if(locked) return;
+      if(v===q.ans){ locked=true; b.classList.add('right'); setScore(S.score+1); sGood(); $('#fl').textContent='Lektvar se povedl!'; setTimeout(()=>S.running&&next(),350); }
+      else { b.classList.add('broken'); sBad(); penalty(2); $('#fl').textContent='Puf! Lahvička praskla. −2 s'; }
+    }
+    next(); return {};
+  },
+
+  dragon(stage){
+    const MAX=15, FUSE=10;
+    stage.innerHTML=`<div class="arena">
+        <div class="dragon" id="dr" aria-hidden="true">🐉</div>
+        <div class="hpbox"><label>DRAK</label><div class="hp"><i id="hp" style="width:100%"></i></div></div>
+        <div class="hearts" id="hearts" aria-label="Životy">♥♥♥</div>
+      </div>
+      <div class="qbox"><div class="q" id="q"></div><div class="ansline" id="a">&nbsp;</div></div>
+      <div class="fuse"><i id="fuse"></i></div>
+      <div class="flash" id="fl">Každý správný výsledek je zásah kouzlem. Tři zásahy v řadě udělí dvojnásobné poškození.</div>`;
+    let hp=MAX, lives=3, q, fuse=FUSE, streak=0, pause=0;
+    const kp=keypad(submit); stage.appendChild(kp.el);
+    const A=$('#a'), panel=stage.closest('.panel');
+    kp.onChange=v=>{A.textContent=v||' '; A.className='ansline'};
+    function next(){ q=genQ(); $('#q').textContent=q.text+' ='; kp.clear(); kp.lock=false; fuse=FUSE; }
+    function paintH(){ $('#hp').style.width=(hp/MAX*100)+'%'; $('#hearts').textContent='♥'.repeat(lives)+'♡'.repeat(3-lives); }
+    function hurt(msg){
+      lives--; streak=0; sBad(); bump(panel,'burn'); paintH(); $('#fl').textContent=msg;
+      if(lives<=0){ kp.lock=true; setTimeout(()=>finish(false),600); return; }
+      kp.lock=true; pause=1; setTimeout(()=>S.running&&next(),900);
+    }
+    function submit(v){
+      if(v===q.ans){
+        streak++; const dmg=streak>=3?2:1; hp=Math.max(0,hp-dmg); sGood(); paintH(); bump($('#dr'),'hit');
+        A.className='ansline good';
+        $('#fl').textContent= dmg===2?'Mocné kouzlo! Dvojitý zásah.':'Zásah!';
+        if(hp<=0){ $('#dr').classList.add('dead'); kp.lock=true; setTimeout(()=>finish(true),500); return; }
+        kp.lock=true; setTimeout(()=>S.running&&next(),200);
+      } else { A.className='ansline bad'; bump(A,'shake'); hurt('Drak chrlí oheň! '+q.text+' = '+q.ans); }
+    }
+    let hits=0;
+    next(); paintH();
+    return {
+      tick(dt){ if(kp.lock) return; fuse-=dt; $('#fuse').style.width=Math.max(0,fuse/FUSE*100)+'%';
+        if(fuse<=0){ hurt('Moc pomalé! '+q.text+' = '+q.ans); } },
+      hpLeft:()=>hp,
+      extra:()=>'Zbylé životy: '+'♥'.repeat(lives)
+    };
+  },
+
+  keys(stage){
+    stage.innerHTML=`<div class="qbox"><div class="q" id="q"></div></div><div class="sky" id="sky"></div><div class="flash" id="fl">Klepni na klíč se správným výsledkem.</div>`;
+    const sky=$('#sky'); let q, ks=[], locked=false;
+    function next(){
+      locked=false; q=genQ(); $('#q').textContent=q.text+' = ?'; sky.innerHTML=''; ks=[];
+      const W=sky.clientWidth, H=sky.clientHeight, spd=60+Math.min(S.score,20)*5;
+      choices(q,5).forEach(v=>{
+        const b=document.createElement('button'); b.className='key'; b.innerHTML=`<b>${v}</b>`; b.setAttribute('aria-label','Klíč '+v);
+        const ang=Math.random()*Math.PI*2;
+        const k={el:b,v,x:rnd(Math.max(1,W-96)),y:rnd(Math.max(1,H-52)),vx:Math.cos(ang)*spd,vy:Math.sin(ang)*spd,alive:true};
+        b.onclick=()=>pick(k); sky.appendChild(b); ks.push(k); place(k);
+      });
+    }
+    function place(k){ k.el.style.transform=`translate(${k.x}px,${k.y}px)`; }
+    function pick(k){
+      if(locked||!k.alive) return;
+      if(k.v===q.ans){ locked=true; setScore(S.score+1); sGood(); $('#fl').textContent='Chyceno!'; k.el.querySelector('b').style.background='var(--mint)'; setTimeout(()=>S.running&&next(),250); }
+      else { k.alive=false; k.el.classList.add('gone'); sBad(); penalty(3); $('#fl').textContent='Ten klíč nepasuje. −3 s'; }
+    }
+    next();
+    return { tick(dt){
+      const W=sky.clientWidth-96, H=sky.clientHeight-52;
+      for(const k of ks){ if(!k.alive) continue;
+        k.x+=k.vx*dt; k.y+=k.vy*dt;
+        if(k.x<0){k.x=0;k.vx*=-1} if(k.x>W){k.x=W;k.vx*=-1}
+        if(k.y<0){k.y=0;k.vy*=-1} if(k.y>H){k.y=H;k.vy*=-1}
+        place(k);
+      } } };
+  },
+
+  memory(stage){
+    stage.innerHTML=`<div class="flash" id="fl">Otoč dvě karty. Příklad patří k výsledku.</div><div class="cards" id="cards"></div>`;
+    const pairs=[], used=new Set(); let guard=0;
+    while(pairs.length<6 && guard++<500){ const q=genQ(); if(!used.has(q.ans)){used.add(q.ans);pairs.push(q);} }
+    const deck=shuffle(pairs.flatMap((q,i)=>[{p:i,t:q.text},{p:i,t:String(q.ans)}]));
+    let open=[], done=0, misses=0, busy=false;
+    const box=$('#cards');
+    deck.forEach(c=>{
+      const b=document.createElement('button'); b.className='card'; b.setAttribute('aria-label','Karta');
+      b.innerHTML=`<div class="in"><div class="f">✦</div><div class="b">${c.t}</div></div>`;
+      b.onclick=()=>{
+        if(busy||b.classList.contains('open')||b.classList.contains('done')) return;
+        b.classList.add('open'); b.setAttribute('aria-label',c.t); tone(440,.06,'triangle',.08); open.push({b,c});
+        if(open.length===2){
+          const [x,y]=open; open=[];
+          if(x.c.p===y.c.p){ x.b.classList.add('done'); y.b.classList.add('done'); done++; sGood();
+            $('#fl').textContent=pairs[x.c.p].text+' = '+pairs[x.c.p].ans;
+            if(done===pairs.length) setTimeout(()=>finish(true),500);
+          } else { misses++; busy=true; setTimeout(()=>{ x.b.classList.remove('open'); y.b.classList.remove('open');
+            x.b.setAttribute('aria-label','Karta'); y.b.setAttribute('aria-label','Karta'); busy=false; },800); }
+        }
+      };
+      box.appendChild(b);
+    });
+    return { extra:()=>'Počet omylů: '+misses };
+  }
+};
+
+paintTables(); paintGames();
+</script>
+</body>
+</html>
