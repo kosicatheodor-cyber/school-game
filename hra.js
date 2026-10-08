@@ -88,10 +88,10 @@
     {
       id: 'halloween', when: [dm(17, 10, 2, 11)],
       nazev: 'Halloween', pozdrav: 'Strašidelný Halloween! 🎃👻',
-      ozdoby: ['🎃', '🦇', '👻', '🕯️', '⚡', '🦉', '🕯️', '🦇'], pohyb: 'float',
-      bart: 'Haf! Wingardium Leviosa!',
-      chat: ['Moudrý klobouk mě zařadil do Nebelvíru! Haf! ⚡', 'Wingardium Leviosa! …pamlsek se nevznesl. Asi to říkám špatně. 🪄', 'Bububu! 👻 Lekl ses? Já taky, z dýně. 🎃', 'Jsem Bart Potter, pes, který přežil… koupání. 🦉'],
-      klic: /halloween|dýn|dyn|strašid|strasid|harry|potter|bradavic|kouzl|čaroděj|carodej|hůlk|hulk/,
+      ozdoby: ['🎃', '🦇', '👻', '🕷️', '🍬', '🍂'], pohyb: 'fall',
+      bart: 'Haf! Bububu! 👻',
+      chat: ['Bububu! 👻 Lekl ses? Já taky, z dýně. 🎃', 'Dneska jsem upír! Ale piju jen vodu z misky. 🧛', 'Koledu, nebo vám vyvedu! Nejradši koleduju pamlsky. 🍬', 'Netopýři jsou jako malí létající psi. Haf! 🦇'],
+      klic: /halloween|dýn|dyn|strašid|strasid|duch|upír|upir|netopýr|netopyr|koled/,
     },
     {
       id: 'podzim', when: [dm(20, 9, 16, 10), dm(3, 11, 8, 11), dm(13, 11, 24, 11)],
@@ -143,29 +143,155 @@
   window.SVATEK = svatek;
   if (svatek) document.documentElement.dataset.svatek = svatek.id;
 
-  // Padající / plovoucí ozdoby. Nedají se chytit myší, takže hraní nepřekáží.
+  // Pohyblivé obrázky na pozadí každého svátku.
+  // [obrázek, velikost v px, kde je, pohyb, délka pohybu v s, posun startu v s, { deti, bily }]
+  // Pohyby: bob (houpe se nahoru a dolů), sway (kývá se), glow (svítí), twinkle (bliká),
+  // spin (pomalu se točí), hop (přeskáče zprava doleva), fly (přeletí zprava doleva).
+  // deti = obrázky na tom hlavním (pozice v % jeho velikosti, velikost jako díl).
+  const SCENY = {
+    'novy-rok': [
+      ['🎆', 110, 'left:4vw;top:12vh', 'twinkle', 2.2, 0], ['🎇', 90, 'right:6vw;top:22vh', 'twinkle', 2.6, -1],
+      ['🎆', 70, 'left:42vw;top:5vh', 'twinkle', 3, -1.5], ['🥂', 90, 'left:3vw;bottom:3vh', 'sway', 2.5, 0],
+    ],
+    valentyn: [
+      ['💝', 110, 'left:3vw;bottom:4vh', 'bob', 2, 0], ['🧸', 90, 'left:14vw;bottom:3vh', 'sway', 3, -1],
+      ['💌', 60, 'right:-12vw;top:14vh', 'fly', 16, 0],
+    ],
+    masopust: [
+      ['🎭', 120, 'left:3vw;bottom:5vh', 'sway', 2.4, 0], ['🍩', 70, 'left:15vw;bottom:3vh', 'bob', 1.8, -0.5],
+      ['🎺', 70, 'right:5vw;top:16vh', 'sway', 2, -1],
+    ],
+    zima: [
+      ['⛄', 130, 'left:3vw;bottom:2vh', 'sway', 3, 0], ['🌲', 110, 'left:15vw;bottom:2vh', 'sway', 4, -1],
+      ['🛷', 70, 'right:-12vw;bottom:4vh', 'hop', 14, 0],
+    ],
+    velikonoce: [
+      ['🧺', 140, 'left:3vw;bottom:2vh', 'sway', 3, 0, { deti: [
+        ['🥚', 0.34, 'left:12%;top:-4%', 'bob', 0.9, 0], ['🥚', 0.3, 'left:38%;top:-16%', 'bob', 0.9, -0.3],
+        ['🥚', 0.32, 'left:62%;top:-6%', 'bob', 0.9, -0.6],
+      ] }],
+      ['🐣', 60, 'left:17vw;bottom:2vh', 'bob', 1.6, 0], ['🌷', 60, 'left:23vw;bottom:2vh', 'sway', 2.4, 0],
+      ['🌷', 50, 'left:28vw;bottom:2vh', 'sway', 2.4, -1], ['🐇', 70, 'right:-12vw;bottom:3vh', 'hop', 12, 0],
+      ['🐇', 50, 'right:-12vw;bottom:9vh', 'hop', 15, -7],
+    ],
+    carodejnice: [
+      ['🔥', 120, 'left:4vw;bottom:2vh', 'glow', 0.8, 0], ['🌙', 100, 'right:6vw;top:10vh', 'bob', 4, 0],
+      ['🧙‍♀️', 80, 'right:-12vw;top:22vh', 'fly', 13, 0],
+    ],
+    'den-deti': [
+      ['🎈', 90, 'left:4vw;bottom:14vh', 'bob', 2, 0], ['🎈', 70, 'left:10vw;bottom:20vh', 'bob', 2.4, -1],
+      ['🎠', 110, 'left:12vw;bottom:2vh', 'bob', 1.5, 0], ['🪁', 80, 'right:6vw;top:12vh', 'sway', 2, 0],
+    ],
+    prazdniny: [
+      ['☀️', 130, 'right:5vw;top:8vh', 'spin', 30, 0], ['🏖️', 120, 'left:3vw;bottom:2vh', 'bob', 4, 0],
+      ['🌴', 110, 'left:16vw;bottom:2vh', 'sway', 3, 0], ['⛵', 70, 'right:-12vw;bottom:6vh', 'fly', 20, 0],
+    ],
+    skola: [
+      ['🎒', 110, 'left:3vw;bottom:3vh', 'bob', 2, 0], ['📚', 80, 'left:14vw;bottom:2vh', 'sway', 3, 0],
+      ['✏️', 60, 'right:6vw;top:16vh', 'sway', 1.6, 0],
+    ],
+    podzim: [
+      ['🍁', 130, 'left:3vw;bottom:3vh', 'sway', 3, 0], ['🍄', 60, 'left:15vw;bottom:2vh', 'bob', 2, 0],
+      ['🪁', 90, 'right:6vw;top:10vh', 'sway', 2.2, 0], ['🦔', 60, 'right:-12vw;bottom:2vh', 'hop', 22, 0],
+    ],
+    halloween: [
+      ['🌕', 130, 'right:5vw;top:7vh', 'glow', 3, 0], ['🏚️', 130, 'left:2vw;bottom:2vh', 'bob', 6, 0],
+      ['🎃', 80, 'left:15vw;bottom:2vh', 'glow', 1.2, 0], ['🎃', 60, 'left:22vw;bottom:2vh', 'glow', 1.4, -0.6],
+      ['👻', 80, 'left:6vw;top:30vh', 'bob', 2.2, 0], ['🕸️', 90, 'right:0;top:0', 'sway', 5, 0],
+      ['🦇', 50, 'right:-12vw;top:18vh', 'fly', 9, 0], ['🦇', 40, 'right:-12vw;top:30vh', 'fly', 11, -5],
+    ],
+    martin: [
+      ['🐎', 110, 'right:-14vw;bottom:3vh', 'hop', 14, 0, { bily: true }], ['❄️', 80, 'left:5vw;top:14vh', 'twinkle', 2, 0],
+      ['🥐', 70, 'left:3vw;bottom:3vh', 'bob', 2, 0],
+    ],
+    mikulas: [
+      ['👼', 100, 'left:3vw;bottom:10vh', 'bob', 2.2, 0], ['😈', 100, 'left:14vw;bottom:3vh', 'sway', 1.2, 0],
+      ['⭐', 70, 'right:6vw;top:12vh', 'twinkle', 1.8, 0], ['🍬', 50, 'left:24vw;bottom:3vh', 'bob', 1.5, -0.5],
+    ],
+    vanoce: [
+      ['🎄', 150, 'left:2vw;bottom:2vh', 'sway', 4, 0, { deti: [
+        ['⭐', 0.28, 'left:36%;top:-14%', 'twinkle', 1.6, 0], ['✨', 0.22, 'left:28%;top:34%', 'twinkle', 1.1, -0.4],
+        ['✨', 0.2, 'left:56%;top:58%', 'twinkle', 1.4, -0.8],
+      ] }],
+      ['🎁', 70, 'left:18vw;bottom:2vh', 'bob', 2, 0], ['⛄', 100, 'left:24vw;bottom:2vh', 'sway', 3, -1],
+      ['🦌🦌🛷', 56, 'right:-22vw;top:12vh', 'fly', 16, 0],
+    ],
+  };
+
+  // Ozdoby jsou za obsahem stránky (hru nezakrývají) a nedají se chytit myší.
   const css = `
 .sz-domu{position:fixed;left:8px;top:8px;z-index:2147483001;display:flex;align-items:center;gap:6px;padding:6px 14px 6px 10px;border-radius:999px;background:rgba(255,255,255,.9);color:#14315e;border:2px solid #2563c9;box-shadow:0 2px 8px rgba(0,0,0,.18);font:800 15px/1.2 "Nunito","Trebuchet MS",Arial,sans-serif;text-decoration:none;opacity:.85;transition:opacity .2s,transform .2s}
 .sz-domu:hover,.sz-domu:focus-visible{opacity:1;transform:translateY(-1px)}
 .sz-domu:focus-visible{outline:3px solid #22994f;outline-offset:2px}
 @media (max-width:600px){.sz-domu{padding:6px 9px}.sz-domu b{display:none}}
-@media print{.sz-domu,.sz-prepinac,.sz-ozdoby{display:none!important}}
-.sz-ozdoby{position:fixed;inset:0;pointer-events:none;z-index:2147483000;overflow:hidden}
-.sz-ozdoby span{position:absolute;top:0;left:0;line-height:1;opacity:.85;will-change:transform;user-select:none}
+@media print{.sz-domu,.sz-prepinac,.sz-pozadi{display:none!important}}
+.sz-pozadi{position:fixed;inset:0;pointer-events:none;z-index:-1;overflow:hidden;user-select:none}
+.sz-pozadi span{position:absolute;line-height:1;white-space:nowrap}
+.sz-padani span{top:0;left:0;opacity:.8;will-change:transform}
 .sz-fall span{animation:sz-fall linear infinite}
 .sz-rise span{animation:sz-rise linear infinite}
 .sz-float span{animation:sz-float ease-in-out infinite alternate}
 @keyframes sz-fall{from{transform:translate(0,-12vh) rotate(0)}to{transform:translate(var(--dx),112vh) rotate(var(--rot))}}
 @keyframes sz-rise{from{transform:translate(0,112vh)}to{transform:translate(var(--dx),-12vh)}}
 @keyframes sz-float{from{transform:translate(0,0) rotate(-6deg)}to{transform:translate(var(--dx),18px) rotate(6deg)}}
+.sz-pozadi .sz-o{font-size:calc(var(--s) * min(1px, .11vw));display:inline-block}
+.sz-pozadi .sz-o .sz-o{font-size:calc(var(--k) * 1em)}
+.sz-o.bily{filter:grayscale(1) brightness(1.9)}
+.sz-o.a-bob{animation:sz-bob var(--t) ease-in-out var(--z) infinite alternate}
+.sz-o.a-sway{transform-origin:50% 100%;animation:sz-sway var(--t) ease-in-out var(--z) infinite alternate}
+.sz-o.a-glow{animation:sz-glow var(--t) ease-in-out var(--z) infinite alternate}
+.sz-o.a-twinkle{animation:sz-twinkle var(--t) ease-in-out var(--z) infinite alternate}
+.sz-o.a-spin{animation:sz-spin var(--t) linear var(--z) infinite}
+.sz-o.a-hop,.sz-o.a-fly{animation:sz-across var(--t) linear var(--z) infinite}
+.sz-o.a-hop>i,.sz-o.a-fly>i{display:inline-block;font-style:normal}
+.sz-o.a-hop>i{animation:sz-hop .45s cubic-bezier(.3,0,.5,1) infinite alternate}
+.sz-o.a-fly>i{animation:sz-bob 1.3s ease-in-out infinite alternate}
+@keyframes sz-bob{to{transform:translateY(-12%)}}
+@keyframes sz-sway{from{transform:rotate(-5deg)}to{transform:rotate(5deg)}}
+@keyframes sz-glow{from{transform:scale(1);filter:drop-shadow(0 0 0 rgba(255,170,40,0))}to{transform:scale(1.06);filter:drop-shadow(0 0 18px rgba(255,170,40,.9))}}
+@keyframes sz-twinkle{from{opacity:.3;transform:scale(.85)}to{opacity:1;transform:scale(1.05)}}
+@keyframes sz-spin{to{transform:rotate(360deg)}}
+@keyframes sz-across{from{transform:translateX(0)}to{transform:translateX(-140vw)}}
+@keyframes sz-hop{to{transform:translateY(-35%)}}
 .sz-prepinac{position:fixed;left:8px;bottom:8px;z-index:2147483001;width:34px;height:34px;border-radius:50%;border:0;background:rgba(255,255,255,.75);box-shadow:0 2px 8px rgba(0,0,0,.2);font-size:18px;line-height:34px;padding:0;cursor:pointer;opacity:.55;transition:opacity .2s}
 .sz-prepinac:hover,.sz-prepinac:focus-visible{opacity:1}
-.sz-skryte .sz-ozdoby{display:none}
-@media (prefers-reduced-motion:reduce){.sz-ozdoby span{animation:none!important}}
+.sz-skryte .sz-pozadi{display:none}
+@media (prefers-reduced-motion:reduce){.sz-pozadi span,.sz-pozadi i{animation:none!important}}
 `;
   const style = document.createElement('style');
   style.textContent = css;
   document.head.append(style);
+
+  function obrazek([e, size, pos, pohyb, t, z, opts = {}], dite) {
+    const el = document.createElement('span');
+    el.className = 'sz-o a-' + pohyb + (opts.bily ? ' bily' : '');
+    el.style.cssText = pos;
+    el.style.setProperty(dite ? '--k' : '--s', size);
+    el.style.setProperty('--t', t + 's');
+    el.style.setProperty('--z', z + 's');
+    if (pohyb === 'hop' || pohyb === 'fly') {
+      const inner = document.createElement('i');
+      inner.textContent = e;
+      el.append(inner);
+    } else {
+      el.textContent = e;
+    }
+    for (const d of opts.deti || []) el.append(obrazek(d, true));
+    return el;
+  }
+
+  // Ozdoby za obsahem jsou vidět jen tam, kde stránka nemá vlastní pozadí. Když má pozadí
+  // <html> i <body>, pozadí body by je zakrylo – proto se pozadí body přesune na <html>.
+  function pozadiNaHtml() {
+    const html = document.documentElement;
+    const has = cs => cs.backgroundImage !== 'none' || !/^(transparent|rgba\(0, 0, 0, 0\))$/.test(cs.backgroundColor);
+    const b = getComputedStyle(document.body);
+    if (!has(getComputedStyle(html)) || !has(b)) return;
+    for (const prop of ['background-color', 'background-image', 'background-size', 'background-position', 'background-repeat', 'background-attachment']) {
+      html.style.setProperty(prop, b.getPropertyValue(prop));
+    }
+    document.body.style.background = 'transparent';
+  }
 
   const KEY = 'svatek-ozdoby-vypnute';
   function start() {
@@ -181,18 +307,22 @@
       if (window.top === window) document.body.append(a);
     }
     if (!svatek) return;
+    pozadiNaHtml();
+
     const layer = document.createElement('div');
-    layer.className = 'sz-ozdoby sz-' + svatek.pohyb;
+    layer.className = 'sz-pozadi';
     layer.setAttribute('aria-hidden', 'true');
+    for (const item of SCENY[svatek.id] || []) layer.append(obrazek(item));
+
+    const padani = document.createElement('div');
+    padani.className = 'sz-padani sz-' + svatek.pohyb;
     const count = svatek.pohyb === 'float' ? (home ? 14 : 9) : (home ? 22 : 14);
     for (let i = 0; i < count; i++) {
       const s = document.createElement('span');
       s.textContent = svatek.ozdoby[i % svatek.ozdoby.length];
-      const size = 16 + Math.random() * 18;
-      s.style.fontSize = size + 'px';
+      s.style.fontSize = (16 + Math.random() * 18) + 'px';
       s.style.setProperty('--rot', (Math.random() * 360 - 180) + 'deg');
       if (svatek.pohyb === 'float') {
-        // Plovoucí svíčky a dýně se drží u okrajů, aby nezakrývaly hru.
         const edge = i % 2 ? 80 + Math.random() * 16 : Math.random() * 14;
         s.style.left = edge + 'vw';
         s.style.top = (4 + Math.random() * 84) + 'vh';
@@ -205,9 +335,10 @@
         s.style.animationDuration = (9 + Math.random() * 10) + 's';
         s.style.animationDelay = (-Math.random() * 19) + 's';
       }
-      layer.append(s);
+      padani.append(s);
     }
-    document.body.append(layer);
+    layer.append(padani);
+    document.body.prepend(layer);
 
     const btn = document.createElement('button');
     btn.type = 'button';

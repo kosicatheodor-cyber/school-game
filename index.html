@@ -132,7 +132,7 @@ header{display:flex;align-items:center;gap:20px;padding:6px 0 16px;margin-bottom
 .svatek-pruh[hidden]{display:none}
 .bart .k{display:none}
 :root[data-svatek="vanoce"] .k-santa,:root[data-svatek="vanoce"] .k-sala,
-:root[data-svatek="halloween"] .k-potter,
+:root[data-svatek="halloween"] .k-upir,
 :root[data-svatek="velikonoce"] .k-usi,
 :root[data-svatek="zima"] .k-cepice,:root[data-svatek="zima"] .k-sala,
 :root[data-svatek="podzim"] .k-cepice,:root[data-svatek="podzim"] .k-sala,
@@ -150,7 +150,6 @@ header{display:flex;align-items:center;gap:20px;padding:6px 0 16px;margin-bottom
 :root[data-svatek="podzim"]{--cepice:#e5741c;--cepice2:#f7d36b;--sala:#b8461b;--sala2:#f7d36b}
 :root[data-svatek="martin"]{--cepice:#f4f7fb;--cepice2:#8fb3e0;--sala:#8fb3e0;--sala2:#ffffff}
 .bart .k-balonek .bal{transform-box:fill-box;transform-origin:50% 100%;animation:wag 1.4s ease-in-out infinite alternate}
-.bart .k-potter .hulka{transform-box:fill-box;transform-origin:0 100%;animation:wag .9s ease-in-out infinite alternate}
 
 /* menu her */
 .games h2{font-size:34px;margin-bottom:14px;color:var(--green)}
@@ -284,15 +283,10 @@ header{display:flex;align-items:center;gap:20px;padding:6px 0 16px;margin-bottom
         <rect x="94" y="88" width="11" height="26" rx="3" fill="var(--sala,#c62f2f)" transform="rotate(-10 99 88)"/>
         <rect x="94" y="104" width="11" height="4" fill="var(--sala2,#fff)" transform="rotate(-10 99 88)"/>
       </g>
-      <g class="k k-potter">
-        <!-- nebelvírská šála -->
-        <path d="M62 84q24 14 48 0" fill="none" stroke="#9c1c1c" stroke-width="12" stroke-linecap="round"/>
-        <path d="M62 84q24 14 48 0" fill="none" stroke="#e8b923" stroke-width="12" stroke-dasharray="4 6"/>
-        <rect x="94" y="88" width="11" height="28" rx="3" fill="#9c1c1c" transform="rotate(-10 99 88)"/>
-        <rect x="94" y="96" width="11" height="4" fill="#e8b923" transform="rotate(-10 99 88)"/>
-        <rect x="94" y="106" width="11" height="4" fill="#e8b923" transform="rotate(-10 99 88)"/>
-        <!-- hůlka v tlapce -->
-        <g class="hulka"><path d="M64 118l-26-30" stroke="#5a3416" stroke-width="4" stroke-linecap="round"/><circle cx="37" cy="86" r="3" fill="#fff6a8"/><path d="M33 80l2 3M40 79l-1 3M31 87l3 0" stroke="#f2c94c" stroke-width="1.6" stroke-linecap="round"/></g>
+      <g class="k k-upir">
+        <!-- upírský límec -->
+        <path d="M54 94L36 26l32 42z" fill="#2a0b36"/><path d="M118 94l18-68l-32 42z" fill="#2a0b36"/>
+        <path d="M56 88L44 40l22 30z" fill="#b0172a"/><path d="M116 88l12-48l-22 30z" fill="#b0172a"/>
       </g>
       <!-- hříva -->
       <circle cx="86" cy="56" r="35" fill="#b8742c"/>
@@ -320,17 +314,14 @@ header{display:flex;align-items:center;gap:20px;padding:6px 0 16px;margin-bottom
         <circle cx="127" cy="5" r="6.5" fill="#fff"/>
         <rect x="53" y="24" width="66" height="11" rx="5.5" fill="#fff"/>
       </g>
-      <g class="k k-potter">
-        <ellipse cx="86" cy="25" rx="42" ry="7" fill="#2b2140"/>
-        <path d="M60 25q14-28 46-56q-4 30 6 56z" fill="#3b2d5c"/>
-        <path d="M61 22q25 7 50 0" fill="none" stroke="#7a3fc2" stroke-width="4"/>
-        <text x="82" y="10" font-size="9" fill="#f2c94c" font-family="Arial">★</text>
-        <text x="94" y="-6" font-size="7" fill="#f2c94c" font-family="Arial">★</text>
-        <!-- jizva a kulaté brýle -->
-        <path d="M90 33l-3 4h3l-3 5" fill="none" stroke="#c0392b" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
-        <circle cx="76" cy="52" r="7.5" fill="none" stroke="#1a1a1a" stroke-width="2"/>
-        <circle cx="96" cy="52" r="7.5" fill="none" stroke="#1a1a1a" stroke-width="2"/>
-        <path d="M83.5 51h5M68.5 50l-8-3M103.5 50l8-3" stroke="#1a1a1a" stroke-width="2" stroke-linecap="round"/>
+      <g class="k k-upir">
+        <!-- tesáky, medailon a dýňový košík na sladkosti -->
+        <path d="M82 73.5l1.6 4.5l1.6-4.5zM88.8 73.5l1.6 4.5l1.6-4.5z" fill="#fff" stroke="#ccc" stroke-width=".5"/>
+        <circle cx="86" cy="94" r="6.5" fill="#b0172a" stroke="#f2c94c" stroke-width="2"/>
+        <path d="M38 118q12-18 24 0" fill="none" stroke="#3a2414" stroke-width="2.5"/>
+        <ellipse cx="50" cy="126" rx="14" ry="11" fill="#f07c1b"/>
+        <path d="M44 116q6 10 0 20M56 116q-6 10 0 20" stroke="#d1600c" stroke-width="1.5" fill="none"/>
+        <path d="M43 122l3-4l3 4zM51 122l3-4l3 4zM42 128q8 6 16 0l-3 2l-2-2l-3 2l-3-2l-2 2z" fill="#2a1a10"/>
       </g>
       <g class="k k-usi">
         <ellipse cx="70" cy="2" rx="8" ry="24" fill="#fff" stroke="#e9d9e3" transform="rotate(-14 70 24)"/>
