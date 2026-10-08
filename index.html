@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Theodorovy hry</title>
 <link rel="icon" href="img/favicon.svg" type="image/svg+xml">
+<script src="/hra.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito:wght@400;600;700;800&display=swap&subset=latin-ext" rel="stylesheet">
@@ -108,8 +109,56 @@ header{display:flex;align-items:center;gap:20px;padding:6px 0 16px;margin-bottom
 .chat-form input{flex:1;min-width:0}
 @media (prefers-reduced-motion:reduce){.bart,.bart *{animation:none!important}}
 
+/* Svátky – barvy, pozdrav a Bartovy kostýmy (svátek vybírá /hra.js podle data) */
+:root[data-svatek="vanoce"],:root[data-svatek="mikulas"]{--blue:#c62f2f;--green:#1f8a4c}
+:root[data-svatek="halloween"]{--blue:#7a3fc2;--green:#e5741c}
+:root[data-svatek="velikonoce"]{--blue:#d9548a;--green:#3f9e3b}
+:root[data-svatek="podzim"]{--blue:#c4581d;--green:#8a7a1e}
+:root[data-svatek="valentyn"]{--blue:#d63a6f;--green:#c2185b}
+:root[data-svatek="carodejnice"]{--blue:#6b3fa0;--green:#e0592a}
+:root[data-svatek="prazdniny"]{--blue:#0b8fc4;--green:#f08c1a}
+:root[data-svatek="masopust"],:root[data-svatek="novy-rok"],:root[data-svatek="den-deti"]{--blue:#7c3aed;--green:#e0418a}
+@media (prefers-color-scheme: dark){
+  :root[data-svatek="vanoce"]:not([data-theme="light"]),:root[data-svatek="mikulas"]:not([data-theme="light"]){--blue:#ff7a70;--green:#5fd38c}
+  :root[data-svatek="halloween"]:not([data-theme="light"]){--blue:#b68cff;--green:#ffa04d}
+  :root[data-svatek="velikonoce"]:not([data-theme="light"]){--blue:#ff8fbd;--green:#7dd877}
+  :root[data-svatek="podzim"]:not([data-theme="light"]){--blue:#ff9a5c;--green:#d9c552}
+  :root[data-svatek="valentyn"]:not([data-theme="light"]){--blue:#ff7aa6;--green:#ff6fa8}
+  :root[data-svatek="carodejnice"]:not([data-theme="light"]){--blue:#b48cf0;--green:#ff8a5c}
+  :root[data-svatek="prazdniny"]:not([data-theme="light"]){--blue:#5cc8f5;--green:#ffb04d}
+  :root[data-svatek="masopust"]:not([data-theme="light"]),:root[data-svatek="novy-rok"]:not([data-theme="light"]),:root[data-svatek="den-deti"]:not([data-theme="light"]){--blue:#b28cff;--green:#ff7ab3}
+}
+.svatek-pruh{margin:-20px 0 32px;padding:12px 18px;border-radius:16px;background:var(--blueSoft);border:2px dashed var(--blue);color:var(--blue);font-family:"Baloo 2","Nunito",sans-serif;font-weight:800;font-size:clamp(20px,4vw,26px);line-height:1.2;text-align:center}
+.svatek-pruh[hidden]{display:none}
+.bart .k{display:none}
+:root[data-svatek="vanoce"] .k-santa,:root[data-svatek="vanoce"] .k-sala,
+:root[data-svatek="halloween"] .k-potter,
+:root[data-svatek="velikonoce"] .k-usi,
+:root[data-svatek="zima"] .k-cepice,:root[data-svatek="zima"] .k-sala,
+:root[data-svatek="podzim"] .k-cepice,:root[data-svatek="podzim"] .k-sala,
+:root[data-svatek="martin"] .k-cepice,:root[data-svatek="martin"] .k-sala,
+:root[data-svatek="mikulas"] .k-rohy,
+:root[data-svatek="novy-rok"] .k-party,
+:root[data-svatek="masopust"] .k-maska,:root[data-svatek="masopust"] .k-party,
+:root[data-svatek="valentyn"] .k-srdce,
+:root[data-svatek="carodejnice"] .k-carodej,
+:root[data-svatek="den-deti"] .k-balonek,:root[data-svatek="den-deti"] .k-party,
+:root[data-svatek="prazdniny"] .k-bryle,
+:root[data-svatek="skola"] .k-cap{display:inline}
+:root[data-svatek="zima"]{--cepice:#2563c9;--cepice2:#ffffff;--sala:#2563c9;--sala2:#ffffff}
+:root[data-svatek="vanoce"]{--sala:#c62f2f;--sala2:#ffffff}
+:root[data-svatek="podzim"]{--cepice:#e5741c;--cepice2:#f7d36b;--sala:#b8461b;--sala2:#f7d36b}
+:root[data-svatek="martin"]{--cepice:#f4f7fb;--cepice2:#8fb3e0;--sala:#8fb3e0;--sala2:#ffffff}
+.bart .k-balonek .bal{transform-box:fill-box;transform-origin:50% 100%;animation:wag 1.4s ease-in-out infinite alternate}
+.bart .k-potter .hulka{transform-box:fill-box;transform-origin:0 100%;animation:wag .9s ease-in-out infinite alternate}
+
 /* menu her */
 .games h2{font-size:34px;margin-bottom:14px;color:var(--green)}
+.tridy-nav{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 22px;padding:0;list-style:none}
+.tridy-nav a{display:block;border-radius:999px;padding:6px 16px;font-weight:800;font-size:16px;text-decoration:none;background:var(--blueSoft);color:var(--blue);border:2px solid transparent}
+.tridy-nav a:hover{border-color:var(--blue)}
+.trida{margin:0 0 34px;scroll-margin-top:16px}
+.trida h3{font-size:28px;margin:0 0 12px;color:var(--blue)}
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px;list-style:none;margin:0;padding:0}
 .card{display:flex;flex-direction:column;height:100%;overflow:hidden;background:var(--panel);border:2px solid var(--line);border-top:6px solid var(--blue);border-radius:16px;transition:border-color .15s,transform .15s}
 .card .link{display:flex;flex-direction:column;flex:1;text-decoration:none;color:inherit}
@@ -120,6 +169,7 @@ header{display:flex;align-items:center;gap:20px;padding:6px 0 16px;margin-bottom
 .card .body{display:flex;flex-direction:column;gap:6px;flex:1;padding:14px 20px 16px}
 .grid li.card:nth-child(even){border-top-color:var(--green)}
 .card:hover{border-color:var(--blue);transform:translateY(-3px)}
+.card .predmet{align-self:flex-start;border-radius:999px;padding:2px 10px;font-size:13px;font-weight:800;letter-spacing:.02em;color:#fff;background:var(--pc,#4f6585)}
 .card b{font-family:"Baloo 2","Nunito",sans-serif;font-size:26px;line-height:1.1}
 .card span{color:var(--muted);font-size:15px}
 .card .go{margin-top:auto;padding-top:8px;color:var(--green);font-weight:800}
@@ -137,13 +187,27 @@ header{display:flex;align-items:center;gap:20px;padding:6px 0 16px;margin-bottom
 .stars:disabled,.stars[aria-busy="true"]{opacity:.5}
 .card .rate .avg{font-weight:800;font-size:15px;white-space:nowrap}
 .card .rate .avg.thanks{color:var(--green)}
+.card .rate button.avg{font:inherit;font-weight:800;font-size:15px;border:0;background:none;color:inherit;padding:2px 4px;margin:-2px -4px;border-radius:8px;cursor:pointer;text-decoration:underline dotted;text-underline-offset:3px}
+.card .rate button.avg:hover{color:var(--blue)}
+.card .rate button.avg:focus-visible{outline:3px solid var(--green)}
+.card .rate button.avg::after{content:" ▾";display:inline-block;transition:transform .15s}
+.card .rate button.avg[aria-expanded="true"]::after{transform:rotate(180deg)}
+.hist{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:4px 8px;padding:0 20px 14px;font-size:14px;font-weight:700}
+.hist[hidden]{display:none}
+.hist .lbl{color:#c99400;white-space:nowrap}
+.hist .bar{height:10px;border-radius:999px;background:var(--line);overflow:hidden}
+.hist .bar i{display:block;height:100%;background:#f2b705;border-radius:999px}
+.hist .n{color:var(--muted);text-align:right;min-width:4.5em}
+.hist .note{grid-column:1/-1;margin:2px 0 0;color:var(--muted);font-weight:600;font-size:13px}
 </style>
 </head>
-<body>
+<body data-svatek-domov>
 <div class="wrap">
   <header>
     <h1><img class="logo" src="img/logo-tj.svg" alt="TJ – Theodor" width="262" height="120"></h1>
   </header>
+
+  <p class="svatek-pruh" id="svatek-pruh" hidden></p>
 
   <section class="profile" aria-labelledby="who">
     <img class="photo" src="img/theodor.jpg" alt="Theodor na horách" width="640" height="800">
@@ -174,7 +238,7 @@ header{display:flex;align-items:center;gap:20px;padding:6px 0 16px;margin-bottom
   <section class="games" aria-labelledby="games-title">
     <h2 id="games-title">Hry</h2>
     <p class="status" id="status">Načítám hry…</p>
-    <ul class="grid" id="games"></ul>
+    <div id="games"></div>
   </section>
 
   <section class="ideas" aria-labelledby="ideas-title">
@@ -213,6 +277,23 @@ header{display:flex;align-items:center;gap:20px;padding:6px 0 16px;margin-bottom
       <path d="M64 84q22 12 44 0" fill="none" stroke="#2563c9" stroke-width="6" stroke-linecap="round"/>
       <circle cx="86" cy="94" r="6" fill="#f2c94c" stroke="#b8862b" stroke-width="1.5"/>
       <text x="86" y="97" text-anchor="middle" font-family="Arial,sans-serif" font-size="8" font-weight="700" fill="#7a5512">B</text>
+      <!-- kostým: šála -->
+      <g class="k k-sala">
+        <path d="M62 84q24 14 48 0" fill="none" stroke="var(--sala,#c62f2f)" stroke-width="12" stroke-linecap="round"/>
+        <path d="M62 84q24 14 48 0" fill="none" stroke="var(--sala2,#fff)" stroke-width="12" stroke-dasharray="3 9" opacity=".9"/>
+        <rect x="94" y="88" width="11" height="26" rx="3" fill="var(--sala,#c62f2f)" transform="rotate(-10 99 88)"/>
+        <rect x="94" y="104" width="11" height="4" fill="var(--sala2,#fff)" transform="rotate(-10 99 88)"/>
+      </g>
+      <g class="k k-potter">
+        <!-- nebelvírská šála -->
+        <path d="M62 84q24 14 48 0" fill="none" stroke="#9c1c1c" stroke-width="12" stroke-linecap="round"/>
+        <path d="M62 84q24 14 48 0" fill="none" stroke="#e8b923" stroke-width="12" stroke-dasharray="4 6"/>
+        <rect x="94" y="88" width="11" height="28" rx="3" fill="#9c1c1c" transform="rotate(-10 99 88)"/>
+        <rect x="94" y="96" width="11" height="4" fill="#e8b923" transform="rotate(-10 99 88)"/>
+        <rect x="94" y="106" width="11" height="4" fill="#e8b923" transform="rotate(-10 99 88)"/>
+        <!-- hůlka v tlapce -->
+        <g class="hulka"><path d="M64 118l-26-30" stroke="#5a3416" stroke-width="4" stroke-linecap="round"/><circle cx="37" cy="86" r="3" fill="#fff6a8"/><path d="M33 80l2 3M40 79l-1 3M31 87l3 0" stroke="#f2c94c" stroke-width="1.6" stroke-linecap="round"/></g>
+      </g>
       <!-- hříva -->
       <circle cx="86" cy="56" r="35" fill="#b8742c"/>
       <circle cx="62" cy="40" r="12" fill="#b8742c"/><circle cx="110" cy="40" r="12" fill="#b8742c"/>
@@ -233,6 +314,76 @@ header{display:flex;align-items:center;gap:20px;padding:6px 0 16px;margin-bottom
       <ellipse cx="86" cy="64" rx="6" ry="4.2" fill="#000"/>
       <path d="M80 73q6 5 12 0" fill="none" stroke="#000" stroke-width="2" stroke-linecap="round"/>
       <path class="tongue" d="M82 75h8v6a4 4 0 0 1-8 0z" fill="#ec6f84"/>
+      <!-- kostýmy na hlavu -->
+      <g class="k k-santa">
+        <path d="M58 30C64 6 96-8 126 4c-8 6-14 14-14 26z" fill="#d62828"/>
+        <circle cx="127" cy="5" r="6.5" fill="#fff"/>
+        <rect x="53" y="24" width="66" height="11" rx="5.5" fill="#fff"/>
+      </g>
+      <g class="k k-potter">
+        <ellipse cx="86" cy="25" rx="42" ry="7" fill="#2b2140"/>
+        <path d="M60 25q14-28 46-56q-4 30 6 56z" fill="#3b2d5c"/>
+        <path d="M61 22q25 7 50 0" fill="none" stroke="#7a3fc2" stroke-width="4"/>
+        <text x="82" y="10" font-size="9" fill="#f2c94c" font-family="Arial">★</text>
+        <text x="94" y="-6" font-size="7" fill="#f2c94c" font-family="Arial">★</text>
+        <!-- jizva a kulaté brýle -->
+        <path d="M90 33l-3 4h3l-3 5" fill="none" stroke="#c0392b" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+        <circle cx="76" cy="52" r="7.5" fill="none" stroke="#1a1a1a" stroke-width="2"/>
+        <circle cx="96" cy="52" r="7.5" fill="none" stroke="#1a1a1a" stroke-width="2"/>
+        <path d="M83.5 51h5M68.5 50l-8-3M103.5 50l8-3" stroke="#1a1a1a" stroke-width="2" stroke-linecap="round"/>
+      </g>
+      <g class="k k-usi">
+        <ellipse cx="70" cy="2" rx="8" ry="24" fill="#fff" stroke="#e9d9e3" transform="rotate(-14 70 24)"/>
+        <ellipse cx="70" cy="4" rx="4" ry="17" fill="#f7a8c4" transform="rotate(-14 70 24)"/>
+        <ellipse cx="102" cy="2" rx="8" ry="24" fill="#fff" stroke="#e9d9e3" transform="rotate(14 102 24)"/>
+        <ellipse cx="102" cy="4" rx="4" ry="17" fill="#f7a8c4" transform="rotate(14 102 24)"/>
+        <path d="M58 30q28-16 56 0" fill="none" stroke="#f7a8c4" stroke-width="5" stroke-linecap="round"/>
+      </g>
+      <g class="k k-cepice">
+        <path d="M58 34q2-30 28-32q26 2 28 32z" fill="var(--cepice,#2563c9)"/>
+        <path d="M70 6q-4 12-4 26M86 2v32M102 6q4 12 4 26" stroke="var(--cepice2,#fff)" stroke-width="2" opacity=".5" fill="none"/>
+        <rect x="55" y="27" width="62" height="10" rx="5" fill="var(--cepice2,#fff)"/>
+        <circle cx="86" cy="0" r="7.5" fill="var(--cepice2,#fff)"/>
+      </g>
+      <g class="k k-rohy">
+        <path d="M64 32q-10-16-2-30q2 16 12 26z" fill="#d62828" stroke="#8e1414" stroke-width="1.5"/>
+        <path d="M108 32q10-16 2-30q-2 16-12 26z" fill="#d62828" stroke="#8e1414" stroke-width="1.5"/>
+      </g>
+      <g class="k k-party">
+        <path d="M72 28l16-44l16 44z" fill="#7c3aed"/>
+        <path d="M76 18l24 0M80 6l15 0" stroke="#f2c94c" stroke-width="4"/>
+        <circle cx="88" cy="-17" r="5" fill="#e0418a"/>
+      </g>
+      <g class="k k-maska">
+        <path d="M62 50q24-14 48 0q-2 12-14 10q-10-4-20 0q-12 2-14-10zM70 52a6 5 0 1 0 12 0a6 5 0 1 0-12 0zM90 52a6 5 0 1 0 12 0a6 5 0 1 0-12 0z" fill="#e0418a" fill-rule="evenodd" stroke="#f2c94c" stroke-width="1.5"/>
+        <path d="M108 46q14-20 6-34q-4 16-10 30" fill="#2bb5a0"/>
+      </g>
+      <g class="k k-srdce">
+        <path d="M128 34l-11-11a6.5 6.5 0 0 1 11-8a6.5 6.5 0 0 1 11 8z" fill="#e63973"/>
+        <path d="M74 66l-3-3a1.8 1.8 0 0 1 3-2.2a1.8 1.8 0 0 1 3 2.2z" fill="#ff8fb3"/>
+      </g>
+      <g class="k k-carodej">
+        <ellipse cx="86" cy="26" rx="42" ry="7" fill="#1d1a24"/>
+        <path d="M62 26q10-26 24-34q10-8 30-4q-16 6-18 16q-2 10 4 22z" fill="#2a2633"/>
+        <path d="M64 22q22 6 44 0" fill="none" stroke="#6b3fa0" stroke-width="5"/>
+        <rect x="81" y="19" width="9" height="7" fill="none" stroke="#f2c94c" stroke-width="2"/>
+      </g>
+      <g class="k k-balonek">
+        <path class="str" d="M106 116q20-30 32-78" fill="none" stroke="#555" stroke-width="1.2"/>
+        <g class="bal"><ellipse cx="140" cy="22" rx="14" ry="17" fill="#e63946"/><path d="M137 39l3 3l3-3z" fill="#e63946"/><ellipse cx="135" cy="15" rx="3" ry="5" fill="#fff" opacity=".5"/></g>
+      </g>
+      <g class="k k-bryle">
+        <rect x="66" y="45" width="19" height="13" rx="5" fill="#111"/>
+        <rect x="88" y="45" width="19" height="13" rx="5" fill="#111"/>
+        <path d="M85 50h3M66 49l-6-3M107 49l6-3" stroke="#111" stroke-width="2.5" stroke-linecap="round"/>
+        <path d="M69 48l5 0M91 48l5 0" stroke="#fff" stroke-width="1.5" stroke-linecap="round" opacity=".6"/>
+      </g>
+      <g class="k k-cap">
+        <rect x="70" y="20" width="32" height="12" rx="3" fill="#14315e"/>
+        <path d="M54 22l32-12l32 12l-32 12z" fill="#1d3f75"/>
+        <path d="M86 22l26 4v12" fill="none" stroke="#f2c94c" stroke-width="2"/>
+        <circle cx="112" cy="40" r="3" fill="#f2c94c"/>
+      </g>
     </g>
     <!-- skateboard -->
     <path d="M18 140h134a8 8 0 0 1-8 8H26a8 8 0 0 1-8-8z" fill="#22994f"/>
@@ -262,11 +413,13 @@ header{display:flex;align-items:center;gap:20px;padding:6px 0 16px;margin-bottom
 </dialog>
 
 <script>
-// Menu se skládá automaticky ze všech .html stránek ve složce hry/.
-// Na GitHub Pages se seznam bere z GitHub API, lokálně (např. `python3 -m http.server`)
-// z výpisu složky, který server vrací.
+// Menu se skládá automaticky ze všech .html stránek ve složce hry/ a jejích podsložkách.
+// Podsložka = třída: hry/3-trida/ se v menu ukáže jako „3. třída“, hry/pro-zabavu/ jako „Pro zábavu“.
+// Na Vercelu se seznam bere z /api/hry, jinde z GitHub API a lokálně
+// (např. `python3 -m http.server`) z výpisu složky, který server vrací.
 const FOLDER = 'hry';
 const FALLBACK_REPO = 'kosicatheodor-cyber/school-game';
+const SKIP = ['nahledy'];
 
 function githubRepo() {
   const host = location.hostname;
@@ -279,27 +432,69 @@ function githubRepo() {
   return FALLBACK_REPO;
 }
 
-async function fromDirectoryListing() {
-  const res = await fetch(FOLDER + '/');
+async function listing(dir) {
+  const res = await fetch(FOLDER + '/' + (dir ? encodeURIComponent(dir) + '/' : ''));
   if (!res.ok) throw new Error('no listing');
   const doc = new DOMParser().parseFromString(await res.text(), 'text/html');
-  return [...doc.querySelectorAll('a[href]')]
-    .map(a => decodeURIComponent(a.getAttribute('href').split('/').pop()))
-    .filter(name => name.endsWith('.html') && name !== 'index.html');
+  return [...doc.querySelectorAll('a[href]')].map(a => a.getAttribute('href'))
+    .filter(h => !/^(\.|\/|[a-z]+:)/i.test(h))
+    .map(h => decodeURIComponent(h.split('?')[0]));
+}
+
+async function fromDirectoryListing() {
+  const top = await listing('');
+  const files = top.filter(n => n.endsWith('.html'));
+  const dirs = top.filter(n => n.endsWith('/')).map(n => n.slice(0, -1)).filter(d => !SKIP.includes(d));
+  for (const d of dirs) {
+    try { files.push(...(await listing(d)).filter(n => n.endsWith('.html')).map(n => d + '/' + n)); } catch {}
+  }
+  return files.filter(n => !n.endsWith('index.html'));
+}
+
+async function fromApi() {
+  const res = await fetch('/api/hry');
+  if (!res.ok) throw new Error('api ' + res.status);
+  return res.json();
 }
 
 async function fromGitHub() {
-  const res = await fetch('https://api.github.com/repos/' + githubRepo() + '/contents/' + FOLDER);
+  const res = await fetch('https://api.github.com/repos/' + githubRepo() + '/git/trees/main?recursive=1');
   if (!res.ok) throw new Error('GitHub API ' + res.status);
-  return (await res.json())
-    .filter(f => f.type === 'file' && f.name.endsWith('.html') && f.name !== 'index.html')
-    .map(f => f.name);
+  return (await res.json()).tree
+    .filter(f => f.type === 'blob' && f.path.startsWith(FOLDER + '/') && f.path.endsWith('.html'))
+    .map(f => f.path.slice(FOLDER.length + 1))
+    .filter(p => !SKIP.includes(p.split('/')[0]) && !p.endsWith('index.html'));
 }
+
+// Skupina v menu podle podsložky.
+function groupOf(path) {
+  const i = path.indexOf('/');
+  return i < 0 ? '' : path.slice(0, i);
+}
+function groupLabel(g) {
+  const m = g.match(/^(\d+)-trida$/);
+  if (m) return m[1] + '. třída';
+  if (g === 'pro-zabavu') return 'Pro zábavu';
+  if (!g) return 'Další hry';
+  return prettyName(g);
+}
+function groupOrder(g) {
+  const m = g.match(/^(\d+)-trida$/);
+  if (m) return [0, Number(m[1]), ''];
+  if (g === 'pro-zabavu') return [2, 0, ''];
+  if (!g) return [3, 0, ''];
+  return [1, 0, g];
+}
+function compareGroups(a, b) {
+  const x = groupOrder(a), y = groupOrder(b);
+  return x[0] - y[0] || x[1] - y[1] || x[2].localeCompare(y[2], 'cs');
+}
+const baseName = path => path.split('/').pop();
 
 // Náhled hry: obrázek z hry/nahledy/<název-bez-diakritiky>.jpg.
 // Když obrázek chybí (nová hra), ukáže se místo něj živá zmenšená hra.
 function slug(file) {
-  return file.replace(/\.html$/, '').normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+  return baseName(file).replace(/\.html$/, '').normalize('NFD').replace(/[\u0300-\u036f]/g, '')
     .toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
 }
 
@@ -332,19 +527,51 @@ function preview(file, href) {
 }
 
 function prettyName(file) {
-  const s = file.replace(/\.html$/, '').replace(/[-_]+/g, ' ');
+  const s = baseName(file).replace(/\.html$/, '').replace(/[-_]+/g, ' ');
   return s.charAt(0).toUpperCase() + s.slice(1);
 }
 
+// Předmět: z <meta name="predmet" content="Matematika"> ve hře,
+// a když chybí, odhadne se podle názvu a popisu hry.
+const PREDMETY = {
+  'Matematika': ['#2563c9', /matem|po[čc]t|n[aá]sob|s[čc][ií]t|od[čc][ií]t|d[ěe]len|[čc][ií]sl|geometr|zlom/],
+  'Čeština': ['#c62f2f', /[čc]e[šs]tin|vyjmen|z[aá]jmen|slovn[ií] druh|pravopis|diktát|diktat|abeced|p[ií]smen|[čc]ten[ií]/],
+  'Angličtina': ['#7c3aed', /angli[čc]|english|numbers|colou?rs|animals|words/],
+  'Prvouka': ['#22994f', /prvouk|zv[ií][řr]|rostlin|p[řr][ií]rod|t[ěe]lo|ro[čc]n[ií] obdob/],
+  'Vlastivěda': ['#b8621b', /vlastiv|d[ěe]jin|historie|bitv|b[ií]l[aá] hora|kr[aá]l|mapa|kraj/],
+  'Přírodověda': ['#0f8a7a', /p[řr][ií]rodov|vesm[ií]r|planet|energie|ekosyst/],
+  'Informatika': ['#0b7fb0', /informat|internet|po[čc][ií]ta[čc]|heslo|[řr]et[ěe]zovk|program/],
+  'Hudební výchova': ['#d9548a', /hudb|not[ay]|rytm|bubn/],
+  'Tělocvik': ['#e5741c', /t[ěe]locvik|sport|fotbal/],
+};
+function subjectOf(doc, title, desc) {
+  const meta = doc && doc.querySelector('meta[name="predmet"]');
+  if (meta && meta.content.trim()) return meta.content.trim();
+  const text = (title + ' ' + desc).toLowerCase();
+  for (const [name, [, re]] of Object.entries(PREDMETY)) if (re.test(text)) return name;
+  return '';
+}
+function subjectBadge(name) {
+  const tag = document.createElement('span');
+  tag.className = 'predmet';
+  tag.textContent = name;
+  const known = PREDMETY[name.charAt(0).toUpperCase() + name.slice(1).toLowerCase()] || PREDMETY[name];
+  if (known) tag.style.setProperty('--pc', known[0]);
+  return tag;
+}
+
 async function describe(file) {
-  const href = FOLDER + '/' + encodeURIComponent(file);
+  const href = FOLDER + '/' + file.split('/').map(encodeURIComponent).join('/');
   try {
     const res = await fetch(href);
     const doc = new DOMParser().parseFromString(await res.text(), 'text/html');
-    const desc = doc.querySelector('meta[name="description"]');
-    return { file, href, title: doc.title.trim() || prettyName(file), desc: desc ? desc.content : '' };
+    const meta = doc.querySelector('meta[name="description"]');
+    const title = doc.title.trim() || prettyName(file);
+    const desc = meta ? meta.content : '';
+    return { file, href, title, desc, subject: subjectOf(doc, title, desc) };
   } catch {
-    return { file, href, title: prettyName(file), desc: '' };
+    const title = prettyName(file);
+    return { file, href, title, desc: '', subject: subjectOf(null, title, '') };
   }
 }
 
@@ -372,16 +599,59 @@ function avgText(r) {
   return '★ ' + r.avg.toLocaleString('cs') + ' (' + r.count + ' ' + votes + ')';
 }
 
-function rating(game, title, current) {
+const HIST_ID = { n: 0 };
+// Rozpis hlasů: kolik lidí dalo kolik hvězdiček (kdo přesně, se neukládá – hlasy jsou anonymní).
+function fillHist(panel, r) {
+  panel.replaceChildren();
+  const hist = (r && r.hist && r.hist.length === 5) ? r.hist : null;
+  const count = r ? r.count : 0;
+  for (let n = 5; n >= 1; n--) {
+    const k = hist ? hist[n - 1] : 0;
+    const lbl = document.createElement('span'); lbl.className = 'lbl'; lbl.textContent = n + ' ★';
+    const bar = document.createElement('span'); bar.className = 'bar';
+    const fill = document.createElement('i'); fill.style.width = (count ? k / count * 100 : 0) + '%'; bar.append(fill);
+    const num = document.createElement('span'); num.className = 'n';
+    num.textContent = k + ' ' + (k === 1 ? 'hlas' : k > 1 && k < 5 ? 'hlasy' : 'hlasů');
+    panel.append(lbl, bar, num);
+  }
+  if (!hist) {
+    const note = document.createElement('p'); note.className = 'note';
+    note.textContent = 'Rozpis se teprve počítá.';
+    panel.append(note);
+  }
+}
+
+function rating(game, title, current, li) {
   const box = document.createElement('div');
   box.className = 'rate';
   const stars = document.createElement('div');
   stars.className = 'stars';
   stars.setAttribute('role', 'group');
   stars.setAttribute('aria-label', 'Ohodnoť hru ' + title);
-  const avg = document.createElement('span');
+  const avg = document.createElement('button');
+  avg.type = 'button';
   avg.className = 'avg';
-  avg.textContent = avgText(current);
+  const panel = document.createElement('div');
+  panel.className = 'hist';
+  panel.id = 'hist-' + (++HIST_ID.n);
+  panel.hidden = true;
+  panel.setAttribute('aria-label', 'Rozpis hlasů pro hru ' + title);
+  avg.setAttribute('aria-controls', panel.id);
+  avg.setAttribute('aria-expanded', 'false');
+  let latest = current;
+  const showAvg = r => {
+    latest = r;
+    avg.textContent = avgText(r);
+    avg.disabled = !r || !r.count;
+    avg.title = avg.disabled ? '' : 'Ukázat, kolik kdo dal hvězdiček';
+    if (avg.disabled) { panel.hidden = true; avg.setAttribute('aria-expanded', 'false'); }
+    fillHist(panel, r);
+  };
+  showAvg(current);
+  avg.addEventListener('click', () => {
+    panel.hidden = !panel.hidden;
+    avg.setAttribute('aria-expanded', String(!panel.hidden));
+  });
 
   const mark = n => stars.querySelectorAll('button').forEach((btn, i) => {
     btn.classList.toggle('on', i < n);
@@ -405,11 +675,13 @@ function rating(game, title, current) {
         const r = await res.json();
         saveMyVote(game, n);
         mark(n);
+        fillHist(panel, r);
         avg.textContent = 'Díky!';
         avg.classList.add('thanks');
-        setTimeout(() => { avg.textContent = avgText(r); avg.classList.remove('thanks'); }, 1500);
+        setTimeout(() => { showAvg(r); avg.classList.remove('thanks'); }, 1500);
       } catch {
         avg.textContent = 'Nepovedlo se, zkus to znovu';
+        setTimeout(() => showAvg(latest), 2500);
       } finally {
         stars.removeAttribute('aria-busy');
       }
@@ -418,47 +690,89 @@ function rating(game, title, current) {
   }
   mark(myVotes()[game] || 0);
   box.append(stars, avg);
-  return box;
+  li.append(box, panel);
 }
 
 async function buildMenu() {
   const status = document.getElementById('status');
-  const list = document.getElementById('games');
+  const root = document.getElementById('games');
   let files;
-  try { files = await fromDirectoryListing(); }
-  catch {
-    try { files = await fromGitHub(); }
-    catch { status.textContent = 'Seznam her se nepodařilo načíst.'; return; }
+  for (const source of [fromDirectoryListing, fromApi, fromGitHub]) {
+    try { files = await source(); if (files.length) break; } catch {}
   }
+  if (!files) { status.textContent = 'Seznam her se nepodařilo načíst.'; return; }
   // Stejný název uložený jinak (např. „č“ jako c + háček) se počítá jen jednou.
   files = [...new Map(files.map(f => [f.normalize("NFC"), f])).values()];
   if (!files.length) { status.textContent = 'Zatím tu nejsou žádné hry.'; return; }
 
   const [games, ratings] = await Promise.all([Promise.all(files.map(describe)), loadRatings()]);
-  games.sort((a, b) => a.title.localeCompare(b.title, 'cs'));
+  const groups = new Map();
   for (const g of games) {
-    const li = document.createElement('li');
-    li.className = 'card';
-    const a = document.createElement('a');
-    a.className = 'link';
-    a.href = g.href;
-    a.append(preview(g.file, g.href));
-    const body = document.createElement('div'); body.className = 'body';
-    const b = document.createElement('b'); b.textContent = g.title; body.append(b);
-    if (g.desc) { const s = document.createElement('span'); s.textContent = g.desc; body.append(s); }
-    const go = document.createElement('span'); go.className = 'go'; go.textContent = 'Hrát →'; body.append(go);
-    a.append(body);
-    li.append(a);
-    if (ratings) li.append(rating(slug(g.file), g.title, ratings[slug(g.file)]));
-    list.append(li);
+    const key = groupOf(g.file);
+    if (!groups.has(key)) groups.set(key, []);
+    groups.get(key).push(g);
+  }
+  const keys = [...groups.keys()].sort(compareGroups);
+
+  if (keys.length > 1) {
+    const nav = document.createElement('ul');
+    nav.className = 'tridy-nav';
+    nav.setAttribute('aria-label', 'Třídy');
+    for (const key of keys) {
+      const li = document.createElement('li');
+      const a = document.createElement('a');
+      a.href = '#trida-' + (key || 'dalsi');
+      a.textContent = groupLabel(key);
+      li.append(a); nav.append(li);
+    }
+    root.append(nav);
+  }
+
+  for (const key of keys) {
+    const section = document.createElement('section');
+    section.className = 'trida';
+    section.id = 'trida-' + (key || 'dalsi');
+    const h = document.createElement('h3');
+    h.textContent = groupLabel(key);
+    const list = document.createElement('ul');
+    list.className = 'grid';
+    const items = groups.get(key).sort((a, b) => a.title.localeCompare(b.title, 'cs'));
+    for (const g of items) {
+      const li = document.createElement('li');
+      li.className = 'card';
+      const a = document.createElement('a');
+      a.className = 'link';
+      a.href = g.href;
+      a.append(preview(g.file, g.href));
+      const body = document.createElement('div'); body.className = 'body';
+      if (g.subject) body.append(subjectBadge(g.subject));
+      const b = document.createElement('b'); b.textContent = g.title; body.append(b);
+      if (g.desc) { const s = document.createElement('span'); s.textContent = g.desc; body.append(s); }
+      const go = document.createElement('span'); go.className = 'go'; go.textContent = 'Hrát →'; body.append(go);
+      a.append(body);
+      li.append(a);
+      if (ratings) rating(slug(g.file), g.title, ratings[slug(g.file)], li);
+      list.append(li);
+    }
+    section.append(h, list);
+    root.append(section);
   }
   status.remove();
 }
 
 buildMenu();
 
-// Bart po příjezdu na chvíli řekne „Haf!“
+// Svátek: pozdrav nahoře a Bart řekne něco svátečního.
+const SV = window.SVATEK;
 const bart = document.querySelector('.bart');
+if (SV) {
+  const pruh = document.getElementById('svatek-pruh');
+  pruh.textContent = SV.pozdrav;
+  pruh.hidden = false;
+  bart.querySelector('.bubble').textContent = SV.bart;
+}
+
+// Bart po příjezdu na chvíli řekne „Haf!“
 setTimeout(() => { bart.classList.add('say'); setTimeout(() => bart.classList.remove('say'), 2500); }, 1900);
 
 // Chat s Bartem – Bart odpovídá podle klíčových slov, nic se nikam neposílá.
@@ -478,6 +792,10 @@ const BART = [
   [/sk[aá]k|skate/, ['Na skateboardu jezdím nejrychleji v celém Mochově!']],
   [/pa\b|ahoj.*pa|nashle|čau čau|dobrou/, ['Pa pa! Přijď zase! 🐾', 'Haf! Měj se a nezapomeň na pamlsek.']],
 ];
+if (SV) {
+  BART.unshift([SV.klic || /sv[aá]t|slav|kost[ýy]m|čepic|cepic|klobouk|oblečen|obleceni|dnes|ozdob/, SV.chat]);
+  if (SV.klic) BART.unshift([/sv[aá]t|slav|kost[ýy]m|čepic|cepic|klobouk|oblečen|obleceni|ozdob/, SV.chat]);
+}
 const BART_FALLBACK = ['Haf? Tomu nerozumím, ale vrtím ocasem!', 'Hmm… *nakloní hlavu* Zkus se zeptat na jídlo, fotbal nebo Thea.', 'Haf haf! (To znamená: povídej dál!)', 'Promiň, zrovna jsem honil vlastní ocas. Co jsi říkal?'];
 const pick = arr => arr[Math.floor(Math.random() * arr.length)];
 function bartReply(text) {
@@ -487,6 +805,12 @@ function bartReply(text) {
 }
 
 const chat = document.getElementById('chat');
+if (SV) {
+  const chip = document.createElement('button');
+  chip.type = 'button';
+  chip.textContent = 'Co slavíš?';
+  document.getElementById('chat-chips').prepend(chip);
+}
 const log = document.getElementById('chat-log');
 const chatInput = document.getElementById('chat-input');
 function say(text, who) {
@@ -503,7 +827,10 @@ function ask(text) {
   setTimeout(() => { typing.remove(); say(bartReply(text), 'bot'); }, 600 + Math.random() * 600);
 }
 bart.addEventListener('click', () => {
-  if (!log.children.length) say('Haf! Ahoj, já jsem Bart, Theův chlupatý miláček. Na co se chceš zeptat?', 'bot');
+  if (!log.children.length) {
+    say('Haf! Ahoj, já jsem Bart, Theův chlupatý miláček. Na co se chceš zeptat?', 'bot');
+    if (SV) say(SV.pozdrav + ' Všiml sis mého kostýmu?', 'bot');
+  }
   chat.showModal();
   chatInput.focus();
 });

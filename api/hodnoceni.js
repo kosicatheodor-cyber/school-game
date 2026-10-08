@@ -2,8 +2,10 @@
 // Databázi připojíš ve Vercelu: Storage → Upstash for Redis → Connect to project.
 // Vercel pak sám nastaví proměnné KV_REST_API_URL a KV_REST_API_TOKEN.
 //
-// GET  /api/hodnoceni              → { "nazev-hry": { "avg": 4.5, "count": 2 }, ... }
-// POST /api/hodnoceni {game,stars} → { "avg": 4.5, "count": 2 }
+// GET  /api/hodnoceni              → { "nazev-hry": { "avg": 4.5, "count": 2, "hist": [0,0,0,1,1] }, ... }
+// POST /api/hodnoceni {game,stars} → { "avg": 4.5, "count": 2, "hist": [0,0,0,1,1] }
+//
+// "hist" je rozpis hlasů: kolik lidí dalo 1, 2, 3, 4 a 5 hvězdiček.
 //
 // Každý návštěvník (podle IP adresy) má u každé hry jeden hlas. Když hlasuje znovu,
 // jeho původní hlas se jen přepíše.
@@ -22,6 +24,8 @@ const URL = env('KV_REST_API_URL', 'UPSTASH_REDIS_REST_URL');
 const TOKEN = env('KV_REST_API_TOKEN', 'UPSTASH_REDIS_REST_TOKEN');
 const HASH = 'hodnoceni';
 const MAX_GAMES = 300;
+const FIELDS_PER_GAME = 7; // :sum, :count, :s1 … :s5
+const STARS = [1, 2, 3, 4, 5];
 const VOTE_TTL = 60 * 60 * 24 * 365;
 
 async function redis(...commands) {
@@ -37,9 +41,29 @@ async function redis(...commands) {
   });
 }
 
-function stats(sum, count) {
+function stats(sum, count, hist) {
   count = Number(count) || 0;
-  return { avg: count ? Math.round((Number(sum) / count) * 10) / 10 : 0, count };
+  return {
+    avg: count ? Math.round((Number(sum) / count) * 10) / 10 : 0,
+    count,
+    hist: (hist || []).map(n => Math.max(0, Number(n) || 0)),
+  };
+}
+
+// Hlasy z doby před rozpisem se dopočítají z uložených hlasů jednotlivých návštěvníků.
+async function rebuildHist(game) {
+  const hist = [0, 0, 0, 0, 0];
+  let cursor = '0';
+  do {
+    const [[next, keys]] = await redis(['SCAN', cursor, 'MATCH', 'hlas:' + game + ':*', 'COUNT', '500']);
+    cursor = next;
+    if (keys.length) {
+      const [values] = await redis(['MGET', ...keys]);
+      for (const v of values) if (v >= 1 && v <= 5) hist[v - 1]++;
+    }
+  } while (cursor !== '0');
+  await redis(['HSET', HASH, ...STARS.flatMap(n => [game + ':s' + n, String(hist[n - 1])])]);
+  return hist;
 }
 
 module.exports = async function handler(req, res) {
@@ -55,7 +79,9 @@ module.exports = async function handler(req, res) {
       for (const key of Object.keys(raw)) {
         if (!key.endsWith(':count')) continue;
         const game = key.slice(0, -6);
-        out[game] = stats(raw[game + ':sum'], raw[key]);
+        let hist = STARS.map(n => Number(raw[game + ':s' + n]) || 0);
+        if (hist.reduce((a, b) => a + b, 0) !== Number(raw[key])) hist = await rebuildHist(game);
+        out[game] = stats(raw[game + ':sum'], raw[key], hist);
       }
       return res.status(200).json(out);
     }
@@ -73,15 +99,22 @@ module.exports = async function handler(req, res) {
       const voteKey = 'hlas:' + game + ':' + voter;
 
       const [prev, exists, games] = await redis(['GET', voteKey], ['HEXISTS', HASH, game + ':count'], ['HLEN', HASH]);
-      if (!exists && games / 2 >= MAX_GAMES) return res.status(429).json({ error: 'Moc her.' });
+      if (!exists && games / FIELDS_PER_GAME >= MAX_GAMES) return res.status(429).json({ error: 'Moc her.' });
 
       const cmds = [['SET', voteKey, String(stars), 'EX', String(VOTE_TTL)]];
-      if (prev) cmds.push(['HINCRBY', HASH, game + ':sum', String(stars - Number(prev))]);
-      else cmds.push(['HINCRBY', HASH, game + ':sum', String(stars)], ['HINCRBY', HASH, game + ':count', '1']);
-      cmds.push(['HMGET', HASH, game + ':sum', game + ':count']);
+      if (prev) {
+        cmds.push(['HINCRBY', HASH, game + ':sum', String(stars - Number(prev))]);
+        if (Number(prev) !== stars) {
+          cmds.push(['HINCRBY', HASH, game + ':s' + prev, '-1'], ['HINCRBY', HASH, game + ':s' + stars, '1']);
+        }
+      } else {
+        cmds.push(['HINCRBY', HASH, game + ':sum', String(stars)], ['HINCRBY', HASH, game + ':count', '1'],
+          ['HINCRBY', HASH, game + ':s' + stars, '1']);
+      }
+      cmds.push(['HMGET', HASH, game + ':sum', game + ':count', ...STARS.map(n => game + ':s' + n)]);
       const results = await redis(...cmds);
-      const [sum, count] = results[results.length - 1];
-      return res.status(200).json(stats(sum, count));
+      const [sum, count, ...hist] = results[results.length - 1];
+      return res.status(200).json(stats(sum, count, hist));
     }
 
     res.setHeader('Allow', 'GET, POST');
