@@ -251,6 +251,8 @@
 @keyframes sz-float{from{transform:translate(0,0) rotate(-6deg)}to{transform:translate(var(--dx),18px) rotate(6deg)}}
 .sz-pozadi .sz-o{font-size:calc(var(--s) * min(1px, .11vw));display:inline-block}
 .sz-pozadi .sz-o .sz-o{font-size:calc(var(--k) * 1em)}
+[data-svatek-domov] .sz-pozadi .sz-o{font-size:calc(var(--s) * min(1.6px, .16vw))}
+[data-svatek-domov] .sz-pozadi .sz-o .sz-o{font-size:calc(var(--k) * 1em)}
 .sz-o.bily{filter:grayscale(1) brightness(1.9)}
 .sz-o.a-bob{animation:sz-bob var(--t) ease-in-out var(--z) infinite alternate}
 .sz-o.a-sway{transform-origin:50% 100%;animation:sz-sway var(--t) ease-in-out var(--z) infinite alternate}

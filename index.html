@@ -26,7 +26,51 @@
 }
 *,*::before,*::after{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--ink);font-family:"Nunito","Trebuchet MS",Arial,sans-serif;font-size:18px;line-height:1.55}
-.wrap{max-width:980px;margin:0 auto;padding:16px 16px 48px}
+.wrap{max-width:1020px;margin:28px auto 140px;padding:22px 32px 48px;background:color-mix(in srgb,var(--podklad) 94%,transparent);border-radius:28px;box-shadow:0 18px 50px rgba(10,20,50,.28);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
+@media (max-width:1060px){.wrap{margin:16px 12px 120px}}
+@media (max-width:600px){.wrap{margin:10px 8px 100px;padding:14px 16px 36px;border-radius:20px}}
+
+/* Podklad webu v barvě svátku */
+:root{--podklad:#eef6ff}
+:root[data-svatek="podzim"]{--podklad:#fde9d2}
+:root[data-svatek="halloween"]{--podklad:#ecdff8}
+:root[data-svatek="vanoce"],:root[data-svatek="mikulas"]{--podklad:#fbe6e3}
+:root[data-svatek="zima"],:root[data-svatek="martin"]{--podklad:#e6f0fb}
+:root[data-svatek="novy-rok"]{--podklad:#ebe4fb}
+:root[data-svatek="valentyn"]{--podklad:#fde4ed}
+:root[data-svatek="masopust"]{--podklad:#f2e4ff}
+:root[data-svatek="velikonoce"]{--podklad:#fff4d4}
+:root[data-svatek="carodejnice"]{--podklad:#f5e2ef}
+:root[data-svatek="den-deti"]{--podklad:#e2f6ff}
+:root[data-svatek="prazdniny"]{--podklad:#fff0d2}
+:root[data-svatek="skola"]{--podklad:#e8f2ff}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--podklad:color-mix(in srgb,var(--blue) 16%,#13253f)}}
+:root[data-theme="dark"]{--podklad:color-mix(in srgb,var(--blue) 16%,#13253f)}
+
+/* Krajina na pozadí – barvy podle svátku */
+:root{--sky1:#7cbcf5;--sky2:#e3f1ff;--sun:#ffd75e;--hill3:#a8d8a0;--hill2:#6fbf73;--hill1:#3f9e4f;--crown:#2f8a3e;--pine:#2a6e3a;--stars:0;--clouds:.85;--round:1;--pines:0}
+:root[data-svatek="podzim"]{--sky1:#f39a4f;--sky2:#fde2b8;--sun:#ffd05c;--hill3:#e7ad66;--hill2:#c9772f;--hill1:#9c5a22;--crown:#e0621c;--pine:#6b4a1f;--clouds:.6}
+:root[data-svatek="halloween"]{--sky1:#140a2a;--sky2:#5b2a6e;--sun:#fff1a8;--hill3:#3a1f4f;--hill2:#26143a;--hill1:#140a22;--crown:#2a1838;--pine:#0e0616;--stars:1;--clouds:0;--round:0;--pines:1}
+:root[data-svatek="vanoce"],:root[data-svatek="mikulas"]{--sky1:#0b1a3d;--sky2:#35558f;--sun:#fdf6d8;--hill3:#c9d8ec;--hill2:#e1eaf6;--hill1:#ffffff;--pine:#1f6b3e;--stars:1;--clouds:0;--round:0;--pines:1}
+:root[data-svatek="zima"]{--sky1:#94bce8;--sky2:#eef5fc;--sun:#fff4c8;--hill3:#d5e3f2;--hill2:#e6eef8;--hill1:#ffffff;--pine:#3d6b57;--round:0;--pines:1}
+:root[data-svatek="martin"]{--sky1:#9fb2cc;--sky2:#e9eef4;--sun:#f4f1e4;--hill3:#cfdae7;--hill2:#e4ebf3;--hill1:#ffffff;--pine:#4b6b5e;--round:0;--pines:1;--clouds:.9}
+:root[data-svatek="novy-rok"]{--sky1:#0f0828;--sky2:#41307a;--sun:#f6f0ff;--hill3:#2b2150;--hill2:#1d163a;--hill1:#120d26;--pine:#0c0820;--stars:1;--clouds:0;--round:0;--pines:1}
+:root[data-svatek="valentyn"]{--sky1:#ff9fbb;--sky2:#ffe6ee;--sun:#fff3f6;--hill3:#f7a8c0;--hill2:#ea6f96;--hill1:#c94876;--crown:#ff4d7d}
+:root[data-svatek="masopust"]{--sky1:#a77bff;--sky2:#ffd6f2;--hill3:#ff9ecf;--hill2:#c77dff;--hill1:#7b4fd0;--crown:#ffcc33}
+:root[data-svatek="velikonoce"]{--sky1:#86cdfb;--sky2:#eaf8ff;--sun:#ffe066;--hill3:#c4eaa8;--hill2:#8fd16f;--hill1:#5fb34a;--crown:#ffb6d5}
+:root[data-svatek="carodejnice"]{--sky1:#2a1850;--sky2:#ff8a4c;--sun:#ffb347;--hill3:#4a2e5e;--hill2:#33204a;--hill1:#1f1430;--pine:#170f24;--stars:.6;--clouds:0;--round:0;--pines:1}
+:root[data-svatek="den-deti"]{--sky1:#6fcbff;--sky2:#e9fbff;--hill3:#a6e3a1;--hill2:#71c96b;--hill1:#46a84a;--crown:#3b9a43}
+:root[data-svatek="prazdniny"]{--sky1:#3db8f2;--sky2:#dff6ff;--sun:#ffcf3f;--hill3:#2f97d6;--hill2:#f5d48a;--hill1:#e9bd62;--crown:#2f9a4a;--clouds:.9}
+.krajina{position:fixed;inset:0;z-index:-2;pointer-events:none}
+.krajina svg{display:block;width:100%;height:100%}
+.krajina .mraky{animation:mraky 60s linear infinite alternate}
+.krajina .slunce{animation:slunce 5s ease-in-out infinite alternate;transform-box:fill-box;transform-origin:center}
+.krajina .hv{animation:blik 2.4s ease-in-out infinite alternate}
+.krajina .hv:nth-child(3n){animation-delay:-1.2s}.krajina .hv:nth-child(3n+1){animation-delay:-.6s}
+@keyframes mraky{to{transform:translateX(-160px)}}
+@keyframes slunce{to{transform:scale(1.06)}}
+@keyframes blik{from{opacity:.25}}
+@media (prefers-reduced-motion:reduce){.krajina *{animation:none!important}}
 h1,h2,h3{font-family:"Baloo 2","Nunito",sans-serif;font-weight:800;line-height:1.05;margin:0}
 a{color:inherit}
 a:focus-visible{outline:3px solid var(--green);outline-offset:3px}
@@ -47,7 +91,7 @@ header{display:flex;align-items:center;gap:20px;padding:6px 0 16px;margin-bottom
 .club b{display:block;color:var(--green);font-size:20px;font-family:"Baloo 2","Nunito",sans-serif}
 @media (max-width:700px){
   .profile{grid-template-columns:minmax(0,1fr);gap:28px}
-  .photo{max-width:260px;margin:0 auto}
+  .photo-box{max-width:260px;width:100%;margin:12px auto 0}
 }
 
 /* Bart – pes v pravém dolním rohu */
@@ -128,15 +172,15 @@ header{display:flex;align-items:center;gap:20px;padding:6px 0 16px;margin-bottom
   :root[data-svatek="prazdniny"]:not([data-theme="light"]){--blue:#5cc8f5;--green:#ffb04d}
   :root[data-svatek="masopust"]:not([data-theme="light"]),:root[data-svatek="novy-rok"]:not([data-theme="light"]),:root[data-svatek="den-deti"]:not([data-theme="light"]){--blue:#b28cff;--green:#ff7ab3}
 }
-.theo-rika{display:flex;align-items:flex-end;gap:14px;margin:-16px 0 34px;max-width:720px}
+.photo-box{position:relative}
+:root[data-svatek] header{margin-bottom:56px}
+.theo-rika{position:absolute;left:-14px;right:-34px;top:-46px;z-index:2;margin:0;padding:10px 14px;border-radius:18px;background:var(--panel);border:3px solid var(--blue);box-shadow:0 6px 16px rgba(10,20,50,.2);font-family:"Baloo 2","Nunito",sans-serif;font-weight:700;font-size:16px;line-height:1.2;animation:theo-pop .5s cubic-bezier(.2,1.4,.4,1) .3s both;transform-origin:30% 100%}
 .theo-rika[hidden]{display:none}
-.theo-rika img{flex:none;width:64px;height:64px;border-radius:50%;object-fit:cover;object-position:50% 20%;border:4px solid var(--blue);background:var(--blueSoft)}
-.theo-rika p{position:relative;margin:0 0 10px;padding:12px 18px;border-radius:20px;border-bottom-left-radius:6px;background:var(--panel);border:3px solid var(--blue);font-family:"Baloo 2","Nunito",sans-serif;font-weight:700;font-size:clamp(18px,3.4vw,23px);line-height:1.25;animation:theo-pop .5s cubic-bezier(.2,1.4,.4,1) .3s both}
-.theo-rika p::before{content:"";position:absolute;left:-14px;bottom:8px;border:8px solid transparent;border-right:12px solid var(--blue);border-left:0}
-.theo-rika p::after{content:"";position:absolute;left:-9px;bottom:11px;border:5px solid transparent;border-right:8px solid var(--panel);border-left:0}
-.theo-rika b{display:block;font-size:15px;color:var(--blue);font-family:"Nunito",sans-serif;font-weight:800}
-@keyframes theo-pop{from{opacity:0;transform:scale(.6) translateY(10px);transform-origin:0 100%}}
-@media (prefers-reduced-motion:reduce){.theo-rika p{animation:none}}
+.theo-rika::before{content:"";position:absolute;left:34%;bottom:-17px;border:14px solid transparent;border-top:15px solid var(--blue);border-bottom:0}
+.theo-rika::after{content:"";position:absolute;left:calc(34% + 4px);bottom:-11px;border:10px solid transparent;border-top:11px solid var(--panel);border-bottom:0}
+.theo-rika b{display:block;font-size:13px;color:var(--blue);font-family:"Nunito",sans-serif;font-weight:800}
+@keyframes theo-pop{from{opacity:0;transform:scale(.6) translateY(10px)}}
+@media (prefers-reduced-motion:reduce){.theo-rika{animation:none}}
 .bart .k{display:none}
 :root[data-svatek="vanoce"] .k-santa,:root[data-svatek="vanoce"] .k-sala,
 :root[data-svatek="halloween"] .k-upir,
@@ -208,18 +252,39 @@ header{display:flex;align-items:center;gap:20px;padding:6px 0 16px;margin-bottom
 </style>
 </head>
 <body data-svatek-domov>
+<div class="krajina" aria-hidden="true">
+  <svg viewBox="0 0 1600 900" preserveAspectRatio="xMidYMax slice">
+    <defs>
+      <linearGradient id="nebe" x1="0" y1="0" x2="0" y2="1"><stop offset="0" style="stop-color:var(--sky1)"/><stop offset="1" style="stop-color:var(--sky2)"/></linearGradient>
+      <radialGradient id="zare"><stop offset="0" style="stop-color:var(--sun)" stop-opacity=".7"/><stop offset="1" style="stop-color:var(--sun)" stop-opacity="0"/></radialGradient>
+    </defs>
+    <rect width="1600" height="900" fill="url(#nebe)"/>
+    <g fill="#fff" style="opacity:var(--stars)"><circle class="hv" cx="80" cy="60" r="2.0"/><circle class="hv" cx="210" cy="140" r="1.6"/><circle class="hv" cx="340" cy="50" r="2.2"/><circle class="hv" cx="470" cy="180" r="1.4"/><circle class="hv" cx="600" cy="90" r="2.0"/><circle class="hv" cx="720" cy="40" r="1.6"/><circle class="hv" cx="860" cy="150" r="2.2"/><circle class="hv" cx="980" cy="70" r="1.4"/><circle class="hv" cx="1110" cy="30" r="2.0"/><circle class="hv" cx="1180" cy="200" r="1.6"/><circle class="hv" cx="1450" cy="60" r="2.2"/><circle class="hv" cx="1540" cy="170" r="1.6"/><circle class="hv" cx="150" cy="260" r="1.4"/><circle class="hv" cx="420" cy="300" r="1.8"/><circle class="hv" cx="760" cy="250" r="1.4"/><circle class="hv" cx="1020" cy="320" r="1.8"/><circle class="hv" cx="1500" cy="300" r="1.4"/><circle class="hv" cx="280" cy="380" r="1.2"/><circle class="hv" cx="640" cy="360" r="1.6"/><circle class="hv" cx="1250" cy="390" r="1.2"/></g>
+    <circle cx="1320" cy="170" r="190" fill="url(#zare)"/>
+    <circle class="slunce" cx="1320" cy="170" r="78" style="fill:var(--sun)"/>
+    <g class="mraky" fill="#fff" style="opacity:var(--clouds)">
+      <g><ellipse cx="300" cy="150" rx="90" ry="34"/><ellipse cx="360" cy="128" rx="60" ry="40"/><ellipse cx="250" cy="138" rx="50" ry="30"/></g>
+      <g><ellipse cx="900" cy="230" rx="110" ry="36"/><ellipse cx="960" cy="204" rx="66" ry="44"/><ellipse cx="840" cy="214" rx="56" ry="32"/></g>
+      <g opacity=".8"><ellipse cx="1560" cy="330" rx="90" ry="28"/><ellipse cx="1600" cy="310" rx="50" ry="32"/></g>
+    </g>
+    <path d="M0 560C200 500 380 520 560 540C760 560 900 470 1100 480C1300 490 1450 540 1600 520V900H0z" style="fill:var(--hill3)"/>
+    <path d="M0 650C220 600 420 620 640 660C860 700 1040 600 1260 610C1420 618 1520 650 1600 640V900H0z" style="fill:var(--hill2)"/>
+    <g style="opacity:var(--round)"><g><rect x="165" y="610" width="10" height="34" fill="#5a3a1e"/><circle cx="170" cy="600" r="30" style="fill:var(--crown)"/><circle cx="155" cy="616" r="21" style="fill:var(--crown)" opacity=".75"/></g><g><rect x="245" y="602" width="10" height="34" fill="#5a3a1e"/><circle cx="250" cy="592" r="24" style="fill:var(--crown)"/><circle cx="238" cy="608" r="16" style="fill:var(--crown)" opacity=".75"/></g><g><rect x="1205" y="592" width="10" height="34" fill="#5a3a1e"/><circle cx="1210" cy="582" r="30" style="fill:var(--crown)"/><circle cx="1195" cy="598" r="21" style="fill:var(--crown)" opacity=".75"/></g><g><rect x="1295" y="598" width="10" height="34" fill="#5a3a1e"/><circle cx="1300" cy="588" r="24" style="fill:var(--crown)"/><circle cx="1288" cy="604" r="16" style="fill:var(--crown)" opacity=".75"/></g><g><rect x="1395" y="610" width="10" height="34" fill="#5a3a1e"/><circle cx="1400" cy="600" r="28" style="fill:var(--crown)"/><circle cx="1386" cy="616" r="19" style="fill:var(--crown)" opacity=".75"/></g><g><rect x="85" y="740" width="10" height="34" fill="#5a3a1e"/><circle cx="90" cy="730" r="36" style="fill:var(--crown)"/><circle cx="72" cy="746" r="25" style="fill:var(--crown)" opacity=".75"/></g><g><rect x="1495" y="730" width="10" height="34" fill="#5a3a1e"/><circle cx="1500" cy="720" r="34" style="fill:var(--crown)"/><circle cx="1483" cy="736" r="23" style="fill:var(--crown)" opacity=".75"/></g></g>
+    <g style="opacity:var(--pines)"><polygon points="170,544 194,587 184,587 210,640 129,640 155,587 145,587" style="fill:var(--pine)"/><polygon points="250,555 269,589 261,589 282,632 217,632 238,589 230,589" style="fill:var(--pine)"/><polygon points="1210,526 1234,569 1224,569 1250,622 1169,622 1195,569 1185,569" style="fill:var(--pine)"/><polygon points="1300,551 1319,585 1311,585 1332,628 1267,628 1288,585 1280,585" style="fill:var(--pine)"/><polygon points="1400,550 1422,590 1413,590 1437,640 1362,640 1386,590 1377,590" style="fill:var(--pine)"/><polygon points="90,654 119,706 106,706 138,770 41,770 73,706 60,706" style="fill:var(--pine)"/><polygon points="1500,651 1527,700 1515,700 1545,760 1454,760 1484,700 1472,700" style="fill:var(--pine)"/></g>
+    <path d="M0 770C260 730 520 750 800 780C1080 810 1300 740 1600 760V900H0z" style="fill:var(--hill1)"/>
+  </svg>
+</div>
 <div class="wrap">
   <header>
     <h1><img class="logo" src="img/logo-tj.svg" alt="TJ – Theodor" width="262" height="120"></h1>
   </header>
 
-  <div class="theo-rika" id="theo-rika" hidden>
-    <img src="img/theodor.jpg" alt="" width="64" height="64">
-    <p><b>Theo říká:</b><span id="theo-text"></span></p>
-  </div>
 
   <section class="profile" aria-labelledby="who">
-    <img class="photo" src="img/theodor.jpg" alt="Theodor na horách" width="640" height="800">
+    <div class="photo-box">
+      <p class="theo-rika" id="theo-rika" hidden><b>Theo říká:</b><span id="theo-text"></span></p>
+      <img class="photo" src="img/theodor.jpg" alt="Theodor na horách" width="640" height="800">
+    </div>
     <div>
       <h2 id="who">Theodor</h2>
       <p>Ahoj! Jsem žák 5. ročníku ZŠ Mochov. Ve volném čase hraju na bubny a fotbal za AFK Nehvizdy v kategorii mladších žáků. Doma mám psa Barta – leonbergera. Tady najdeš hry, které jsem vytvořil.</p>
