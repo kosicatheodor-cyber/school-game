@@ -87,7 +87,7 @@
     },
     {
       id: 'halloween', when: [dm(17, 10, 2, 11)],
-      nazev: 'Halloween v Bradavicích', pozdrav: 'Strašidelný Halloween v Bradavicích! 🎃⚡',
+      nazev: 'Halloween', pozdrav: 'Strašidelný Halloween! 🎃👻',
       ozdoby: ['🎃', '🦇', '👻', '🕯️', '⚡', '🦉', '🕯️', '🦇'], pohyb: 'float',
       bart: 'Haf! Wingardium Leviosa!',
       chat: ['Moudrý klobouk mě zařadil do Nebelvíru! Haf! ⚡', 'Wingardium Leviosa! …pamlsek se nevznesl. Asi to říkám špatně. 🪄', 'Bububu! 👻 Lekl ses? Já taky, z dýně. 🎃', 'Jsem Bart Potter, pes, který přežil… koupání. 🦉'],
