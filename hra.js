@@ -3,6 +3,7 @@
 // a hra dostane tlačítko „Domů“ (zpět na hlavní stránku) a sváteční ozdoby.
 //
 // Svátky a roční období: podle dnešního data se web i hry obléknou do svátečního.
+// pozdrav = krátký pozdrav, theo = co říká Theo v bublině na hlavní stránce, bart = Bartova bublina.
 //
 // Vyzkoušet jiný svátek: přidej do adresy ?svatek=vanoce (nebo halloween, velikonoce…).
 // Vypnout ozdoby: ?svatek=zadny
@@ -26,6 +27,7 @@
       id: 'novy-rok', when: [dm(31, 12, 31, 12), dm(1, 1, 2, 1)],
       nazev: 'Nový rok', pozdrav: 'Šťastný nový rok! 🎆',
       ozdoby: ['🎉', '✨', '🎊', '🎆'], pohyb: 'fall',
+      theo: 'Přeju vám šťastný nový rok! Ať se vám daří ve škole i v mých hrách. 🎆',
       bart: 'Haf! Šťastný nový rok!',
       chat: ['Na Silvestra se bojím rachejtlí, tak jsem pod peřinou. Ale šťastný nový rok! 🎆', 'Moje novoroční předsevzetí: víc pamlsků!'],
     },
@@ -33,6 +35,7 @@
       id: 'valentyn', when: [dm(12, 2, 14, 2)],
       nazev: 'Valentýn', pozdrav: 'Hezkého Valentýna! 💖',
       ozdoby: ['💖', '💕', '💘', '🌹'], pohyb: 'fall',
+      theo: 'Hezkého Valentýna! Pošli srdíčko někomu, koho máš rád. 💖',
       bart: 'Haf! Mám tě rád!',
       chat: ['Na Valentýna mám rád úplně všechny. I kočky. Skoro. 💖', 'Pusinka od psa = olíznutí. Chceš? 💕'],
     },
@@ -40,6 +43,7 @@
       id: 'masopust', when: [y => [plus(easter(y), -52), plus(easter(y), -47)]],
       nazev: 'Masopust', pozdrav: 'Masopust a karneval! Jakou máš masku? 🎭',
       ozdoby: ['🎭', '🎉', '🎊', '🍩'], pohyb: 'fall',
+      theo: 'Je masopust! Jakou masku si letos vezmeš ty? 🎭',
       bart: 'Haf! Poznáš mě v masce?',
       chat: ['Mám masku, takže mě nikdo nepozná! …Ty jo? Haf! 🎭', 'Na masopust se jedí koblihy. Jednu si dám, ne pět. Možná šest. 🍩'],
     },
@@ -47,6 +51,7 @@
       id: 'zima', when: [dm(3, 1, 28, 2)],
       nazev: 'Zima', pozdrav: 'Zima je tu! Hurá na sníh ⛄',
       ozdoby: ['❄️', '❅', '❆', '⛄'], pohyb: 'fall',
+      theo: 'Je zima! Po škole jdu bobovat a pak si zahraju nějakou hru. ⛄',
       bart: 'Haf! Jdeme bobovat?',
       chat: ['Sníh je nejlepší! Válím se v něm, dokud ze mě není sněhulák. ⛄', 'Leonbergeři mají kožich na zimu. Čepici mám jen pro parádu.'],
     },
@@ -54,6 +59,7 @@
       id: 'velikonoce', when: [y => [plus(easter(y), -7), plus(easter(y), 1)]],
       nazev: 'Velikonoce', pozdrav: 'Veselé Velikonoce! 🐣',
       ozdoby: ['🥚', '🐣', '🌷', '🐰', '🐥'], pohyb: 'fall',
+      theo: 'Veselé Velikonoce! Kolik vajíček jsi letos vykoledoval? 🐣',
       bart: 'Haf! Kde jsou vajíčka?',
       chat: ['Jsem velikonoční zajíček! Teda pes. S ušima. 🐰', 'Našel jsem vajíčko! …a už ho nemám. Mňam. 🥚', 'Hody, hody, doprovody, dejte vejce malovaný! 🐣'],
     },
@@ -61,6 +67,7 @@
       id: 'carodejnice', when: [dm(27, 4, 30, 4)],
       nazev: 'Pálení čarodějnic', pozdrav: 'Pálení čarodějnic! 🧹🔥',
       ozdoby: ['🧹', '🔥', '✨', '🌙'], pohyb: 'rise',
+      theo: 'Dneska se pálí čarodějnice! Uvidíme se u ohně? 🧹🔥',
       bart: 'Haf! Čáry máry!',
       chat: ['Dneska jsem čaroděj! Umím vyčarovat buřt z ohně. 🔥', 'Na koštěti jsem nelétal, ale za koštětem jsem běhal! 🧹'],
     },
@@ -68,6 +75,7 @@
       id: 'den-deti', when: [dm(30, 5, 1, 6)],
       nazev: 'Den dětí', pozdrav: 'Všechno nejlepší ke Dni dětí! 🎈',
       ozdoby: ['🎈', '🎈', '🍭', '⭐'], pohyb: 'rise',
+      theo: 'Všechno nejlepší ke Dni dětí! Dneska se hraje celý den. 🎈',
       bart: 'Haf! Mám balonek!',
       chat: ['Den dětí! Dneska si hraju celý den. Teda jako vždycky. 🎈', 'Nesmím balonek kousnout, jinak bouchne. Už se mi to stalo… 💥'],
     },
@@ -75,6 +83,7 @@
       id: 'prazdniny', when: [dm(26, 6, 31, 8)],
       nazev: 'Prázdniny', pozdrav: 'Hurá, prázdniny! ☀️',
       ozdoby: ['☀️', '🍦', '🏖️', '🌊', '🍉'], pohyb: 'float',
+      theo: 'Hurá, prázdniny! Ale zahrát si můžeš i v létě. ☀️',
       bart: 'Haf! Prázdniny!',
       chat: ['Prázdniny! Jdeme k vodě? Já skočím první! 🌊', 'V létě mám brýle proti slunci. Vypadám cool, že jo? 😎'],
     },
@@ -82,6 +91,7 @@
       id: 'skola', when: [dm(1, 9, 8, 9)],
       nazev: 'Začátek školy', pozdrav: 'Hurá do školy! 📚',
       ozdoby: ['📚', '✏️', '🍎', '📐'], pohyb: 'fall',
+      theo: 'Škola začala! Moje hry ti pomůžou s učením. 📚',
       bart: 'Haf! Učím se taky!',
       chat: ['Taky jdu do školy! Do psí. Umím už „sedni“ i „lehni“. 🎓', 'Úkol mi sežral pes. Teda… já. Promiň! 📚'],
     },
@@ -89,6 +99,7 @@
       id: 'halloween', when: [dm(17, 10, 2, 11)],
       nazev: 'Halloween', pozdrav: 'Strašidelný Halloween! 🎃👻',
       ozdoby: ['🎃', '🦇', '👻', '🕷️', '🍬', '🍂'], pohyb: 'fall',
+      theo: 'Strašidelný Halloween! Bububu… bojíš se? 🎃👻',
       bart: 'Haf! Bububu! 👻',
       chat: ['Bububu! 👻 Lekl ses? Já taky, z dýně. 🎃', 'Dneska jsem upír! Ale piju jen vodu z misky. 🧛', 'Koledu, nebo vám vyvedu! Nejradši koleduju pamlsky. 🍬', 'Netopýři jsou jako malí létající psi. Haf! 🦇'],
       klic: /halloween|dýn|dyn|strašid|strasid|duch|upír|upir|netopýr|netopyr|koled/,
@@ -97,6 +108,7 @@
       id: 'podzim', when: [dm(20, 9, 16, 10), dm(3, 11, 8, 11), dm(13, 11, 24, 11)],
       nazev: 'Podzim', pozdrav: 'Barevný podzim je tu! 🍂',
       ozdoby: ['🍂', '🍁', '🍃', '🌰'], pohyb: 'fall',
+      theo: 'Venku je barevný podzim! Pouštěli jste už draka? 🍂',
       bart: 'Haf! Hromada listí!',
       chat: ['Na podzim skáču do hromad listí. Pak jsem celý barevný! 🍂', 'Pouštíš draka? Já za ním běžím! 🪁'],
     },
@@ -104,6 +116,7 @@
       id: 'martin', when: [dm(9, 11, 12, 11)],
       nazev: 'Svatý Martin', pozdrav: 'Martin přijíždí na bílém koni! 🐴❄️',
       ozdoby: ['❄️', '🐴', '🥐', '❅'], pohyb: 'fall',
+      theo: 'Martin přijíždí na bílém koni! Uvidíme, jestli přiveze sníh. ❄️',
       bart: 'Haf! Jede Martin!',
       chat: ['Martin přijel na bílém koni. Já bych přijel na skateboardu! 🛹', 'Svatomartinské rohlíčky… dáš mi jeden? 🥐'],
     },
@@ -111,6 +124,7 @@
       id: 'mikulas', when: [dm(4, 12, 6, 12)],
       nazev: 'Mikuláš', pozdrav: 'Mikuláš, anděl a čert jdou! 😇😈',
       ozdoby: ['😇', '😈', '⭐', '🍬', '❄️'], pohyb: 'fall',
+      theo: 'Dneska chodí Mikuláš, anděl a čert! Byli jste hodní? 😇😈',
       bart: 'Haf! Byl jsi hodný?',
       chat: ['Já jsem dneska čert! Ale hodný čert. Grrr… haf! 😈', 'Byl jsem celý rok hodný. Skoro. Ten gauč se nepočítá. 😇', 'Mikuláši, nezlob se, že jsem snědl uhlí. 🍬'],
       klic: /mikul|čert|cert|anděl|andel/,
@@ -119,6 +133,7 @@
       id: 'vanoce', when: [dm(25, 11, 30, 12)],
       nazev: 'Vánoce', pozdrav: 'Veselé Vánoce! 🎄',
       ozdoby: ['❄️', '❅', '🎄', '⭐', '🎁', '❆'], pohyb: 'fall',
+      theo: 'Veselé Vánoce! Ať najdete pod stromečkem, co si přejete. 🎄',
       bart: 'Haf! Veselé Vánoce!',
       chat: ['Veselé Vánoce! Pod stromečkem chci kost. Velkou. 🎁', 'Ozdoby na stromečku vypadají jako míčky. Nesmím je honit… 🎄', 'Ježíšek mi letos nese pamlsky, viď? 🎅'],
       klic: /vánoc|vanoc|ježíš|jezis|stromeč|stromec|dárk|dark|sníh|snih/,
@@ -256,6 +271,7 @@
 .sz-prepinac{position:fixed;left:8px;bottom:8px;z-index:2147483001;width:34px;height:34px;border-radius:50%;border:0;background:rgba(255,255,255,.75);box-shadow:0 2px 8px rgba(0,0,0,.2);font-size:18px;line-height:34px;padding:0;cursor:pointer;opacity:.55;transition:opacity .2s}
 .sz-prepinac:hover,.sz-prepinac:focus-visible{opacity:1}
 .sz-skryte .sz-pozadi{display:none}
+@media (max-width:700px){.sz-pozadi .sz-o{opacity:.45}}
 @media (prefers-reduced-motion:reduce){.sz-pozadi span,.sz-pozadi i{animation:none!important}}
 `;
   const style = document.createElement('style');

@@ -128,8 +128,15 @@ header{display:flex;align-items:center;gap:20px;padding:6px 0 16px;margin-bottom
   :root[data-svatek="prazdniny"]:not([data-theme="light"]){--blue:#5cc8f5;--green:#ffb04d}
   :root[data-svatek="masopust"]:not([data-theme="light"]),:root[data-svatek="novy-rok"]:not([data-theme="light"]),:root[data-svatek="den-deti"]:not([data-theme="light"]){--blue:#b28cff;--green:#ff7ab3}
 }
-.svatek-pruh{margin:-20px 0 32px;padding:12px 18px;border-radius:16px;background:var(--blueSoft);border:2px dashed var(--blue);color:var(--blue);font-family:"Baloo 2","Nunito",sans-serif;font-weight:800;font-size:clamp(20px,4vw,26px);line-height:1.2;text-align:center}
-.svatek-pruh[hidden]{display:none}
+.theo-rika{display:flex;align-items:flex-end;gap:14px;margin:-16px 0 34px;max-width:720px}
+.theo-rika[hidden]{display:none}
+.theo-rika img{flex:none;width:64px;height:64px;border-radius:50%;object-fit:cover;object-position:50% 20%;border:4px solid var(--blue);background:var(--blueSoft)}
+.theo-rika p{position:relative;margin:0 0 10px;padding:12px 18px;border-radius:20px;border-bottom-left-radius:6px;background:var(--panel);border:3px solid var(--blue);font-family:"Baloo 2","Nunito",sans-serif;font-weight:700;font-size:clamp(18px,3.4vw,23px);line-height:1.25;animation:theo-pop .5s cubic-bezier(.2,1.4,.4,1) .3s both}
+.theo-rika p::before{content:"";position:absolute;left:-14px;bottom:8px;border:8px solid transparent;border-right:12px solid var(--blue);border-left:0}
+.theo-rika p::after{content:"";position:absolute;left:-9px;bottom:11px;border:5px solid transparent;border-right:8px solid var(--panel);border-left:0}
+.theo-rika b{display:block;font-size:15px;color:var(--blue);font-family:"Nunito",sans-serif;font-weight:800}
+@keyframes theo-pop{from{opacity:0;transform:scale(.6) translateY(10px);transform-origin:0 100%}}
+@media (prefers-reduced-motion:reduce){.theo-rika p{animation:none}}
 .bart .k{display:none}
 :root[data-svatek="vanoce"] .k-santa,:root[data-svatek="vanoce"] .k-sala,
 :root[data-svatek="halloween"] .k-upir,
@@ -206,7 +213,10 @@ header{display:flex;align-items:center;gap:20px;padding:6px 0 16px;margin-bottom
     <h1><img class="logo" src="img/logo-tj.svg" alt="TJ – Theodor" width="262" height="120"></h1>
   </header>
 
-  <p class="svatek-pruh" id="svatek-pruh" hidden></p>
+  <div class="theo-rika" id="theo-rika" hidden>
+    <img src="img/theodor.jpg" alt="" width="64" height="64">
+    <p><b>Theo říká:</b><span id="theo-text"></span></p>
+  </div>
 
   <section class="profile" aria-labelledby="who">
     <img class="photo" src="img/theodor.jpg" alt="Theodor na horách" width="640" height="800">
@@ -757,9 +767,8 @@ buildMenu();
 const SV = window.SVATEK;
 const bart = document.querySelector('.bart');
 if (SV) {
-  const pruh = document.getElementById('svatek-pruh');
-  pruh.textContent = SV.pozdrav;
-  pruh.hidden = false;
+  document.getElementById('theo-text').textContent = SV.theo || SV.pozdrav;
+  document.getElementById('theo-rika').hidden = false;
   bart.querySelector('.bubble').textContent = SV.bart;
 }
 
