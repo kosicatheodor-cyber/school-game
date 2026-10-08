@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Svátky a dny</title>
+<meta name="description" content="Co se slaví během roku – svátky, tradice a zajímavosti pro děti.">
+<link rel="icon" href="img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito:wght@400;600;700;800&display=swap&subset=latin-ext" rel="stylesheet">
+<script src="/hra.js"></script>
+<style>
+:root{
+  --bg:#eef4ff; --panel:#ffffff; --ink:#14315e; --muted:#4f6585; --line:#d3e1f4;
+  --blue:#2563c9; --blueSoft:#e3edfc; --green:#22994f; --greenSoft:#e2f5e9; --sun:#fff4cc; --sunInk:#7a5a00;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0d1a2e; --panel:#13253f; --ink:#f2f7ff; --muted:#a7b9d4; --line:#28426a;
+    --blue:#6ea3ff; --blueSoft:#1a3358; --green:#5fd38c; --greenSoft:#163a2a; --sun:#3a3214; --sunInk:#ffe28a;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0d1a2e; --panel:#13253f; --ink:#f2f7ff; --muted:#a7b9d4; --line:#28426a;
+  --blue:#6ea3ff; --blueSoft:#1a3358; --green:#5fd38c; --greenSoft:#163a2a; --sun:#3a3214; --sunInk:#ffe28a;
+}
+*,*::before,*::after{box-sizing:border-box}
+html{scroll-behavior:smooth}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Nunito","Trebuchet MS",Arial,sans-serif;font-size:18px;line-height:1.55}
+.wrap{max-width:860px;margin:0 auto;padding:64px 16px 64px}
+h1,h2,h3{font-family:"Baloo 2","Nunito",sans-serif;font-weight:800;line-height:1.1;margin:0}
+h1{font-size:clamp(40px,8vw,60px);color:var(--blue)}
+.intro{margin:6px 0 22px;font-size:20px;color:var(--muted);max-width:36em}
+
+.nav{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 32px;padding:0;list-style:none}
+.nav a{display:flex;align-items:center;gap:6px;border-radius:999px;padding:5px 12px;background:var(--panel);border:2px solid var(--line);color:var(--ink);text-decoration:none;font-weight:700;font-size:15px}
+.nav a:hover{border-color:var(--blue)}
+.nav a.now{background:var(--blue);border-color:var(--blue);color:#fff}
+.nav a:focus-visible,.card a:focus-visible,.quiz button:focus-visible{outline:3px solid var(--green);outline-offset:2px}
+
+.list{display:flex;flex-direction:column;gap:22px}
+.card{position:relative;background:var(--panel);border:2px solid var(--line);border-left:10px solid var(--c,var(--blue));border-radius:22px;padding:22px 26px 24px;scroll-margin-top:24px}
+.card.now{box-shadow:0 0 0 4px color-mix(in srgb,var(--c,var(--blue)) 35%,transparent)}
+.card:target{animation:svit 1.6s ease-out}
+@keyframes svit{from{box-shadow:0 0 0 14px color-mix(in srgb,var(--c,var(--blue)) 45%,transparent)}}
+.head{display:flex;align-items:center;gap:16px;margin-bottom:12px}
+.emoji{flex:none;font-size:56px;line-height:1}
+.head h2{font-size:clamp(28px,5vw,36px);color:var(--c,var(--blue))}
+.date{font-weight:800;color:var(--muted);font-size:16px}
+.badge{display:inline-block;margin-left:8px;padding:2px 10px;border-radius:999px;background:var(--c,var(--blue));color:#fff;font-size:13px;font-weight:800;vertical-align:2px}
+.card p{margin:0 0 12px}
+.card h3{font-size:20px;margin:14px 0 6px}
+.card ul{margin:0 0 12px;padding-left:22px}
+.card li{margin:2px 0}
+.fact{margin:14px 0 0;padding:12px 16px;border-radius:14px;background:var(--sun);color:var(--ink)}
+.fact b{color:var(--sunInk)}
+.quiz{margin-top:14px;padding:14px 16px;border-radius:14px;background:var(--blueSoft)}
+.quiz .q{font-weight:800;margin:0 0 8px}
+.quiz .opts{display:flex;flex-wrap:wrap;gap:8px}
+.quiz button{font:inherit;font-weight:700;font-size:16px;padding:6px 14px;border-radius:999px;border:2px solid var(--line);background:var(--panel);color:var(--ink);cursor:pointer}
+.quiz button:hover{border-color:var(--blue)}
+.quiz button.ok{background:var(--green);border-color:var(--green);color:#fff}
+.quiz button.bad{background:#c0392b;border-color:#c0392b;color:#fff}
+.quiz .res{margin:8px 0 0;font-weight:800;min-height:1.5em}
+.quiz .res.ok{color:var(--green)}
+.quiz .res.bad{color:#c0392b}
+.more{display:inline-block;margin-top:14px;font-weight:800;color:var(--c,var(--blue))}
+/* Sváteční obrázky na pozadí tu jen jemně, ať se dobře čte. */
+.sz-pozadi .sz-o{opacity:.35}
+@media (max-width:560px){
+  .card{padding:18px 18px 20px;border-left-width:7px}
+  .emoji{font-size:44px}
+}
+</style>
+</head>
+<body>
+<main class="wrap">
+  <h1>Svátky a dny</h1>
+  <p class="intro">Co se během roku slaví a proč? Najdeš tu svátky, tradice i zajímavosti. Na konci každého svátku je malý kvíz – zkus ho!</p>
+  <ul class="nav" id="nav" aria-label="Rychlý skok na svátek"></ul>
+  <div class="list" id="list"></div>
+</main>
+
+<script>
+// Texty o svátcích. Data se počítají v /hra.js (Velikonoce a masopust jsou každý rok jindy).
+const C = { modra: '#2563c9', cervena: '#c62f2f', zelena: '#22994f', oranzova: '#d9661c', fialova: '#7a3fc2', ruzova: '#d63a6f', hneda: '#9a6324', tyrkys: '#0b8fc4' };
+const OBSAH = {
+  'novy-rok': {
+    e: '🎆', c: C.fialova, datum: '31. prosince a 1. ledna',
+    co: 'Na Silvestra se loučíme se starým rokem a o půlnoci vítáme nový. 1. ledna je navíc Den obnovy samostatného českého státu – v roce 1993 vznikla Česká republika.',
+    jak: ['o půlnoci si lidé přejí šťastný nový rok', 'na nebi bouchají ohňostroje', 'lidé si dávají novoroční předsevzetí – co chtějí v novém roce dělat lépe'],
+    fakt: 'Silvestr dostal jméno podle papeže Silvestra, který zemřel 31. prosince.',
+    kviz: { q: 'Který stát vznikl 1. ledna 1993?', a: ['Česká republika', 'Rakousko', 'Polsko'], ok: 0 },
+  },
+  valentyn: {
+    e: '💖', c: C.ruzova, datum: '14. února',
+    co: 'Svátek lásky a přátelství. Jmenuje se podle svatého Valentina, kněze, který žil ve starém Římě.',
+    jak: ['lidé si posílají přáníčka se srdíčky', 'dávají si kytičky nebo malé dárky', 'můžeš udělat radost kamarádovi, babičce nebo celé třídě'],
+    fakt: 'Česká tradice lásky je hlavně 1. máj – Valentýn k nám přišel z ciziny teprve nedávno.',
+    kviz: { q: 'Podle koho se Valentýn jmenuje?', a: ['podle krále', 'podle svatého Valentina', 'podle básníka'], ok: 1 },
+  },
+  masopust: {
+    e: '🎭', c: C.fialova,
+    co: 'Masopust je veselé období mezi Třemi králi a Popeleční středou. Lidé se před dlouhým postem pořádně najedli a užili si zábavu. Po masopustu začíná 40 dní půstu až do Velikonoc.',
+    jak: ['vesnicí prochází průvod masek – medvěd, kobyla, kominík, smrtka…', 'pečou se koblihy', 've školách a městech se pořádají karnevaly'],
+    fakt: 'Masopustní masky z okolí Hlinska jsou zapsané na seznamu UNESCO – patří mezi nejvzácnější tradice světa.',
+    kviz: { q: 'Co začíná hned po masopustu?', a: ['prázdniny', 'půst', 'Vánoce'], ok: 1 },
+  },
+  zima: {
+    e: '⛄', c: C.tyrkys, datum: 'od 21. prosince do 20. března',
+    co: 'Zima začíná zimním slunovratem – to je nejkratší den a nejdelší noc v roce. Pak se dny zase pomalu prodlužují.',
+    jak: ['stavíme sněhuláky, bobujeme a bruslíme', 'krmíme ptáčky v krmítku', 'ježek, medvěd nebo sysel spí zimním spánkem'],
+    fakt: 'Každá sněhová vločka má šest cípů – a prý nenajdeš dvě úplně stejné.',
+    kviz: { q: 'Které zvíře spí zimním spánkem?', a: ['ježek', 'liška', 'veverka'], ok: 0 },
+  },
+  'den-ucitelu': {
+    e: '🍎', c: C.zelena, datum: '28. března',
+    co: 'V tento den se v roce 1592 narodil Jan Amos Komenský – slavný český učitel, kterému se říká „učitel národů“. Chtěl, aby se učily všechny děti a aby je učení bavilo.',
+    jak: ['děti děkují svým učitelkám a učitelům', 'nosí jim kytičku nebo přáníčko', 'stačí i obyčejné „děkuju“'],
+    fakt: 'Komenský napsal Orbis pictus – „Svět v obrazech“. Byla to jedna z prvních učebnic s obrázky pro děti na světě.',
+    kviz: { q: 'Jak se říká Komenskému?', a: ['otec vlasti', 'učitel národů', 'král básníků'], ok: 1 },
+  },
+  velikonoce: {
+    e: '🐣', c: C.zelena,
+    co: 'Velikonoce jsou nejdůležitější křesťanský svátek – slaví se zmrtvýchvstání Ježíše Krista. Jsou to také svátky jara. Každý rok vycházejí jindy: Velikonoční neděle je první neděle po prvním jarním úplňku.',
+    jak: ['malují se vajíčka – kraslice', 'na Velikonoční pondělí chodí kluci s pomlázkou z vrbových proutků a koledují', 'peče se beránek a mazanec'],
+    fakt: 'Na Zelený čtvrtek prý „odlétají zvony do Říma“. Až do soboty místo nich kluci chodí s dřevěnými řehtačkami.',
+    kviz: { q: 'Z čeho se plete pomlázka?', a: ['z vrbových proutků', 'z provázku', 'ze slámy'], ok: 0 },
+  },
+  carodejnice: {
+    e: '🧹', c: C.oranzova, datum: '30. dubna',
+    co: 'Filipojakubská noc. Lidé kdysi věřili, že se v ní slétají čarodějnice. Na kopcích proto pálili ohně, aby je zahnali a ochránili vesnici.',
+    jak: ['pálí se velký oheň a na něm figurína čarodějnice', 'děti se převlékají za čarodějnice a čaroděje', 'opékají se buřty'],
+    fakt: 'Proč koště? Podle starých pověstí na něm čarodějnice létaly na své shromáždění.',
+    kviz: { q: 'Jak se jmenuje noc pálení čarodějnic?', a: ['Filipojakubská', 'Svatojánská', 'Silvestrovská'], ok: 0 },
+  },
+  maj: {
+    e: '🌸', c: C.ruzova, datum: '1. května',
+    co: 'První máj je Svátek práce a hlavně „lásky čas“. Básník Karel Hynek Mácha napsal slavnou báseň Máj, která začíná: „Byl pozdní večer – první máj…“',
+    jak: ['zamilovaní se líbají pod rozkvetlou třešní', 'na návsi se staví vysoká ozdobená máje', 'lidé chodí na procházky rozkvetlou přírodou'],
+    fakt: 'Podle tradice holka, která na 1. máje nedostane pusu pod rozkvetlým stromem, do roka „uschne“.',
+    kviz: { q: 'Kdo napsal báseň Máj?', a: ['Karel Hynek Mácha', 'Karel Čapek', 'Jan Werich'], ok: 0 },
+  },
+  'den-vitezstvi': {
+    e: '🕊️', c: C.modra, datum: '8. května',
+    co: '8. května 1945 skončila v Evropě druhá světová válka. Vzpomínáme na lidi, kteří za svobodu bojovali, a slavíme mír.',
+    jak: ['lidé pokládají květiny k pomníkům', 'na budovách vlají vlajky', 'je státní svátek, nejde se do školy'],
+    fakt: 'Plzeň osvobodila v květnu 1945 americká armáda, Prahu sovětská armáda. Pražané předtím povstali sami – Pražské povstání.',
+    kviz: { q: 'Který rok skončila druhá světová válka v Evropě?', a: ['1918', '1945', '1989'], ok: 1 },
+  },
+  'den-deti': {
+    e: '🎈', c: C.tyrkys, datum: '1. června',
+    co: 'Mezinárodní den dětí – svátek všech dětí na světě. Připomíná, že každé dítě má mít domov, jídlo, školu i čas na hraní.',
+    jak: ['ve městech jsou soutěže, skákací hrady a hry', 'děti dostávají malé dárky', 'rodiny jdou spolu na výlet'],
+    fakt: 'Práva dětí jsou sepsaná v Úmluvě o právech dítěte. Patří mezi ně i právo na hru a odpočinek!',
+    kviz: { q: 'Na co mají všechny děti právo?', a: ['na hru a odpočinek', 'na vlastní auto', 'na nekonečné sladkosti'], ok: 0 },
+  },
+  prazdniny: {
+    e: '☀️', c: C.oranzova, datum: 'od 1. července do 31. srpna',
+    co: 'Hlavní prázdniny začínají po rozdání vysvědčení na konci června. Dva měsíce bez školy na odpočinek, výlety a zážitky.',
+    jak: ['jezdí se k vodě, na hory nebo k babičce', 'děti jezdí na tábory', 'hrajeme si venku dlouho do večera'],
+    fakt: 'Nejdelší den v roce je kolem 21. června – letní slunovrat. Slunce tehdy zapadá až po deváté večer.',
+    kviz: { q: 'Kdy je nejdelší den v roce?', a: ['kolem 21. června', 'kolem 21. prosince', '1. září'], ok: 0 },
+  },
+  'cyril-metodej': {
+    e: '📜', c: C.hneda, datum: '5. července',
+    co: 'Bratři Cyril (původně Konstantin) a Metoděj přišli v roce 863 na Velkou Moravu. Pozval je kníže Rostislav, aby lidi učili křesťanství v jazyce, kterému rozumějí.',
+    jak: ['je státní svátek', 'na Velehradě se koná velká pouť', 'vzpomínáme, že nám bratři přinesli první slovanské písmo'],
+    fakt: 'Cyril vymyslel písmo hlaholici. Z ní později vznikla cyrilice, kterou se dodnes píše třeba v Bulharsku nebo na Ukrajině.',
+    kviz: { q: 'Jak se jmenuje písmo, které vymyslel Cyril?', a: ['latinka', 'hlaholice', 'runy'], ok: 1 },
+  },
+  hus: {
+    e: '📖', c: C.hneda, datum: '6. července',
+    co: 'Mistr Jan Hus byl kněz a učitel na pražské univerzitě. Kázal v Betlémské kapli česky, aby mu rozuměli všichni lidé, a kritizoval chyby v církvi. Za své názory byl 6. července 1415 upálen v Kostnici.',
+    jak: ['je státní svátek', 'večer se na kopcích zapalují husitské ohně', 'připomínáme si, že je důležité hledat pravdu'],
+    fakt: 'Husovi se připisuje zavedení háčků a čárek do češtiny – díky němu píšeme č, ř, š nebo á.',
+    kviz: { q: 'Kde kázal Jan Hus?', a: ['v Betlémské kapli', 'na Karlštejně', 've Vatikánu'], ok: 0 },
+  },
+  skola: {
+    e: '📚', c: C.modra, datum: '1. září',
+    co: 'Začíná nový školní rok. Prvňáčci jdou do školy úplně poprvé a ostatní se vracejí ke kamarádům.',
+    jak: ['prvňáčci dostávají aktovku a často i sladký kornout', 'balí se nové sešity a penál', 'první den ve škole bývá kratší'],
+    fakt: 'Povinnou školní docházku zavedla v roce 1774 císařovna Marie Terezie.',
+    kviz: { q: 'Kdo zavedl povinnou školní docházku?', a: ['Karel IV.', 'Marie Terezie', 'T. G. Masaryk'], ok: 1 },
+  },
+  'svaty-vaclav': {
+    e: '👑', c: C.modra, datum: '28. září',
+    co: 'Den české státnosti. Svatý Václav byl český kníže z rodu Přemyslovců. 28. září roku 935 ho ve Staré Boleslavi zavraždil jeho bratr Boleslav. Stal se patronem – ochráncem – české země.',
+    jak: ['je státní svátek', 'zpívá se svatováclavský chorál „Svatý Václave, vévodo české země…“', 'lidé chodí ke Václavově soše v Praze'],
+    fakt: 'Nejcennější český poklad – svatováclavskou korunu – nechal vyrobit Karel IV. Podle pověsti v hoře Blaník spí rytíři svatého Václava a pomohou, až bude české zemi nejhůř.',
+    kviz: { q: 'Kde podle pověsti spí rytíři svatého Václava?', a: ['v Blaníku', 'na Sněžce', 'pod Karlovým mostem'], ok: 0 },
+  },
+  podzim: {
+    e: '🍂', c: C.oranzova, datum: 'od 22. září do 20. prosince',
+    co: 'Podzim začíná podzimní rovnodenností – den a noc jsou stejně dlouhé. Pak se dny zkracují.',
+    jak: ['pouštíme draky', 'sbíráme kaštany a žaludy a děláme z nich zvířátka', 'pozorujeme, jak listí mění barvy'],
+    fakt: 'Listy na podzim žloutnou a červenají, protože strom přestane vyrábět zelené barvivo chlorofyl. Pak je vidět žlutá a oranžová, která v listu byla schovaná. Vlaštovky zatím letí na zimu až do Afriky.',
+    kviz: { q: 'Kam odlétají vlaštovky na zimu?', a: ['do Afriky', 'na Sněžku', 'do Ameriky'], ok: 0 },
+  },
+  vesmir: {
+    e: '🚀', c: C.fialova, datum: 'od 4. do 10. října',
+    co: 'Světový týden vesmíru vyhlásila OSN. Začíná 4. října, protože toho dne v roce 1957 vyletěla na oběžnou dráhu kolem Země první družice Sputnik.',
+    jak: ['ve školách a hvězdárnách jsou přednášky o vesmíru', 'děti staví modely raket', 'večer se můžeš podívat dalekohledem na Měsíc'],
+    fakt: 'Prvním člověkem ve vesmíru byl Jurij Gagarin (1961), první na Měsíci byl Neil Armstrong (1969). Prvním Čechem ve vesmíru byl Vladimír Remek v roce 1978.',
+    kviz: { q: 'Kdo byl první Čech ve vesmíru?', a: ['Vladimír Remek', 'Jaromír Jágr', 'Karel Gott'], ok: 0 },
+  },
+  'vznik-csr': {
+    e: '🇨🇿', c: C.cervena, datum: '28. října',
+    co: 'Den vzniku samostatného československého státu. 28. října 1918, na konci první světové války, vzniklo Československo – společný stát Čechů a Slováků. Předtím jsme patřili k Rakousku-Uhersku.',
+    jak: ['je státní svátek', 'na domech vlají vlajky', 'prezident předává na Pražském hradě vyznamenání'],
+    fakt: 'Prvním prezidentem byl Tomáš Garrigue Masaryk. Československo se 1. ledna 1993 rozdělilo na Českou republiku a Slovensko.',
+    kviz: { q: 'Kdo byl první československý prezident?', a: ['Václav Havel', 'T. G. Masaryk', 'Karel IV.'], ok: 1 },
+  },
+  halloween: {
+    e: '🎃', c: C.oranzova, datum: '31. října',
+    co: 'Halloween pochází od starých Keltů z Irska a Skotska. Věřili, že se tuto noc otevírá brána mezi světem živých a duchů. Dnes je to hlavně strašidelná zábava.',
+    jak: ['vydlabávají se dýně se svíčkou uvnitř', 'děti se převlékají za strašidla a chodí koledovat pro sladkosti', 'v Česku si 2. listopadu na Dušičky zapalujeme svíčky za ty, kdo už nejsou mezi námi'],
+    fakt: 'V Irsku se dřív místo dýní dlabala řepa! Dýně se začaly používat až v Americe.',
+    kviz: { q: 'Co se v Irsku dlabalo dřív místo dýně?', a: ['meloun', 'řepa', 'brambora'], ok: 1 },
+  },
+  martin: {
+    e: '🐴', c: C.tyrkys, datum: '11. listopadu',
+    co: 'Svatý Martin byl římský voják. Podle legendy potkal v mrazu žebráka, rozťal svůj plášť mečem a půlku mu dal. Později se stal biskupem.',
+    jak: ['peče se svatomartinská husa', 'jedí se svatomartinské rohlíčky', 'děti chodí s lampiony v průvodu'],
+    fakt: 'Pranostika říká „Martin přijíždí na bílém koni“ – kolem 11. listopadu často napadne první sníh.',
+    kviz: { q: 'Co udělal Martin se svým pláštěm?', a: ['prodal ho', 'rozdělil se o něj s žebrákem', 'ztratil ho'], ok: 1 },
+  },
+  '17-listopad': {
+    e: '🔑', c: C.modra, datum: '17. listopadu',
+    co: 'Den boje za svobodu a demokracii. 17. listopadu 1939 zavřeli nacisté české vysoké školy. A 17. listopadu 1989 začala studentskou demonstrací v Praze sametová revoluce, která ukončila vládu komunistů.',
+    jak: ['je státní svátek', 'lidé nosí svíčky a květiny na Národní třídu v Praze', 'připomínáme si, jak je svoboda důležitá'],
+    fakt: 'V roce 1989 lidé na náměstích cinkali klíči – jako by říkali „zvoníme vám konec“. Prezidentem se pak stal Václav Havel.',
+    kviz: { q: 'Čím lidé v roce 1989 cinkali na náměstích?', a: ['lžičkami', 'klíči', 'zvonečky'], ok: 1 },
+  },
+  mikulas: {
+    e: '😇', c: C.cervena, datum: '5. prosince večer',
+    co: 'Svatý Mikuláš byl biskup ve městě Myra (dnes je to Turecko). Pomáhal chudým a potají jim daroval peníze. Jeho svátek je 6. prosince, ale nadílka chodí už večer předtím.',
+    jak: ['Mikuláš chodí s andělem a čertem', 'děti řeknou básničku nebo zazpívají písničku', 'hodné děti dostanou nadílku, zlobivé prý uhlí nebo bramboru'],
+    fakt: 'Podle legendy Mikuláš hodil chudé rodině komínem měšec zlaťáků – a ten spadl do punčochy, která se sušila u krbu.',
+    kviz: { q: 'S kým chodí Mikuláš?', a: ['s andělem a čertem', 's Ježíškem', 's Krakonošem'], ok: 0 },
+  },
+  vanoce: {
+    e: '🎄', c: C.zelena, datum: '24.–26. prosince',
+    co: 'O Vánocích slavíme narození Ježíše Krista. Je to svátek rodiny, pohody a obdarovávání. Nejdůležitější je Štědrý den 24. prosince.',
+    jak: ['zdobíme stromeček a pečeme cukroví', 'k večeři bývá kapr a bramborový salát', 'u nás dárky nosí Ježíšek', 'rozkrojí se jablko – hvězdička uvnitř znamená zdraví'],
+    fakt: 'Ježíškova pošta je v Božím Daru v Krušných horách. Kdo se na Štědrý den celý den postí, uvidí prý zlaté prasátko!',
+    kviz: { q: 'Co znamená hvězdička v rozkrojeném jablku?', a: ['zdraví', 'nemoc', 'cestování'], ok: 0 },
+  },
+};
+
+const MESICE = ['ledna', 'února', 'března', 'dubna', 'května', 'června', 'července', 'srpna', 'září', 'října', 'listopadu', 'prosince'];
+const den = d => d.getDate() + '. ' + MESICE[d.getMonth()];
+function datumText(id, s, y) {
+  const o = OBSAH[id];
+  if (o.datum) return o.datum;
+  const [from, to] = s.rozsahy(y)[0];
+  if (id === 'masopust') return 'do ' + den(to) + ' ' + y + ' (masopustní úterý)';
+  if (id === 'velikonoce') return 'Velikonoční neděle ' + den(new Date(to.getFullYear(), to.getMonth(), to.getDate() - 1)) + ' ' + y;
+  return den(from) === den(to) ? den(from) : den(from) + ' – ' + den(to);
+}
+
+// Řazení: od dnešního svátku po kalendáři dál, celý rok dokola.
+const today = new Date(); today.setHours(0, 0, 0, 0);
+// Kdy svátek opravdu je (sváteční výzdoba někdy začíná dřív, třeba Vánoce už v listopadu).
+const KDY = { 'novy-rok': [12, 31], zima: [12, 21], podzim: [9, 22], prazdniny: [7, 1], halloween: [10, 31], vanoce: [12, 24], mikulas: [12, 5] };
+function nextStart(s) {
+  const y0 = today.getFullYear();
+  const active = s.rozsahy(y0).some(([from, to]) => from <= today && today <= to);
+  if (active) return { at: today.getTime(), y: y0 };
+  if (KDY[s.id]) {
+    const [m, d] = KDY[s.id];
+    const t = new Date(y0, m - 1, d);
+    return t >= today ? { at: t.getTime(), y: y0 } : { at: new Date(y0 + 1, m - 1, d).getTime(), y: y0 + 1 };
+  }
+  for (const y of [today.getFullYear(), today.getFullYear() + 1]) {
+    const starts = s.rozsahy(y).filter(([, to]) => to >= today).map(([from]) => from);
+    if (starts.length) return { at: Math.min(...starts), y };
+  }
+  return { at: Infinity, y: today.getFullYear() };
+}
+
+const nowId = window.SVATEK ? window.SVATEK.id : null;
+const items = (window.SVATKY_SEZNAM || []).filter(s => OBSAH[s.id]).map(s => ({ s, ...nextStart(s) }));
+items.sort((a, b) => (b.s.id === nowId) - (a.s.id === nowId) || a.at - b.at);
+
+const el = (tag, cls, text) => { const n = document.createElement(tag); if (cls) n.className = cls; if (text != null) n.textContent = text; return n; };
+const nav = document.getElementById('nav');
+const list = document.getElementById('list');
+for (const { s, y } of items) {
+  const o = OBSAH[s.id];
+  const now = s.id === nowId;
+
+  const li = el('li'); const a = el('a', now ? 'now' : '');
+  a.href = '#' + s.id; a.append(el('span', '', o.e), el('span', '', s.nazev)); li.append(a); nav.append(li);
+
+  const card = el('article', 'card' + (now ? ' now' : ''));
+  card.id = s.id; card.style.setProperty('--c', o.c);
+  const head = el('div', 'head');
+  const title = el('div');
+  const h2 = el('h2', '', s.nazev);
+  const date = el('div', 'date', datumText(s.id, s, y));
+  if (now) date.append(el('span', 'badge', 'Právě teď'));
+  title.append(h2, date);
+  const emoji = el('span', 'emoji', o.e); emoji.setAttribute('aria-hidden', 'true');
+  head.append(emoji, title);
+  card.append(head, el('p', '', o.co), el('h3', '', 'Jak se slaví'));
+  const ul = el('ul'); for (const t of o.jak) ul.append(el('li', '', t)); card.append(ul);
+  const fact = el('p', 'fact'); fact.append(el('b', '', 'Věděl jsi, že…? '), document.createTextNode(o.fakt)); card.append(fact);
+
+  const quiz = el('div', 'quiz');
+  quiz.append(el('p', 'q', '❓ ' + o.kviz.q));
+  const opts = el('div', 'opts'); const res = el('p', 'res'); res.setAttribute('role', 'status');
+  o.kviz.a.forEach((txt, i) => {
+    const b = el('button', '', txt); b.type = 'button';
+    b.addEventListener('click', () => {
+      opts.querySelectorAll('button').forEach(x => x.classList.remove('ok', 'bad'));
+      if (i === o.kviz.ok) { b.classList.add('ok'); res.className = 'res ok'; res.textContent = 'Správně! 🎉'; }
+      else { b.classList.add('bad'); res.className = 'res bad'; res.textContent = 'Ještě jednou – zkus jinou odpověď.'; }
+    });
+    opts.append(b);
+  });
+  quiz.append(opts, res); card.append(quiz);
+
+  const more = el('a', 'more', 'Podívej se, jak web vypadá o tomhle svátku →'); more.href = '/?svatek=' + s.id;
+  card.append(more);
+  list.append(card);
+}
+// Po načtení skoč na svátek z adresy (např. svatky.html#vanoce).
+if (location.hash) { const t = document.getElementById(decodeURIComponent(location.hash.slice(1))); if (t) t.scrollIntoView(); }
+</script>
+</body>
+</html>

@@ -31,3 +31,9 @@ Na konec adresy přidej `?svatek=vanoce` – třeba `theodorek.cz/?svatek=hallow
 Svátky: novy-rok, valentyn, masopust, zima, velikonoce, carodejnice, den-deti,
 prazdniny, skola, podzim, halloween, martin, mikulas, vanoce,
 den-ucitelu, maj, den-vitezstvi, cyril-metodej, hus, svaty-vaclav, vesmir, vznik-csr, 17-listopad.
+
+## Stránka o svátcích
+
+Kliknutím na Theovu fotku se otevře `svatky.html` – co se slaví, jak, zajímavost a kvíz.
+Texty jsou přímo v `svatky.html` (objekt `OBSAH`). Když přidáš nový svátek do `hra.js`,
+přidej mu tam i povídání, jinak se na stránce neukáže.

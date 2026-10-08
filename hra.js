@@ -232,6 +232,8 @@
   } catch { svatek = vyber(new Date()); }
 
   window.SVATEK = svatek;
+  // Pro stránku svatky.html: všechny svátky a jejich data v daném roce.
+  window.SVATKY_SEZNAM = SVATKY.map(x => ({ id: x.id, nazev: x.nazev, rozsahy: y => x.when.map(r => r(y)) }));
   if (svatek) document.documentElement.dataset.svatek = svatek.id;
 
   // Pohyblivé obrázky na pozadí každého svátku.
