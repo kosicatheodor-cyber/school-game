@@ -24,10 +24,77 @@
   // Pořadí je důležité: vyhrává první svátek, do kterého dnešek padne.
   const SVATKY = [
     {
+      id: 'den-ucitelu', when: [dm(28, 3, 28, 3)],
+      nazev: 'Den učitelů', pozdrav: 'Dnes je Den učitelů! 🍎',
+      theo: 'Den učitelů! Díky, paní učitelky a páni učitelé! 🍎',
+      ozdoby: ['🍎', '✏️', '⭐', '📚'], pohyb: 'fall',
+      bart: 'Haf! Díky, učitelé!',
+      chat: ['Komenský řekl, že škola má být hrou. Proto Theo dělá hry! 🎓', 'Já mám taky učitele – Thea. Naučil mě „podej pac“. 🐾'],
+    },
+    {
+      id: 'maj', when: [dm(1, 5, 1, 5)],
+      nazev: '1. máj', pozdrav: 'Je 1. máj, lásky čas! 🌸',
+      theo: 'Je 1. máj – lásky čas! 🌸',
+      ozdoby: ['🌸', '🌸', '💕', '🌼'], pohyb: 'fall',
+      bart: 'Haf! Lásky čas!',
+      chat: ['Pod rozkvetlou třešní dávám olíznutí. To je psí pusa! 🌸', 'Byl pozdní večer – první máj… a já chtěl ven. 🌙'],
+    },
+    {
+      id: 'den-vitezstvi', when: [dm(8, 5, 8, 5)],
+      nazev: 'Den vítězství', pozdrav: 'Den vítězství 🕊️',
+      theo: 'Den vítězství – v roce 1945 skončila válka. 🕊️',
+      ozdoby: ['🌷', '🕊️', '✨'], pohyb: 'fall',
+      bart: 'Haf! Ať je mír!',
+      chat: ['Holubice je znak míru. Neboj, nehoním ji. 🕊️', 'Mír je, když se všichni mají rádi. I psi a kočky. Skoro. 🌷'],
+    },
+    {
+      id: 'cyril-metodej', when: [dm(5, 7, 5, 7)],
+      nazev: 'Cyril a Metoděj', pozdrav: 'Svatý Cyril a Metoděj 📜',
+      theo: 'Cyril a Metoděj nám přinesli písmo hlaholici! 📜',
+      ozdoby: ['📜', '✨', '☀️'], pohyb: 'fall',
+      bart: 'Haf! Umím hlaholici!',
+      chat: ['Cyril vymyslel písmo hlaholici. Já umím jen „haf“. 📜', 'Bez Cyrila a Metoděje bychom možná neměli knížky! 📚'],
+    },
+    {
+      id: 'hus', when: [dm(6, 7, 6, 7)],
+      nazev: 'Mistr Jan Hus', pozdrav: 'Mistr Jan Hus 📖',
+      theo: 'Mistr Jan Hus říkal: Hledej pravdu! 📖',
+      ozdoby: ['✨', '📖', '🕯️'], pohyb: 'fall',
+      bart: 'Haf! Hledej pravdu!',
+      chat: ['Jan Hus kázal v Betlémské kapli v Praze. Česky, aby mu všichni rozuměli! ⛪', 'Hledej pravdu! A taky pamlsky. Ty hledám pořád. 📖'],
+    },
+    {
+      id: 'svaty-vaclav', when: [dm(27, 9, 28, 9)],
+      nazev: 'Svatý Václav', pozdrav: 'Svatý Václav – Den české státnosti 🇨🇿',
+      theo: 'Dneska je svatý Václav, patron české země! 🐴🇨🇿',
+      ozdoby: ['🍂', '⭐', '🍁', '👑'], pohyb: 'fall',
+      bart: 'Haf! Jsem kníže Bart!',
+      chat: ['Mám svatováclavskou korunu! No… skoro. 👑', 'Svatý Václave, vévodo české země… haf! 🇨🇿', 'Svatý Václav je patron Čech. Já jsem patron gauče. 🛋️'],
+      klic: /v[aá]clav|koruna|kn[ií]že|st[aá]tnost/,
+    },
+    {
+      id: 'vznik-csr', when: [dm(27, 10, 28, 10)],
+      nazev: 'Vznik Československa', pozdrav: 'Narozeniny republiky! 🇨🇿',
+      theo: 'Republika má narozeniny! Vznikla 28. října 1918. 🇨🇿🎉',
+      ozdoby: ['🇨🇿', '✨', '🎉'], pohyb: 'fall',
+      bart: 'Haf! Ať žije republika!',
+      chat: ['Republika má narozeniny! Dostane dort? Já bych si dal kousek. 🎂', 'Prvním prezidentem byl Tomáš Garrigue Masaryk. Měl prý rád koně! 🐎'],
+      klic: /republik|[čc]eskoslov|masaryk|28/,
+    },
+    {
+      id: '17-listopad', when: [dm(16, 11, 17, 11)],
+      nazev: '17. listopad', pozdrav: 'Den boje za svobodu a demokracii 🇨🇿',
+      theo: 'Den boje za svobodu! V roce 1989 lidé zvonili klíči. 🔑',
+      ozdoby: ['🔑', '✨', '🕯️'], pohyb: 'fall',
+      bart: 'Haf! Cinky cink!',
+      chat: ['V roce 1989 lidi zvonili klíči. Já umím zvonit známkou na obojku! 🔑', 'Svoboda je, když můžeš říct, co si myslíš. Já si myslím: pamlsek! 🇨🇿'],
+      klic: /listopad|svobod|demokrac|kl[ií][čc]|1989/,
+    },
+    {
       id: 'novy-rok', when: [dm(31, 12, 31, 12), dm(1, 1, 2, 1)],
       nazev: 'Nový rok', pozdrav: 'Šťastný nový rok! 🎆',
       ozdoby: ['🎉', '✨', '🎊', '🎆'], pohyb: 'fall',
-      theo: 'Přeju vám šťastný nový rok! Ať se vám daří ve škole i v mých hrách. 🎆',
+      theo: 'Šťastný nový rok! Ať se vám daří ve škole i v mých hrách. 🎆',
       bart: 'Haf! Šťastný nový rok!',
       chat: ['Na Silvestra se bojím rachejtlí, tak jsem pod peřinou. Ale šťastný nový rok! 🎆', 'Moje novoroční předsevzetí: víc pamlsků!'],
     },
@@ -59,7 +126,7 @@
       id: 'velikonoce', when: [y => [plus(easter(y), -7), plus(easter(y), 1)]],
       nazev: 'Velikonoce', pozdrav: 'Veselé Velikonoce! 🐣',
       ozdoby: ['🥚', '🐣', '🌷', '🐰', '🐥'], pohyb: 'fall',
-      theo: 'Veselé Velikonoce! Kolik vajíček jsi letos vykoledoval? 🐣',
+      theo: 'Veselé Velikonoce! Kolik vajíček jsi vykoledoval? 🐣',
       bart: 'Haf! Kde jsou vajíčka?',
       chat: ['Jsem velikonoční zajíček! Teda pes. S ušima. 🐰', 'Našel jsem vajíčko! …a už ho nemám. Mňam. 🥚', 'Hody, hody, doprovody, dejte vejce malovaný! 🐣'],
     },
@@ -103,6 +170,15 @@
       bart: 'Haf! Bububu! 👻',
       chat: ['Bububu! 👻 Lekl ses? Já taky, z dýně. 🎃', 'Dneska jsem upír! Ale piju jen vodu z misky. 🧛', 'Koledu, nebo vám vyvedu! Nejradši koleduju pamlsky. 🍬', 'Netopýři jsou jako malí létající psi. Haf! 🦇'],
       klic: /halloween|dýn|dyn|strašid|strasid|duch|upír|upir|netopýr|netopyr|koled/,
+    },
+    {
+      id: 'vesmir', when: [dm(4, 10, 10, 10)],
+      nazev: 'Světový týden vesmíru', pozdrav: 'Světový týden vesmíru! 🚀',
+      theo: 'Je Světový týden vesmíru! Už v roce 1957 letěl první Sputnik. 🚀',
+      ozdoby: ['⭐', '✨', '🌟', '☄️'], pohyb: 'fall',
+      bart: 'Haf! Letím ke hvězdám!',
+      chat: ['Do vesmíru letěla i fenka Lajka. Byla to první psí kosmonautka! 🐕‍🦺🚀', 'Na Měsíci bych skákal šestkrát výš. Hop! 🌕', 'Ze všech planet mám nejradši Saturn. Má kolem sebe obojek! 🪐', 'Prvním Čechem ve vesmíru byl Vladimír Remek. 🇨🇿🚀'],
+      klic: /vesm[ií]r|raket|planet|hv[ěe]zd|m[ěe]s[ií]c|kosmonaut|astronaut|ufo|mimozem/,
     },
     {
       id: 'podzim', when: [dm(20, 9, 16, 10), dm(3, 11, 8, 11), dm(13, 11, 24, 11)],
@@ -164,6 +240,45 @@
   // spin (pomalu se točí), hop (přeskáče zprava doleva), fly (přeletí zprava doleva).
   // deti = obrázky na tom hlavním (pozice v % jeho velikosti, velikost jako díl).
   const SCENY = {
+    vesmir: [
+      ['🚀', 130, 'left:3vw;bottom:4vh', 'bob', 1.2, 0], ['🪐', 120, 'right:5vw;top:8vh', 'bob', 5, 0],
+      ['👨‍🚀', 80, 'left:16vw;bottom:14vh', 'bob', 3, -1], ['🛸', 70, 'right:-12vw;top:26vh', 'fly', 11, 0],
+      ['☄️', 60, 'right:-12vw;top:6vh', 'fly', 7, -3], ['🌍', 70, 'left:40vw;top:5vh', 'spin', 40, 0],
+    ],
+    'den-ucitelu': [
+      ['🍎', 100, 'left:3vw;bottom:3vh', 'bob', 2, 0], ['📚', 90, 'left:14vw;bottom:2vh', 'sway', 3, 0],
+      ['💐', 80, 'right:6vw;top:14vh', 'sway', 2, 0],
+    ],
+    maj: [
+      ['🌳', 150, 'left:2vw;bottom:2vh', 'sway', 4, 0, { deti: [
+        ['🌸', 0.25, 'left:20%;top:15%', 'twinkle', 1.4, 0], ['🌸', 0.22, 'left:55%;top:30%', 'twinkle', 1.6, -0.5],
+        ['🌸', 0.24, 'left:38%;top:5%', 'twinkle', 1.2, -0.9],
+      ] }],
+      ['💕', 70, 'left:18vw;bottom:8vh', 'bob', 1.6, 0], ['🐝', 40, 'right:-12vw;top:30vh', 'fly', 12, 0],
+    ],
+    'den-vitezstvi': [
+      ['🕊️', 90, 'right:-12vw;top:14vh', 'fly', 14, 0], ['🌷', 70, 'left:4vw;bottom:2vh', 'sway', 2.4, 0],
+      ['🇨🇿', 90, 'left:12vw;bottom:3vh', 'sway', 2, -1],
+    ],
+    'cyril-metodej': [
+      ['📜', 110, 'left:3vw;bottom:3vh', 'bob', 3, 0], ['⛪', 120, 'left:14vw;bottom:2vh', 'bob', 6, 0],
+    ],
+    hus: [
+      ['📖', 100, 'left:3vw;bottom:3vh', 'bob', 3, 0], ['⛪', 120, 'left:14vw;bottom:2vh', 'bob', 6, 0],
+      ['🕯️', 70, 'left:24vw;bottom:3vh', 'glow', 1.4, 0],
+    ],
+    'svaty-vaclav': [
+      ['🏰', 140, 'left:2vw;bottom:2vh', 'bob', 6, 0], ['🐎', 110, 'right:-14vw;bottom:3vh', 'hop', 14, 0],
+      ['🇨🇿', 80, 'right:6vw;top:12vh', 'sway', 2, 0], ['🛡️', 70, 'left:17vw;bottom:2vh', 'bob', 2.4, 0],
+    ],
+    'vznik-csr': [
+      ['🇨🇿', 120, 'left:3vw;bottom:4vh', 'sway', 2, 0], ['🎆', 100, 'right:6vw;top:10vh', 'twinkle', 2, 0],
+      ['🎆', 70, 'left:40vw;top:6vh', 'twinkle', 2.6, -1], ['🏛️', 110, 'left:16vw;bottom:2vh', 'bob', 6, 0],
+    ],
+    '17-listopad': [
+      ['🕯️', 100, 'left:4vw;bottom:3vh', 'glow', 1.4, 0], ['🕯️', 80, 'left:12vw;bottom:3vh', 'glow', 1.7, -0.5],
+      ['🇨🇿', 90, 'right:6vw;top:12vh', 'sway', 2, 0], ['🔑', 70, 'left:20vw;bottom:4vh', 'sway', 0.5, 0],
+    ],
     'novy-rok': [
       ['🎆', 110, 'left:4vw;top:12vh', 'twinkle', 2.2, 0], ['🎇', 90, 'right:6vw;top:22vh', 'twinkle', 2.6, -1],
       ['🎆', 70, 'left:42vw;top:5vh', 'twinkle', 3, -1.5], ['🥂', 90, 'left:3vw;bottom:3vh', 'sway', 2.5, 0],

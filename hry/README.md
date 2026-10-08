@@ -29,4 +29,5 @@ Obrázek do složky `nahledy` pojmenuj stejně jako hru, jen s koncovkou `.jpg`
 
 Na konec adresy přidej `?svatek=vanoce` – třeba `theodorek.cz/?svatek=halloween`.
 Svátky: novy-rok, valentyn, masopust, zima, velikonoce, carodejnice, den-deti,
-prazdniny, skola, podzim, halloween, martin, mikulas, vanoce.
+prazdniny, skola, podzim, halloween, martin, mikulas, vanoce,
+den-ucitelu, maj, den-vitezstvi, cyril-metodej, hus, svaty-vaclav, vesmir, vznik-csr, 17-listopad.
